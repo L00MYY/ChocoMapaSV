@@ -1,0 +1,16 @@
+# 1. Configuración del editor de código (como VS Code)
+.vscode/
+.idea/
+
+# 2. Archivos basura del Sistema Operativo
+.DS_Store          # Mac
+Thumbs.db          # Windows
+ehthumbs.db        # Windows
+
+# 3. Variables de entorno y credenciales privadas (¡Muy importante!)
+.env
+.env.local
+
+# Ignorar credenciales locales
+js/config.js
+

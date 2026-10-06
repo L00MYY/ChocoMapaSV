@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ChocoMapaSV - Turismo</title>
+    
+    <!-- Tus estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- 1. Estilos de Mapbox GL JS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+
+    <!-- Contenedor del Mapa -->
+    <div id="map"></div>
+
+    <!-- Contenedor de la Tarjeta Flotante -->
+    <div id="info-card" class="card-panel">
+        <p>Selecciona un marcador en el mapa para ver la información.</p>
+    </div>
+
+    <!-- 2. Script de Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    
+    <!-- Tu archivo principal de lógica -->
+    <script type="module" src="js/map.js"></script>
+</body>
+</html>
