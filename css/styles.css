@@ -45,25 +45,32 @@ html, body {
 .app-header {
     display: flex;
     align-items: center;
-    padding: 15px 30px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    padding: 16px 32px;
+    background-color: var(--surface);
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 122, 101, 0.03);
 }
 
 .logo-placeholder {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--dark);
-    margin-right: 15px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px; /* Esquinas suavizadas */
+    border: 3px solid var(--accent-yellow); /* Toque llamativo con el Amarillo Mostaza */
+    background-color: var(--primary);
+    margin-right: 16px;
+    transition: transform 0.2s ease;
+}
+
+.logo-placeholder:hover {
+    transform: rotate(-5deg) scale(1.05);
 }
 
 .app-header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 800;
-    color: var(--dark);
+    letter-spacing: -0.5px;
+    color: var(--primary);
 }
 
 /* 2. Search Container */
