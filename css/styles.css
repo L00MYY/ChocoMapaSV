@@ -1,11 +1,23 @@
+.caacupe-one-regular {
+  font-family: "Caacupe One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 :root {
-    --primary: #FF6B6B;
-    --primary-hover: #FF5252;
-    --dark: #2B2D42;
-    --light: #F8F9FA;
-    --border-color: #E2E8F0;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --font-family: 'Inter', sans-serif;
+    /* Paleta de colores solicitada */
+    --primary: #007A65;          /* Verde Turquesa / Teal Oscuro (Identidad principal) */
+    --primary-hover: #00AFA4;    /* Azul Turquesa Claro / Cerceta */
+    --accent-yellow: #F5B921;    /* Amarillo / Mostaza (Detalles y destacados) */
+    --accent-orange: #EE9037;    /* Naranja Claro (Detalles decorativos secundarios) */
+    --dark: #004D40;             /* Variante más oscura de Teal para textos contrastados */
+    --light: #F0FDF8;            /* Blanco Hueso / Menta claro para fondos de interfaz */
+    --surface: #FFFFFF;          /* Blanco Puro para contenedores elevados y tarjetas */
+    --border-color: #CCF2E8;     /* Borde sutil acoplado a la gama del fondo */
+    
+    /* Sombras */
+    --shadow: 0 4px 20px -2px rgba(0, 122, 101, 0.08), 0 2px 8px -1px rgba(0, 122, 101, 0.04);
+    --font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 html, body {
@@ -16,6 +28,7 @@ html, body {
     background-color: var(--light);
     color: var(--dark);
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 *, *::before, *::after {
