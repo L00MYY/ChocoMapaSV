@@ -1,74 +1,85 @@
-// js/map.js
-
-// 1. Importamos la llave segura desde el archivo de configuración
 import { MAPBOX_TOKEN } from './config.js';
 
-// 2. Asignamos la llave a Mapbox
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-// 3. Inicializamos el mapa con opciones limpias
-const map = new mapboxgl.Map({
-    container: 'map', // El ID del div en el HTML
-    style: 'mapbox://styles/mapbox/outdoors-v12', // Estilo 'outdoors' ideal para turismo (montañas, ríos)
-    center: [-88.8965, 13.7942], // Coordenadas del centro de El Salvador [Longitud, Latitud]
-    zoom: 8, // Nivel de acercamiento inicial
-    pitch: 45, // Ángulo de inclinación (3D) para darle un toque más interactivo
-    bearing: -17.6 // Rotación inicial de la cámara
+// 1. Export map instance to use it elsewhere
+export const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v11', // Cleaner style to make UI pop
+    center: [-89.5597, 13.9941], // Center on Santa Ana city
+    zoom: 13, 
+    pitch: 45, 
+    bearing: -17.6
 });
 
-// 4. Agregar Controles de Navegación (Zoom in/out y brújula)
-// Posición: 'top-right' (arriba a la derecha), 'top-left', 'bottom-right', 'bottom-left'
 const nav = new mapboxgl.NavigationControl({
-    visualizePitch: true // Permite que la brújula muestre el ángulo 3D al interactuar
+    visualizePitch: true 
 });
 map.addControl(nav, 'bottom-right');
 
-// 5. (Opcional) Agregar Control de Escala (Muestra la distancia en Km/Millas en la esquina inferior izquierda)
-const scale = new mapboxgl.ScaleControl({
-    maxWidth: 150,
-    unit: 'metric' // Usa sistema métrico (kilómetros y metros)
-});
-map.addControl(scale, 'bottom-left');
+let activeMarkers = {}; // Object mapping id to { marker, popup }
 
-
-// --- Variables y funciones para gestionar los marcadores turísticos ---
-
-let marcadoresActivos = [];
-
-/**
- * Función para recibir la lista de lugares y colocarlos en el mapa con Mapbox
- * @param {Array} lugares - Lista de objetos (de JSON o Firebase)
- * @param {Function} onSelectLugar - Función que se ejecuta al hacer clic en el pin
- */
-export function renderizarMarcadores(lugares, onSelectLugar) {
-    // Eliminar marcadores anteriores si se actualiza la lista
-    marcadoresActivos.forEach(marker => marker.remove());
-    marcadoresActivos = [];
+export function renderizarMarcadores(lugares) {
+    // Clear old markers if any
+    Object.values(activeMarkers).forEach(item => item.marker.remove());
+    activeMarkers = {};
 
     lugares.forEach(lugar => {
-        // Se crea el pin por defecto de Mapbox (puedes personalizar el color aquí)
-        const marker = new mapboxgl.Marker({
-            color: '#007BFF', // Color azul turismo (puedes cambiarlo al color de tu diseño)
-        })
-            .setLngLat([lugar.lng, lugar.lat])
+        // Choose color based on category
+        let color = '#FF6B6B'; // default
+        if (lugar.category === 'Sitios Históricos') color = '#4ECDC4';
+        if (lugar.category === 'Restaurantes') color = '#FFA07A';
+        if (lugar.category === 'Miradores') color = '#88D49E';
+        if (lugar.category === 'Tours') color = '#FFD166';
+
+        // Create Popup HTML content
+        const popupHTML = `
+            <div class="popup-container">
+                <img src="${lugar.image}" alt="${lugar.name}" class="popup-image">
+                <div class="popup-details">
+                    <span class="popup-category">${lugar.category}</span>
+                    <h3 class="popup-title">${lugar.name}</h3>
+                    <p class="popup-description">${lugar.description}</p>
+                    ${lugar.discount ? `<div class="popup-discount">🏷️ ${lugar.discount}</div>` : ''}
+                </div>
+            </div>
+        `;
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(popupHTML);
+
+        const marker = new mapboxgl.Marker({ color })
+            .setLngLat(lugar.coords)
+            .setPopup(popup) // Bind popup to marker
             .addTo(map);
 
-        // Evento: qué sucede al hacer clic sobre el pin de un lugar turístico
-        marker.getElement().addEventListener('click', () => {
-            // Animación suave de la cámara hacia el lugar seleccionado
-            map.flyTo({
-                center: [lugar.lng, lugar.lat],
-                zoom: 13, // Nos acercamos un poco al lugar
-                essential: true // Asegura que la animación suceda
-            });
-
-            // Llamamos a la función que mostrará la tarjeta en pantalla
-            if (onSelectLugar) {
-                onSelectLugar(lugar);
-            }
-        });
-
-        // Guardamos el marcador en el arreglo para futuras limpiezas
-        marcadoresActivos.push(marker);
+        // Store reference so we can programmatically open the popup
+        activeMarkers[lugar.id] = { marker, popup };
     });
+}
+
+export function openPopupAndFly(lugar) {
+    // Fly map to marker
+    map.flyTo({
+        center: lugar.coords,
+        zoom: 15, // zoom in
+        essential: true,
+        duration: 2000 // smooth animation 2 seconds
+    });
+
+    // Close any other open popups
+    Object.values(activeMarkers).forEach(item => {
+        if (item.popup.isOpen()) {
+            item.popup.remove();
+        }
+    });
+
+    // Open target popup
+    const target = activeMarkers[lugar.id];
+    if (target) {
+        // We need a slight timeout to wait for flyTo to start, otherwise it can look glitchy
+        setTimeout(() => {
+            target.marker.togglePopup();
+        }, 100);
+    }
 }

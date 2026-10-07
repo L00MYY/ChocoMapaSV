@@ -1,12 +1,235 @@
-/* Asegura que toda la pantalla ocupe espacio */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+:root {
+    --primary: #FF6B6B;
+    --primary-hover: #FF5252;
+    --dark: #2B2D42;
+    --light: #F8F9FA;
+    --border-color: #E2E8F0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --font-family: 'Inter', sans-serif;
 }
 
-/* El mapa necesita obligatoriamente un alto definido */
-#map {
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: var(--font-family);
+    background-color: var(--light);
+    color: var(--dark);
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* 1. Top Navigation Bar */
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.logo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--dark);
+    margin-right: 15px;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+
+/* 2. Search Container */
+.search-section {
+    padding: 20px 30px;
+    background-color: var(--light);
+    display: flex;
+    justify-content: center;
+}
+
+.search-box {
+    position: relative;
     width: 100%;
-    height: 100vh; /* O una altura fija como 500px */
+    max-width: 600px;
+}
+
+#search-input {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: #FFFFFF;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.results-list {
+    list-style: none;
+    margin: 5px 0 0 0;
+    padding: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    max-height: 300px;
+    overflow-y: auto;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+}
+
+.results-list.hidden {
+    display: none;
+}
+
+.result-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s ease;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item:hover {
+    background: var(--light);
+}
+
+.result-item-title {
+    font-weight: 600;
+    display: block;
+    font-size: 0.95rem;
+}
+
+.result-item-category {
+    font-size: 0.8rem;
+    color: #64748B;
+}
+
+/* 3. Map Container */
+.map-section {
+    flex: 1; /* Takes up remaining height */
+    padding: 0 30px 30px 30px; /* Padding around the map */
+    display: flex;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    overflow: hidden; /* Ensures the map itself doesn't overflow the rounded corners */
+    box-shadow: var(--shadow);
+}
+
+/* Override Mapbox canvas outline to prevent weird focus ring */
+.mapboxgl-canvas {
+    outline: none;
+}
+
+/* Mapbox Popup Personalizado */
+.mapboxgl-popup {
+    z-index: 20;
+}
+
+.mapboxgl-popup-content {
+    padding: 0;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    font-family: var(--font-family);
+    border: none;
+}
+
+.popup-container {
+    width: 260px;
+}
+
+.popup-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+.popup-details {
+    padding: 15px;
+}
+
+.popup-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.popup-title {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.popup-description {
+    font-size: 0.85rem;
+    color: #555;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.popup-discount {
+    display: inline-block;
+    background-color: #E8F5E9;
+    color: #2E7D32;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #C8E6C9;
+}
+
+.mapboxgl-popup-close-button {
+    background: rgba(255,255,255,0.8);
+    color: #333;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    right: 8px;
+    top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.mapboxgl-popup-close-button:hover {
+    background: white;
 }

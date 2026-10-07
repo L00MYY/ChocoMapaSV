@@ -2,28 +2,47 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ChocoMapaSV - Turismo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChocoMapaSV - Turismo en Santa Ana</title>
     
-    <!-- Tus estilos personalizados -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-    <!-- 1. Estilos de Mapbox GL JS -->
+    <!-- CSS de Mapbox GL JS -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- Contenedor del Mapa -->
-    <div id="map"></div>
+    <div class="app-layout">
+        <!-- 1. Top Navigation Bar -->
+        <header class="app-header">
+            <div class="logo-placeholder"></div>
+            <h1>ChocoMapaSV</h1>
+        </header>
 
-    <!-- Contenedor de la Tarjeta Flotante -->
-    <div id="info-card" class="card-panel">
-        <p>Selecciona un marcador en el mapa para ver la información.</p>
+        <!-- 2. Search Container -->
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Busque una experiencia o sitio" autocomplete="off">
+                <ul id="search-results" class="results-list hidden"></ul>
+            </div>
+        </div>
+
+        <!-- 3. Map Container -->
+        <div class="map-section">
+            <div id="map" class="map-container"></div>
+        </div>
     </div>
 
-    <!-- 2. Script de Mapbox GL JS -->
+    <!-- Script de Mapbox GL JS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
     
-    <!-- Tu archivo principal de lógica -->
-    <script type="module" src="js/map.js"></script>
+    <!-- Archivo principal de lógica -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
