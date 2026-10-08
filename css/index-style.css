@@ -1,0 +1,94 @@
+:root {
+            --coral:    #FF6B6B;
+            --teal:     #4ECDC4;
+            --salmon:   #FFA07A;
+            --mint:     #88D49E;
+            --mustard:  #FFD166;
+            --ink:      #1a1a1a;
+            --ink-soft: #4a4a4a;
+            --paper:    #f7f5f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Manchas decorativas de fondo (misma paleta del mapa) */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: .35;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 520px; height: 520px;
+            background: var(--teal);
+            top: -180px; left: -160px;
+        }
+        body::after {
+            width: 620px; height: 620px;
+            background: var(--mustard);
+            bottom: -220px; right: -200px;
+        }
+
+        .btn-primary {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            padding: 30px 68px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: .01em;
+            color: #ffffff;
+            background: var(--ink);
+            border: none;
+            border-radius: 22px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 24px 50px -20px rgba(26,26,26,.6);
+            transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: #000;
+            box-shadow: 0 32px 60px -22px rgba(26,26,26,.75);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(1);
+        }
+
+        .btn-primary svg {
+            transition: transform .25s ease;
+        }
+
+        .btn-primary:hover svg {
+            transform: translateX(6px);
+        }
+
+        @media (max-width: 520px) {
+            .btn-primary {
+                padding: 22px 40px;
+                font-size: 1.15rem;
+                gap: 12px;
+                border-radius: 18px;
+            }
+        }
