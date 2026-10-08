@@ -5,21 +5,18 @@
 }
 
 :root {
-    /* Nueva Paleta Océano Solicitada */
-    --deep-space-blue: #13293D; /* Azul oscuro para textos principales y contrastes fuertes */
-    --baltic-blue: #006494;     /* Azul báltico para la identidad de marca principal */
-    --cerulean: #247BA0;        /* Azul cerúleo para subtextos, estados y elementos secundarios */
-    --blue-bell: #1B98E0;       /* Azul campana brillante para hovers, focos y enlaces activos */
-    --alice-blue: #E8F1F2;      /* Azul Alice blanquecino para fondos limpios de interfaz */
-    --surface: #FFFFFF;         /* Blanco Puro para tarjetas y contenedores flotantes */
-    --border-color: #D1E3E6;    /* Borde sutil acoplado al fondo claro */
+    /* Paleta de colores solicitada */
+    --primary: #007A65;          /* Verde Turquesa / Teal Oscuro (Identidad principal) */
+    --primary-hover: #00AFA4;    /* Azul Turquesa Claro / Cerceta */
+    --accent-yellow: #F5B921;    /* Amarillo / Mostaza (Detalles y destacados) */
+    --accent-orange: #EE9037;    /* Naranja Claro (Detalles decorativos secundarios) */
+    --dark: #004D40;             /* Variante más oscura de Teal para textos contrastados */
+    --light: #F0FDF8;            /* Blanco Hueso / Menta claro para fondos de interfaz */
+    --surface: #FFFFFF;          /* Blanco Puro para contenedores elevados y tarjetas */
+    --border-color: #CCF2E8;     /* Borde sutil acoplado a la gama del fondo */
     
-    /* Configuración semántica adaptada */
-    --primary: var(--baltic-blue);
-    --primary-hover: var(--blue-bell);
-    --dark: var(--deep-space-blue);
-    --light: var(--alice-blue);
-    --shadow: 0 4px 20px -2px rgba(19, 41, 61, 0.08), 0 2px 8px -1px rgba(19, 41, 61, 0.04);
+    /* Sombras */
+    --shadow: 0 4px 20px -2px rgba(0, 122, 101, 0.08), 0 2px 8px -1px rgba(0, 122, 101, 0.04);
     --font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -44,7 +41,6 @@ html, body {
     height: 100vh;
 }
 
-/* 1. Top Navigation Bar */
 .app-header {
     display: flex;
     align-items: center;
@@ -57,8 +53,8 @@ html, body {
 .logo-placeholder {
     width: 42px;
     height: 42px;
-    border-radius: 12px; /* esquinas suavizadas */
-    border: 3px solid var(--accent-yellow); /*Toque llamativo con el Amarillo*/
+    border-radius: 12px;
+    border: 3px solid var(--accent-yellow);
     background-color: var(--primary);
     margin-right: 16px;
     transition: transform 0.2s ease;
@@ -76,18 +72,24 @@ html, body {
     color: var(--primary);
 }
 
-/* 2. Search Container */
+/* --- BÚSQUEDA Y LEYENDA --- */
 .search-section {
-    padding: 24px 32px;
+    padding: 20px 32px;
     background-color: var(--light);
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Buscador a la izquierda, leyenda a la derecha */
+    align-items: center;
+    gap: 20px;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 500px;
 }
 
 .search-box {
     position: relative;
     width: 100%;
-    max-width: 600px;
 }
 
 #search-input {
@@ -109,155 +111,196 @@ html, body {
     box-shadow: 0 0 0 4px rgba(0, 175, 164, 0.15), var(--shadow);
 }
 
-.results-list {
-    list-style: none;
-    margin: 8px 0 0 0;
-    padding: 6px;
+/* Diseño de la Leyenda de Colores */
+.legend-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
     background: var(--surface);
-    border: 2px solid var(--border-color);
+    padding: 14px 20px;
     border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(0, 77, 64, 0.1);
-    max-height: 280px;
-    overflow-y: auto;
-    position: absolute;
-    width: 100%;
-    z-index: 100;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
 
-.results-list.hidden {
-    display: none;
-}
-
-.result-item {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-radius: 8px; /* items redondeados */
-    margin-bottom: 4px;
-    transition: all 0.2s ease;
-}
-
-.result-item:last-child {
-    margin-bottom: 0;
-}
-
-.result-item:hover {
-    background: rgba(0, 175, 164, 0.08); /*fondo con azul turquesa */
-}
-
-.result-item-title {
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
     font-weight: 600;
-    display: block;
-    font-size: 0.95rem;
     color: var(--dark);
+    gap: 8px;
 }
 
-.result-item-category {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--primary-hover);
-    margin-top: 2px;
+.color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-/* 3. Map Container */
+/* --- SECCIÓN DEL MAPA --- */
 .map-section {
-    flex: 1; /* Takes up remaining height */
-    padding: 0 30px 30px 30px; /* Padding around the map */
+    flex: 1; 
+    padding: 0 30px 30px 30px; 
+    position: relative; /* Clave para que la tarjeta flote en relación a esta caja */
     display: flex;
 }
 
 .map-container {
-    width: 100%;
+    width: 100%; /* Ahora toma todo el ancho disponible */
     height: 100%;
     border-radius: 16px;
     border: 2px solid var(--border-color);
-    overflow: hidden; /* Ensures the map itself doesn't overflow the rounded corners */
+    overflow: hidden; 
     box-shadow: var(--shadow);
 }
 
-/* Override Mapbox canvas outline to prevent weird focus ring */
 .mapboxgl-canvas {
     outline: none;
 }
 
-/* Mapbox Popup Personalizado */
-.mapboxgl-popup {
-    z-index: 20;
-}
-
-.mapboxgl-popup-content {
-    padding: 0;
+/* --- TARJETA FLOTANTE (Overlay) --- */
+.info-sidebar {
+    position: absolute;
+    top: 20px;
+    right: 50px; /* Margen derecho contemplando el padding de map-section */
+    z-index: 10; /* Encima del mapa */
+    width: 340px; 
+    max-height: calc(100% - 40px);
+    background: var(--surface);
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    overflow: hidden;
-    font-family: var(--font-family);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); /* Sombra más fuerte para dar profundidad */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.info-sidebar.hidden {
+    opacity: 0;
+    pointer-events: none; /* Evita que se pueda clickear si está invisible */
+    transform: translateY(10px); /* Efecto de deslizamiento */
+}
+
+/* Botón Cerrar Tarjeta */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.85);
     border: none;
-}
-
-.popup-container {
-    width: 260px;
-}
-
-.popup-image {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    display: block;
-}
-
-.popup-details {
-    padding: 15px;
-}
-
-.popup-category {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 800;
-    color: var(--primary);
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-    display: block;
-}
-
-.popup-title {
-    margin: 0 0 8px 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.popup-description {
-    font-size: 0.85rem;
-    color: #555;
-    margin: 0 0 12px 0;
-    line-height: 1.4;
-}
-
-.popup-discount {
-    display: inline-block;
-    background-color: #E8F5E9;
-    color: #2E7D32;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: 1px solid #C8E6C9;
-}
-
-.mapboxgl-popup-close-button {
-    background: rgba(255,255,255,0.8);
-    color: #333;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    right: 8px;
-    top: 8px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    z-index: 20;
+    transition: background 0.2s, color 0.2s;
 }
 
-.mapboxgl-popup-close-button:hover {
-    background: white;
+.close-btn:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+/* Contenido interno de la tarjeta */
+.sidebar-placeholder {
+    padding: 40px 20px;
+    text-align: center;
+    color: #888;
+    font-weight: 500;
+}
+
+.sidebar-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.sidebar-details {
+    padding: 24px;
+}
+
+.sidebar-category {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: inline-block;
+}
+
+.sidebar-title {
+    margin: 0 0 12px 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.sidebar-description {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+    text-align: justify;
+}
+
+/* --- TOOLTIP HOVER (Popup pequeño nativo de Mapbox) --- */
+.hover-popup .mapboxgl-popup-content {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark);
+    text-align: center;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.hover-popup .mapboxgl-popup-close-button {
+    display: none; 
+}
+.hover-popup .mapboxgl-popup-tip {
+    border-top-color: var(--surface);
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 96px;
+    background-color: var(--surface);
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 122, 101, 0.03);
+    box-sizing: border-box;
+}
+
+.app-logo {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+    background-color: #2e3846;
+    padding: 10px 18px;
+    border-radius: 8px;
+    box-sizing: content-box;
+}
+
+.search-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.search-container {
+    flex: 1;
+    width: 350px;
 }

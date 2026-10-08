@@ -1,0 +1,9 @@
+{
+  "name": "chocomapasv",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-config.js",
+    "dev:config": "node --env-file=.env scripts/build-config.js"
+  }
+}

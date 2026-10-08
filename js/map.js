@@ -1,15 +1,21 @@
+// js/map.js
 import { MAPBOX_TOKEN } from './config.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-// 1. Export map instance to use it elsewhere
+// Se mantienen los límites estáticos. (Aunque tienes la tabla map_settings, es mejor 
+// mantener esto en el JS para que el mapa cargue instantáneamente sin esperar a la BD).
+const limitesElSalvador = [
+    [-90.25, 13.10], 
+    [-87.65, 14.50]  
+];
+
 export const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11', // Cleaner style to make UI pop
-    center: [-89.5597, 13.9941], // Center on Santa Ana city
-    zoom: 13, 
-    pitch: 45, 
-    bearing: -17.6
+    style: 'mapbox://styles/mapbox/light-v11', 
+    center: [-88.8965, 13.7942], 
+    zoom: 8, 
+    maxBounds: limitesElSalvador, 
 });
 
 const nav = new mapboxgl.NavigationControl({
@@ -17,69 +23,80 @@ const nav = new mapboxgl.NavigationControl({
 });
 map.addControl(nav, 'bottom-right');
 
-let activeMarkers = {}; // Object mapping id to { marker, popup }
+let activeMarkers = {}; 
+
+const hoverPopup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false,
+    offset: 25,
+    className: 'hover-popup' 
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-sidebar');
+    const sidebar = document.getElementById('info-sidebar');
+    
+    if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.add('hidden');
+        });
+    }
+});
 
 export function renderizarMarcadores(lugares) {
-    // Clear old markers if any
     Object.values(activeMarkers).forEach(item => item.marker.remove());
     activeMarkers = {};
 
     lugares.forEach(lugar => {
-        // Choose color based on category
-        let color = '#FF6B6B'; // default
-        if (lugar.category === 'Sitios Históricos') color = '#4ECDC4';
-        if (lugar.category === 'Restaurantes') color = '#FFA07A';
-        if (lugar.category === 'Miradores') color = '#88D49E';
-        if (lugar.category === 'Tours') color = '#FFD166';
-
-        // Create Popup HTML content
-        const popupHTML = `
-            <div class="popup-container">
-                <img src="${lugar.image}" alt="${lugar.name}" class="popup-image">
-                <div class="popup-details">
-                    <span class="popup-category">${lugar.category}</span>
-                    <h3 class="popup-title">${lugar.name}</h3>
-                    <p class="popup-description">${lugar.description}</p>
-                    ${lugar.discount ? `<div class="popup-discount">🏷️ ${lugar.discount}</div>` : ''}
-                </div>
-            </div>
-        `;
-
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(popupHTML);
+        // Asignamos el color dinámico que viene de la tabla 'categories' de tu BD
+        const color = lugar.color || '#FF6B6B'; 
 
         const marker = new mapboxgl.Marker({ color })
             .setLngLat(lugar.coords)
-            .setPopup(popup) // Bind popup to marker
             .addTo(map);
 
-        // Store reference so we can programmatically open the popup
-        activeMarkers[lugar.id] = { marker, popup };
+        marker.getElement().addEventListener('mouseenter', () => {
+            hoverPopup.setLngLat(lugar.coords)
+                      .setHTML(`<span>${lugar.name}</span>`)
+                      .addTo(map);
+        });
+
+        marker.getElement().addEventListener('mouseleave', () => {
+            hoverPopup.remove();
+        });
+
+        marker.getElement().addEventListener('click', () => {
+            openPopupAndFly(lugar, color);
+        });
+
+        activeMarkers[lugar.id] = { marker, lugar, color };
     });
 }
 
-export function openPopupAndFly(lugar) {
-    // Fly map to marker
+export function openPopupAndFly(lugar, colorHex) {
     map.flyTo({
         center: lugar.coords,
-        zoom: 15, // zoom in
+        zoom: 15, 
         essential: true,
-        duration: 2000 // smooth animation 2 seconds
+        duration: 2000 
     });
 
-    // Close any other open popups
-    Object.values(activeMarkers).forEach(item => {
-        if (item.popup.isOpen()) {
-            item.popup.remove();
-        }
-    });
+    const sidebar = document.getElementById('info-sidebar');
+    const sidebarContent = document.getElementById('sidebar-content');
+    
+    if (sidebar && sidebarContent) {
+        sidebar.classList.remove('hidden');
+        
+        const color = colorHex || '#FF6B6B';
 
-    // Open target popup
-    const target = activeMarkers[lugar.id];
-    if (target) {
-        // We need a slight timeout to wait for flyTo to start, otherwise it can look glitchy
-        setTimeout(() => {
-            target.marker.togglePopup();
-        }, 100);
+        // Actualizamos lugar.image por lugar.image_url según tu nueva BD
+        sidebarContent.innerHTML = `
+            <img src="${lugar.image_url}" alt="${lugar.name}" class="sidebar-image">
+            <div class="sidebar-details">
+                <span class="sidebar-category" style="color: ${color};">${lugar.category}</span>
+                <h3 class="sidebar-title">${lugar.name}</h3>
+                <p class="sidebar-description">${lugar.description}</p>
+            </div>
+        `;
     }
 }
