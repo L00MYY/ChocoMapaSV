@@ -10,7 +10,8 @@ ehthumbs.db        # Windows
 # 3. Variables de entorno y credenciales privadas (¡Muy importante!)
 .env
 .env.local
+node_modules/
+.vercel/
 
-# Ignorar credenciales locales
+# Generado en build — no subir
 js/config.js
-
