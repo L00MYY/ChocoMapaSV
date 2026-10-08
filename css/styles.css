@@ -55,17 +55,33 @@ html, body {
 .app-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; 
     padding: 16px 32px;
+    min-height: 96px;
+    height: auto;
     background-color: var(--surface);
     border-bottom: 2px solid var(--border-color);
-    box-shadow: 0 4px 12px rgba(0, 122, 101, 0.03);
+    box-shadow: 0 4px 12px rgba(19, 41, 61, 0.03);
+    box-sizing: border-box;
+    gap: 16px;
+}
+
+.app-logo {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+    background-color: #2E3846;
+    padding: 10px 18px;
+    border-radius: 8px;
+    box-sizing: content-box;
 }
 
 .logo-placeholder {
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    border: 3px solid var(--accent-yellow);
+    border: 3px solid var(--blue-bell);
     background-color: var(--primary);
     margin-right: 16px;
     transition: transform 0.2s ease;
