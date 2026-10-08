@@ -3,6 +3,8 @@ import { MAPBOX_TOKEN } from './config.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
+// Se mantienen los límites estáticos. (Aunque tienes la tabla map_settings, es mejor 
+// mantener esto en el JS para que el mapa cargue instantáneamente sin esperar a la BD).
 const limitesElSalvador = [
     [-90.25, 13.10], 
     [-87.65, 14.50]  
@@ -30,14 +32,12 @@ const hoverPopup = new mapboxgl.Popup({
     className: 'hover-popup' 
 });
 
-// Configurar evento del botón cerrar una sola vez
 document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('close-sidebar');
     const sidebar = document.getElementById('info-sidebar');
     
     if (closeBtn && sidebar) {
         closeBtn.addEventListener('click', () => {
-            // Oculta la tarjeta al hacer clic en la X
             sidebar.classList.add('hidden');
         });
     }
@@ -48,11 +48,8 @@ export function renderizarMarcadores(lugares) {
     activeMarkers = {};
 
     lugares.forEach(lugar => {
-        let color = '#FF6B6B'; 
-        if (lugar.category === 'Sitios Históricos') color = '#4ECDC4';
-        if (lugar.category === 'Restaurantes') color = '#FFA07A';
-        if (lugar.category === 'Miradores') color = '#88D49E';
-        if (lugar.category === 'Tours') color = '#FFD166';
+        // Asignamos el color dinámico que viene de la tabla 'categories' de tu BD
+        const color = lugar.color || '#FF6B6B'; 
 
         const marker = new mapboxgl.Marker({ color })
             .setLngLat(lugar.coords)
@@ -92,9 +89,9 @@ export function openPopupAndFly(lugar, colorHex) {
         
         const color = colorHex || '#FF6B6B';
 
-        // Inyectamos los datos SOLO en el contenedor de contenido, protegiendo el botón cerrar
+        // Actualizamos lugar.image por lugar.image_url según tu nueva BD
         sidebarContent.innerHTML = `
-            <img src="${lugar.image}" alt="${lugar.name}" class="sidebar-image">
+            <img src="${lugar.image_url}" alt="${lugar.name}" class="sidebar-image">
             <div class="sidebar-details">
                 <span class="sidebar-category" style="color: ${color};">${lugar.category}</span>
                 <h3 class="sidebar-title">${lugar.name}</h3>
