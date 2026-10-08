@@ -5,20 +5,13 @@
 }
 
 :root {
-    /* Paleta de colores */
-    --primary: #007A65;          /*Verde Turquesa (Identidad principal) */
-    --primary-hover: #00AFA4;    /* Azul Turquesa Claro */
-    --accent-yellow: #F5B921;    /* Amarillo (Detalles y destacados) */
-    --accent-orange: #EE9037;    /* Naranja Claro (Detalles decorativos secundarios) */
-    --dark: #004D40;             /* Variante más oscura de Teal para textos contrastados */
-    --light: #F0FDF8;            /* Blanco Hueso / Menta claro para fondos de interfaz */
-    --surface: #FFFFFF;          /* Blanco Puro para contenedores elevados y tarjetas */
-    --border-color: #CCF2E8;     /* Borde sutil acoplado a la gama del fondo */
-    
-    /* Sombras */
-    --shadow: 0 4px 20px -2px rgba(0, 122, 101, 0.08), 0 2px 8px -1px rgba(0, 122, 101, 0.04);
-    --font-family: 'Plus Jakarta Sans', sans-serif;
-}
+    --deep-space-blue: #13293D;
+    --baltic-blue: #006494;
+    --cerulean: #247BA0;
+    --blue-bell: #1B98E0;
+    --alice-blue: #E8F1F2;
+    --surface: #FFFFFF;
+    --border-color: #D1E3E6;
 
 html, body {
     margin: 0;
@@ -35,6 +28,7 @@ html, body {
     box-sizing: inherit;
 }
 
+/* Contenedor principal*/
 .app-layout {
     display: flex;
     flex-direction: column;
