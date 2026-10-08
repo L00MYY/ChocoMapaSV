@@ -9,26 +9,15 @@ const searchResults = document.getElementById('results-list'); // Ajustado para 
 // Variable para almacenar la data de Supabase y poder buscar en ella en tiempo real
 let lugaresDisponibles = [];
 
-// js/app.js (Reemplaza solo la parte de inicialización)
-document.addEventListener('DOMContentLoaded', async () => {
-    
+// Inicialización: Cargar datos y renderizar cuando el mapa termine de cargar
+map.on('load', async () => {
     // Obtenemos los datos desde Supabase
     lugaresDisponibles = await obtenerLugaresTuristicos();
 
-    // Función auxiliar para pintar los pines
-    const inicializarMarcadores = () => {
-        if (lugaresDisponibles.length > 0) {
-            renderizarMarcadores(lugaresDisponibles);
-        } else {
-            console.warn("La base de datos de Supabase está vacía o no retornó lugares.");
-        }
-    };
-
-    // ¿El mapa fue más rápido que Supabase y ya cargó?
-    if (map.loaded()) {
-        inicializarMarcadores(); // Pintar inmediatamente
+    if (lugaresDisponibles.length > 0) {
+        renderizarMarcadores(lugaresDisponibles);
     } else {
-        map.on('load', inicializarMarcadores); // Esperar a que el mapa avise
+        console.warn("La base de datos de Supabase está vacía o no retornó lugares.");
     }
 });
 
