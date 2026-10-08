@@ -5,7 +5,7 @@
 }
 
 :root {
-    /* 1. Paleta Océano para la Interfaz (Estructura, Textos y Acciones) */
+    /*paleta océano para la interfaz (Estructura, Textos y Acciones) */
     --deep-space-blue: #13293D;
     --baltic-blue: #006494;
     --cerulean: #247BA0;
@@ -99,18 +99,21 @@ html, body {
     color: var(--primary);
 }
 
-/* --- BÚSQUEDA Y LEYENDA --- */
+/* Búsqueda y leyenda*/
 .search-section {
     padding: 20px 32px;
     background-color: var(--light);
     display: flex;
-    justify-content: space-between; /* Buscador a la izquierda, leyenda a la derecha */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
 }
 
 .search-container {
     flex: 1;
+    min-width: 280px;
     max-width: 500px;
 }
 
@@ -135,10 +138,10 @@ html, body {
 
 #search-input:focus {
     border-color: var(--primary-hover);
-    box-shadow: 0 0 0 4px rgba(0, 175, 164, 0.15), var(--shadow);
+    box-shadow: 0 0 0 4px rgba(27, 152, 224, 0.15), var(--shadow);
 }
 
-/* Diseño de la Leyenda de Colores */
+/* Diseño Modular de la Leyenda de Colores */
 .legend-box {
     display: flex;
     flex-wrap: wrap;
