@@ -3,39 +3,90 @@ import { MAPBOX_TOKEN } from './config.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-// Se mantienen los límites estáticos. (Aunque tienes la tabla map_settings, es mejor 
-// mantener esto en el JS para que el mapa cargue instantáneamente sin esperar a la BD).
+// Límites estáticos (se mantienen en JS para que el mapa cargue sin esperar a la BD).
+// Extremos reales de El Salvador: O -90.13, E -87.69, S 13.15, N 14.45
+// Margen de ~0.05° para no cortar territorio.
 const limitesElSalvador = [
-    [-90.25, 13.10], 
-    [-87.65, 14.50]  
+    [-90.18, 13.10], // Suroeste
+    [-87.64, 14.50]  // Noreste
 ];
+
+// Color con el que se "tapan" los países vecinos (cercano al fondo de light-v11)
+const COLOR_MASCARA = '#f2f2f0';
 
 export const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11', 
-    center: [-88.8965, 13.7942], 
-    zoom: 8, 
-    maxBounds: limitesElSalvador, 
+    style: 'mapbox://styles/mapbox/light-v11',
+
+    // Encuadra El Salvador completo según el tamaño real del contenedor
+    // (reemplaza a center + zoom, que no se adaptan a cada pantalla)
+    bounds: limitesElSalvador,
+    fitBoundsOptions: { padding: 10 },
+
+    maxZoom: 17,
+    maxBounds: limitesElSalvador
 });
 
+// El zoom mínimo es el que encuadra el país: no se puede alejar más que eso
+map.on('load', () => {
+    fijarZoomMinimo();
+
+    // Máscara: cubre todos los países excepto El Salvador usando el tileset
+    // oficial de fronteras de Mapbox (no requiere GeoJSON propio).
+    map.addSource('fronteras-paises', {
+        type: 'vector',
+        url: 'mapbox://mapbox.country-boundaries-v1'
+    });
+
+    map.addLayer({
+        id: 'mascara-vecinos',
+        type: 'fill',
+        source: 'fronteras-paises',
+        'source-layer': 'country_boundaries',
+        filter: [
+            'all',
+            ['!=', ['get', 'iso_3166_1'], 'SV'],
+            ['any',
+                ['==', 'all', ['get', 'worldview']],
+                ['in', 'US', ['get', 'worldview']]
+            ]
+        ],
+        paint: {
+            'fill-color': COLOR_MASCARA,
+            'fill-opacity': 1
+        }
+    });
+});
+
+// Si cambia el tamaño de la ventana, recalcula el zoom mínimo
+map.on('resize', fijarZoomMinimo);
+
+function fijarZoomMinimo() {
+    const zoomEncuadre = map.cameraForBounds(limitesElSalvador, { padding: 10 })?.zoom;
+    if (zoomEncuadre) {
+        map.setMinZoom(zoomEncuadre);
+        if (map.getZoom() < zoomEncuadre) map.setZoom(zoomEncuadre);
+    }
+}
+
 const nav = new mapboxgl.NavigationControl({
-    visualizePitch: true 
+    visualizePitch: true
 });
 map.addControl(nav, 'bottom-right');
 
-let activeMarkers = {}; 
+let activeMarkers = {};
 
 const hoverPopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false,
     offset: 25,
-    className: 'hover-popup' 
+    className: 'hover-popup'
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('close-sidebar');
     const sidebar = document.getElementById('info-sidebar');
-    
+
     if (closeBtn && sidebar) {
         closeBtn.addEventListener('click', () => {
             sidebar.classList.add('hidden');
@@ -48,8 +99,8 @@ export function renderizarMarcadores(lugares) {
     activeMarkers = {};
 
     lugares.forEach(lugar => {
-        // Asignamos el color dinámico que viene de la tabla 'categories' de tu BD
-        const color = lugar.color || '#FF6B6B'; 
+        // Color dinámico que viene de la tabla 'categories' de la BD
+        const color = lugar.color || '#FF6B6B';
 
         const marker = new mapboxgl.Marker({ color })
             .setLngLat(lugar.coords)
@@ -76,20 +127,19 @@ export function renderizarMarcadores(lugares) {
 export function openPopupAndFly(lugar, colorHex) {
     map.flyTo({
         center: lugar.coords,
-        zoom: 15, 
+        zoom: 15,
         essential: true,
-        duration: 2000 
+        duration: 2000
     });
 
     const sidebar = document.getElementById('info-sidebar');
     const sidebarContent = document.getElementById('sidebar-content');
-    
+
     if (sidebar && sidebarContent) {
         sidebar.classList.remove('hidden');
-        
+
         const color = colorHex || '#FF6B6B';
 
-        // Actualizamos lugar.image por lugar.image_url según tu nueva BD
         sidebarContent.innerHTML = `
             <img src="${lugar.image_url}" alt="${lugar.name}" class="sidebar-image">
             <div class="sidebar-details">
