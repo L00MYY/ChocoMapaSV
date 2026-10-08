@@ -15,16 +15,42 @@ export const SUPABASE_ANON_KEY = '${supabaseAnonKey}';
 const configPath = path.join(__dirname, '..', 'js', 'config.js');
 
 try {
-  // Asegurarse de que el directorio js/ exista
+  // Asegurarse de que el directorio js/ exista localmente
   const dir = path.dirname(configPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
+  // 1. Escribir archivo local para desarrollo
   fs.writeFileSync(configPath, fileContent, 'utf8');
-  console.log('✅ js/config.js generado con variables de entorno');
+  console.log('✅ js/config.js generado con variables de entorno (Local)');
+
+  // 2. Crear directorio de distribución (dist) para Vercel
+  const distDir = path.join(__dirname, '..', 'dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
+  }
+
+  // 3. Copiar archivos estáticos al directorio dist
+  const itemsToCopy = ['css', 'img', 'js', 'index.html', 'mapa.html'];
+  const rootDir = path.join(__dirname, '..');
+  
+  itemsToCopy.forEach(item => {
+    const srcPath = path.join(rootDir, item);
+    const destPath = path.join(distDir, item);
+    if (fs.existsSync(srcPath)) {
+      // Usar cpSync que está disponible en Node >= 16.7.0
+      fs.cpSync(srcPath, destPath, { recursive: true });
+    }
+  });
+
+  // 4. Escribir archivo en el directorio dist/js
+  const distConfigPath = path.join(distDir, 'js', 'config.js');
+  fs.writeFileSync(distConfigPath, fileContent, 'utf8');
+  console.log('✅ dist/js/config.js generado para Producción en Vercel');
+
 } catch (error) {
-  console.error('❌ Error al generar js/config.js:', error);
+  console.error('❌ Error al generar archivos de configuración:', error);
   process.exit(1);
 }
 
