@@ -5,10 +5,10 @@
 }
 
 :root {
-    /* Paleta de colores solicitada */
-    --primary: #007A65;          /* Verde Turquesa / Teal Oscuro (Identidad principal) */
-    --primary-hover: #00AFA4;    /* Azul Turquesa Claro / Cerceta */
-    --accent-yellow: #F5B921;    /* Amarillo / Mostaza (Detalles y destacados) */
+    /* Paleta de colores */
+    --primary: #007A65;          /*Verde Turquesa (Identidad principal) */
+    --primary-hover: #00AFA4;    /* Azul Turquesa Claro */
+    --accent-yellow: #F5B921;    /* Amarillo (Detalles y destacados) */
     --accent-orange: #EE9037;    /* Naranja Claro (Detalles decorativos secundarios) */
     --dark: #004D40;             /* Variante más oscura de Teal para textos contrastados */
     --light: #F0FDF8;            /* Blanco Hueso / Menta claro para fondos de interfaz */
