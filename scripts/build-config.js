@@ -6,6 +6,12 @@ const mapboxToken = process.env.MAPBOX_TOKEN || '';
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
+console.log('--- VERIFICANDO VARIABLES DE ENTORNO ---');
+console.log(`MAPBOX_TOKEN: ${mapboxToken ? '✅ Presente (' + mapboxToken.length + ' chars)' : '❌ VACÍO'}`);
+console.log(`SUPABASE_URL: ${supabaseUrl ? '✅ Presente' : '❌ VACÍO'}`);
+console.log(`SUPABASE_ANON_KEY: ${supabaseAnonKey ? '✅ Presente (' + supabaseAnonKey.length + ' chars)' : '❌ VACÍO'}`);
+console.log('----------------------------------------');
+
 const fileContent = `// Archivo generado automáticamente en build — NO editar a mano
 export const MAPBOX_TOKEN = '${mapboxToken}';
 export const SUPABASE_URL = '${supabaseUrl}';
