@@ -5,18 +5,21 @@
 }
 
 :root {
-    /* Paleta de colores solicitada */
-    --primary: #007A65;          /* Verde Turquesa / Teal Oscuro (Identidad principal) */
-    --primary-hover: #00AFA4;    /* Azul Turquesa Claro / Cerceta */
-    --accent-yellow: #F5B921;    /* Amarillo / Mostaza (Detalles y destacados) */
-    --accent-orange: #EE9037;    /* Naranja Claro (Detalles decorativos secundarios) */
-    --dark: #004D40;             /* Variante más oscura de Teal para textos contrastados */
-    --light: #F0FDF8;            /* Blanco Hueso / Menta claro para fondos de interfaz */
-    --surface: #FFFFFF;          /* Blanco Puro para contenedores elevados y tarjetas */
-    --border-color: #CCF2E8;     /* Borde sutil acoplado a la gama del fondo */
+    /* Nueva Paleta Océano Solicitada */
+    --deep-space-blue: #13293D; /* Azul oscuro para textos principales y contrastes fuertes */
+    --baltic-blue: #006494;     /* Azul báltico para la identidad de marca principal */
+    --cerulean: #247BA0;        /* Azul cerúleo para subtextos, estados y elementos secundarios */
+    --blue-bell: #1B98E0;       /* Azul campana brillante para hovers, focos y enlaces activos */
+    --alice-blue: #E8F1F2;      /* Azul Alice blanquecino para fondos limpios de interfaz */
+    --surface: #FFFFFF;         /* Blanco Puro para tarjetas y contenedores flotantes */
+    --border-color: #D1E3E6;    /* Borde sutil acoplado al fondo claro */
     
-    /* Sombras */
-    --shadow: 0 4px 20px -2px rgba(0, 122, 101, 0.08), 0 2px 8px -1px rgba(0, 122, 101, 0.04);
+    /* Configuración semántica adaptada */
+    --primary: var(--baltic-blue);
+    --primary-hover: var(--blue-bell);
+    --dark: var(--deep-space-blue);
+    --light: var(--alice-blue);
+    --shadow: 0 4px 20px -2px rgba(19, 41, 61, 0.08), 0 2px 8px -1px rgba(19, 41, 61, 0.04);
     --font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
