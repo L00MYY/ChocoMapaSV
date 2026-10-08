@@ -5,6 +5,7 @@
 }
 
 :root {
+    /* 1. Paleta Océano para la Interfaz (Estructura, Textos y Acciones) */
     --deep-space-blue: #13293D;
     --baltic-blue: #006494;
     --cerulean: #247BA0;
@@ -12,6 +13,22 @@
     --alice-blue: #E8F1F2;
     --surface: #FFFFFF;
     --border-color: #D1E3E6;
+    
+    /* Mapeo semántico de la UI */
+    --primary: var(--baltic-blue);
+    --primary-hover: var(--blue-bell);
+    --dark: var(--deep-space-blue);
+    --light: var(--alice-blue);
+    --shadow: 0 4px 20px -2px rgba(19, 41, 61, 0.08), 0 2px 8px -1px rgba(19, 41, 61, 0.04);
+    --font-family: 'Plus Jakarta Sans', sans-serif;
+
+    /* 2. CONSTANTES DE COLOR PARA MARCADORES Y LEYENDA (Imagen 2) */
+    --color-historicos: #73C6B6;   /* Verde menta / Turquesa sutil */
+    --color-restaurantes: #E59866; /* Naranja pastel / Salmón */
+    --color-miradores: #A9DFBF;    /* Verde hoja suave */
+    --color-tours: #F7DC6F;        /* Amarillo pastel */
+    --color-otros: #F1948A;        /* Rojo / Coral sutil */
+}
 
 html, body {
     margin: 0;
