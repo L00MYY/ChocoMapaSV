@@ -62,9 +62,9 @@ html, body {
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Mantiene el título/logo a la izquierda y el bloque de búsqueda agrupado a la derecha */
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 24px;
   padding: 12px var(--gutter);
   min-height: 96px;
   height: auto;
@@ -120,23 +120,24 @@ html, body {
   border-bottom-color: var(--blue-bell);
 }
 
-/* --- BÚSQUEDA Y LEYENDA (sobre el campo azul, sin fondo propio) --- */
+/* --- 🛠️ MODIFICACIÓN FUCSIA: BÚSQUEDA Y LEYENDA JUNTOS (Agrupados a la derecha) --- */
 .search-section {
   position: relative;
   z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
-  padding: 20px var(--gutter);
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  justify-content: flex-end;      /* Junta los elementos empujándolos al lado derecho */
+  align-items: center;            /* Centrado vertical perfecto */
+  gap: 16px;                      /* Espaciado controlado para que se vean juntos */
+  flex: 1;                        /* Ocupa el espacio disponible en la barra */
+  min-width: 280px;
 }
 
 .search-container {
-  flex: 1;
-  min-width: 280px;
-  max-width: 500px;
+  flex: none;
+  width: 320px;                   /* Ancho fijo estilizado para el buscador en barra */
+  min-width: 0;
 }
 
 .search-box {
@@ -146,21 +147,21 @@ html, body {
 
 #search-input {
     width: 100%;
-    padding: 16px 24px;
+    padding: 12px 20px;           /* Ajustado para encajar de forma más compacta en la barra */
     border-radius: 12px;
     border: 2px solid var(--border-color);
     background: var(--surface);
     font-family: var(--font-family);
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--deep-space-blue);
-    box-shadow: 0 6px 18px rgba(19, 41, 61, 0.25);
+    box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #search-input:focus {
     border-color: rgba(27, 152, 224, 0.65); /* --blue-bell translúcido */
-    box-shadow: 0 0 0 4px rgb(27, 152, 224), 0 6px 18px rgba(19, 41, 61, 0.25);
+    box-shadow: 0 0 0 4px rgb(27, 152, 224), 0 4px 12px rgba(19, 41, 61, 0.15);
 }
 
 /* Lista de resultados de búsqueda (desplegable bajo el input) */
@@ -204,10 +205,10 @@ html, body {
   flex-wrap: wrap;
   gap: 16px;
   background: var(--surface);
-  padding: 14px 20px;
+  padding: 10px 18px;             /* Reducido levemente para homogeneizar altura con el buscador */
   border-radius: 12px;
   border: 2px solid var(--border-color);
-  box-shadow: 0 6px 18px rgba(19, 41, 61, 0.25);
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
 }
 
 .legend-item {
@@ -232,10 +233,10 @@ html, body {
 .legend-item:nth-child(4) .color-dot { background-color: var(--color-tours); }
 .legend-item:nth-child(5) .color-dot { background-color: var(--color-otros); }
 
-/* --- SECCIÓN DEL MAPA (los márgenes laterales e inferior son parte del campo azul) --- */
+/* --- 🛠️ MODIFICACIÓN ROJA: SECCIÓN DEL MAPA (Márgenes corregidos para dar espacio arriba) --- */
 .map-section {
   flex: 1;
-  padding: 0 var(--gutter) var(--gutter) var(--gutter);
+  padding: 24px var(--gutter) var(--gutter) var(--gutter); /* Añadidos 24px de espacio arriba del mapa para evitar colisiones */
   position: relative;
   display: flex;
 }
@@ -367,17 +368,14 @@ html, body {
 }
 
 /* --- RESPONSIVE --- */
-
 /* Tablets */
 @media (max-width: 1024px) {
   :root {
     --gutter: 24px;
   }
-
   .app-logo {
     height: 72px;
   }
-
   .info-sidebar {
     width: 300px;
   }
@@ -388,117 +386,97 @@ html, body {
   :root {
     --gutter: 16px;
   }
-
   .app-layout {
     height: auto;
     min-height: 100vh;
     min-height: 100dvh;
   }
-
   .app-header {
     justify-content: center;
   }
-
   .app-logo {
     height: 64px;
   }
-
   .ministry-nav {
     width: 100%;
     justify-content: center;
   }
-
+  
+  /* 🛠️ COMPORTAMIENTO RESPONSIVE: En móviles se apilan en columna de forma ordenada */
   .search-section {
-    flex-direction: column;
+    flex-direction: column; 
     align-items: stretch;
+    width: 100%;
     gap: 16px;
   }
-
   .search-container {
-    flex: none;
-    min-width: 0;
-    max-width: 100%;
     width: 100%;
+    max-width: 100%;
   }
-
   .legend-box {
     justify-content: center;
     width: 100%;
     gap: 12px 16px;
   }
-
   .map-section {
     min-height: 420px;
-  }
-
-  .map-container {
-    height: auto; /* se estira hasta el min-height de .map-section */
-  }
-
-  .info-sidebar {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 50vh;
-    border-radius: 24px 24px 0 0;
-    border: none;
-    border-top: 2px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
-    padding-bottom: env(safe-area-inset-bottom);
-    transform: translateY(0);
-  }
-
-  .info-sidebar.hidden {
-    transform: translateY(100%);
-  }
-
-  .sidebar-image {
-    height: 160px;
-  }
-
-  .sidebar-details {
-    padding: 20px;
-  }
-
-  .sidebar-title {
-    font-size: 1.35rem;
-  }
-
-  .sidebar-description {
-    text-align: left;
-  }
+padding-top: 16px;             /* Ajustado margen en móvil */
 }
-
+.map-container {
+height: auto;
+}
+.info-sidebar {
+position: fixed;
+top: auto;
+bottom: 0;
+left: 0;
+right: 0;
+width: 100%;
+max-height: 50vh;
+border-radius: 24px 24px 0 0;
+border: none;
+border-top: 2px solid var(--border-color);
+box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
+padding-bottom: env(safe-area-inset-bottom);
+transform: translateY(0);
+}
+.info-sidebar.hidden {
+transform: translateY(100%);
+}
+.sidebar-image {
+height: 160px;
+}
+.sidebar-details {
+padding: 20px;
+}
+.sidebar-title {
+font-size: 1.35rem;
+}
+.sidebar-description {
+text-align: left;
+}
+}
 /* Celulares pequeños */
 @media (max-width: 480px) {
-  :root {
-    --gutter: 12px;
-  }
-
-  .app-logo {
-    height: 56px;
-  }
-
-  #search-input {
-    padding: 14px 18px;
-  }
-
-  .legend-box {
-    padding: 12px 14px;
-  }
-
-  .legend-item {
-    font-size: 0.8rem;
-  }
-
-  .map-section {
-    min-height: 380px;
-  }
-
-  .map-container {
-    border-radius: 12px;
-  }
+:root {
+--gutter: 12px;
+}
+.app-logo {
+height: 56px;
+}
+#search-input {
+padding: 10px 16px;
+}
+.legend-box {
+padding: 12px 14px;
+}
+.legend-item {
+font-size: 0.8rem;
+}
+.map-section {
+min-height: 380px;
+}
+.map-container {
+border-radius: 12px;
+}
 }
