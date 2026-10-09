@@ -5,98 +5,143 @@
 }
 
 :root {
-    /*Paleta Océano para la Interfaz */
-    --deep-space-blue: #13293D;
-    --baltic-blue: #006494;
-    --cerulean: #247BA0;
-    --blue-bell: #1B98E0;
-    --alice-blue: #E8F1F2;
-    --surface: #FFFFFF;
-    --border-color: #D1E3E6;
-    
-    /* Mapeo UI */
-    --primary: var(--baltic-blue);
-    --primary-hover: var(--blue-bell);
-    --dark: var(--deep-space-blue);
-    --light: var(--alice-blue);
-    --shadow: 0 4px 20px -2px rgba(19, 41, 61, 0.08), 0 2px 8px -1px rgba(19, 41, 61, 0.04);
-    --font-family: 'Plus Jakarta Sans', sans-serif;
+  /* Paleta Océano para la Interfaz */
+  --deep-space-blue: #13293D;
+  --baltic-blue: #006494;
+  --cerulean: #247BA0;
+  --blue-bell: #1B98E0;
+  --alice-blue: #E8F1F2;
+  --surface: #FFFFFF;
+  --border-color: #D1E3E6;
 
-    /* Constantes de color para leyendas */
-    --color-historicos: #73C6B6;
-    --color-restaurantes: #E59866;
-    --color-miradores: #A9DFBF;
-    --color-tours: #F7DC6F;
-    --color-otros: #F1948A;
+  /* Mapeo UI */
+  --primary: var(--baltic-blue);
+  --primary-hover: var(--blue-bell);
+  --dark: var(--deep-space-blue);
+  --light: var(--alice-blue);
+  --shadow: 0 4px 20px -2px rgba(19, 41, 61, 0.08), 0 2px 8px -1px rgba(19, 41, 61, 0.04);
+  --font-family: 'Plus Jakarta Sans', sans-serif;
+
+  /* Distribución institucional: marino (header) → azul institucional (campo) → marino (base) */
+  --gutter: 32px; /* margen exterior único: alinea header, buscador y mapa */
+  --field-gradient: linear-gradient(180deg, var(--baltic-blue) 0%, var(--deep-space-blue) 100%);
+
+  /* Constantes de color para leyendas */
+  --color-historicos: #73C6B6;
+  --color-restaurantes: #E59866;
+  --color-miradores: #A9DFBF;
+  --color-tours: #F7DC6F;
+  --color-otros: #F1948A;
 }
 
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: var(--font-family);
-    background-color: var(--light);
-    color: var(--dark);
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-family);
+  background-color: var(--deep-space-blue); /* sin franjas blancas o grises al hacer scroll */
+  color: var(--dark);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
 }
 
 *, *::before, *::after {
-    box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 .app-layout {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: var(--light);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--field-gradient); /* campo azul detrás de buscador y mapa */
 }
 
-/* --- COMPONENTE: APP-HEADER --- */
+/* --- COMPONENTE: APP-HEADER (logo + nav del Ministerio) --- */
 .app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap; 
-    padding: 16px 32px;
-    min-height: 96px;
-    height: auto;
-    background-color: var(--deep-space-blue); /* Fondo Azul Oscuro */
-    border-bottom: 3px solid var(--blue-bell);  /* Línea divisoria en Azul*/
-    box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
-    box-sizing: border-box;
-    gap: 16px;
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px var(--gutter);
+  min-height: 96px;
+  height: auto;
+  background-color: var(--deep-space-blue); /* Fondo azul marino */
+  border-bottom: 3px solid var(--blue-bell); /* Línea divisoria en azul */
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.25);
 }
 
 .app-header h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--alice-blue); /* Texto del título en blanco contrastante */
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--alice-blue); /* Texto del título contrastante */
 }
 
-/* --- BÚSQUEDA Y LEYENDA --- */
+/* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
+.app-logo {
+  display: block;
+  height: 80px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  background: transparent;
+  border: 0;
+}
+
+/* Espacio para el nav del Ministerio de Turismo (se oculta si está vacío) */
+.ministry-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.ministry-nav:empty {
+  display: none;
+}
+
+.ministry-nav a {
+  padding: 8px 4px;
+  color: var(--alice-blue);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.ministry-nav a:hover,
+.ministry-nav a:focus-visible {
+  color: var(--blue-bell);
+  border-bottom-color: var(--blue-bell);
+}
+
+/* --- BÚSQUEDA Y LEYENDA (sobre el campo azul, sin fondo propio) --- */
 .search-section {
-    padding: 20px 32px;
-    background-color: var(--alice-blue); /* Fondo de la sección de búsqueda */
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
+  position: relative;
+  z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
+  padding: 20px var(--gutter);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
 }
 
 .search-container {
-    flex: 1;
-    min-width: 280px;
-    max-width: 500px;
+  flex: 1;
+  min-width: 280px;
+  max-width: 500px;
 }
 
 .search-box {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 
 #search-input {
@@ -108,209 +153,352 @@ html, body {
     font-family: var(--font-family);
     font-size: 1rem;
     color: var(--deep-space-blue);
-    box-shadow: var(--shadow);
+    box-shadow: 0 6px 18px rgba(19, 41, 61, 0.25);
     outline: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #search-input:focus {
-    border-color: var(--blue-bell); /* Borde azul al enfocar */
-    box-shadow: 0 0 0 4px rgba(27, 152, 224, 0.2), var(--shadow);
+    border-color: rgba(27, 152, 224, 0.65); /* --blue-bell translúcido */
+    box-shadow: 0 0 0 4px rgb(27, 152, 224), 0 6px 18px rgba(19, 41, 61, 0.25);
+}
+
+/* Lista de resultados de búsqueda (desplegable bajo el input) */
+.results-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(19, 41, 61, 0.3);
+}
+
+.results-list.hidden {
+  display: none;
+}
+
+.results-list li {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--deep-space-blue);
+  cursor: pointer;
+}
+
+.results-list li:hover {
+  background: var(--alice-blue);
+  color: var(--baltic-blue);
 }
 
 /* Diseño Modular de la Leyenda de Colores */
 .legend-box {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: var(--surface);
-    padding: 14px 20px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    box-shadow: var(--shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--surface);
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 6px 18px rgba(19, 41, 61, 0.25);
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--deep-space-blue); /* Textos de la leyenda*/
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--deep-space-blue); /* Textos de la leyenda */
+  gap: 8px;
 }
 
 .color-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
 }
+
 .legend-item:nth-child(1) .color-dot { background-color: var(--color-historicos); }
 .legend-item:nth-child(2) .color-dot { background-color: var(--color-restaurantes); }
 .legend-item:nth-child(3) .color-dot { background-color: var(--color-miradores); }
 .legend-item:nth-child(4) .color-dot { background-color: var(--color-tours); }
 .legend-item:nth-child(5) .color-dot { background-color: var(--color-otros); }
 
-/* --- SECCIÓN DEL MAPA --- */
+/* --- SECCIÓN DEL MAPA (los márgenes laterales e inferior son parte del campo azul) --- */
 .map-section {
-    flex: 1; 
-    padding: 0 30px 30px 30px; 
-    position: relative; 
-    display: flex;
-    background-color: var(--alice-blue);
+  flex: 1;
+  padding: 0 var(--gutter) var(--gutter) var(--gutter);
+  position: relative;
+  display: flex;
 }
 
 .map-container {
-    width: 100%; 
-    height: 100%;
-    border-radius: 16px;
-    border: 2px solid var(--border-color);
-    overflow: hidden; 
-    box-shadow: var(--shadow);
-    background-color: var(--surface);
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(19, 41, 61, 0.35);
+  background-color: var(--alice-blue); /* Fondo mientras cargan los tiles */
 }
 
 .mapboxgl-canvas {
-    outline: none;
+  outline: none;
+}
+
+/* Controles de Mapbox con la paleta */
+.map-container .mapboxgl-ctrl-group:not(:empty) {
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.map-container .mapboxgl-ctrl-group button:hover {
+  background-color: var(--alice-blue);
+}
+
+.map-container .mapboxgl-ctrl-attrib {
+  background-color: rgba(232, 241, 242, 0.85);
+}
+
+.map-container .mapboxgl-ctrl-attrib a {
+  color: var(--baltic-blue);
 }
 
 /* --- COMPONENTE: INFO-SIDEBAR --- */
 .info-sidebar {
-    position: absolute;
-    top: 20px;
-    right: 50px; 
-    z-index: 10; 
-    width: 340px; 
-    max-height: calc(100% - 40px);
-    background: var(--surface);
-    border-radius: 16px;
-    border: 2px solid var(--border-color);
-    box-shadow: 0 10px 40px rgba(19, 41, 61, 0.15); 
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  top: 20px;
+  right: calc(var(--gutter) + 20px);
+  z-index: 10;
+  width: 340px;
+  max-height: calc(100% - 40px);
+  background: var(--surface);
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 10px 40px rgba(19, 41, 61, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .info-sidebar.hidden {
-    opacity: 0;
-    pointer-events: none; 
-    transform: translateY(10px); 
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
 }
 
 .close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.85);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: var(--deep-space-blue);
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    transition: background 0.2s, color 0.2s;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--deep-space-blue);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: background 0.2s, color 0.2s;
 }
 
 .close-btn:hover {
-    background: #FF4D4D;
-    color: white;
+  background: #FF4D4D;
+  color: white;
 }
 
 .sidebar-placeholder {
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--cerulean);
-    font-weight: 500;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--cerulean);
+  font-weight: 500;
 }
 
 .sidebar-image {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
 }
 
 .sidebar-details {
-    padding: 24px;
+  padding: 24px;
 }
 
 .sidebar-category {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    display: inline-block;
-    color: var(--cerulean);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: inline-block;
+  color: var(--cerulean);
 }
 
 .sidebar-title {
-    margin: 0 0 12px 0;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--deep-space-blue);
+  margin: 0 0 12px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
 }
 
 .sidebar-description {
-    font-size: 1rem;
-    color: var(--deep-space-blue);
-    line-height: 1.6;
-    margin: 0;
-    text-align: justify;
+  font-size: 1rem;
+  color: var(--deep-space-blue);
+  line-height: 1.6;
+  margin: 0;
+  text-align: justify;
 }
 
-/* --- REGLAS RESPONSIVE (Celulares) --- */
+/* --- RESPONSIVE --- */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 24px;
+  }
+
+  .app-logo {
+    height: 72px;
+  }
+
+  .info-sidebar {
+    width: 300px;
+  }
+}
+
+/* Celulares */
 @media (max-width: 768px) {
-    .app-header {
-        padding: 16px;
-        justify-content: center;
-    }
-    
-    .search-section {
-        padding: 16px;
-        flex-direction: column;
-        align-items: stretch;
-        background-color: var(--alice-blue);
-    }
-    
-    .search-container {
-        max-width: 100%;
-        width: 100%;
-    }
-    
-    .legend-box {
-        justify-content: center;
-        width: 100%;
-    }
+  :root {
+    --gutter: 16px;
+  }
 
-    .map-section {
-        padding: 0 16px 16px 16px;
-        background-color: var(--alice-blue);
-    }
+  .app-layout {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
 
-    .info-sidebar {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-height: 50vh;
-        border-radius: 24px 24px 0 0;
-        border: none;
-        border-top: 2px solid var(--border-color);
-        box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
-        transform: translateY(0);
-    }
+  .app-header {
+    justify-content: center;
+  }
 
-    .info-sidebar.hidden {
-        transform: translateY(100%);
-    }
+  .app-logo {
+    height: 64px;
+  }
+
+  .ministry-nav {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .search-container {
+    flex: none;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .legend-box {
+    justify-content: center;
+    width: 100%;
+    gap: 12px 16px;
+  }
+
+  .map-section {
+    min-height: 420px;
+  }
+
+  .map-container {
+    height: auto; /* se estira hasta el min-height de .map-section */
+  }
+
+  .info-sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 24px 24px 0 0;
+    border: none;
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(0);
+  }
+
+  .info-sidebar.hidden {
+    transform: translateY(100%);
+  }
+
+  .sidebar-image {
+    height: 160px;
+  }
+
+  .sidebar-details {
+    padding: 20px;
+  }
+
+  .sidebar-title {
+    font-size: 1.35rem;
+  }
+
+  .sidebar-description {
+    text-align: left;
+  }
+}
+
+/* Celulares pequeños */
+@media (max-width: 480px) {
+  :root {
+    --gutter: 12px;
+  }
+
+  .app-logo {
+    height: 56px;
+  }
+
+  #search-input {
+    padding: 14px 18px;
+  }
+
+  .legend-box {
+    padding: 12px 14px;
+  }
+
+  .legend-item {
+    font-size: 0.8rem;
+  }
+
+  .map-section {
+    min-height: 380px;
+  }
+
+  .map-container {
+    border-radius: 12px;
+  }
 }
