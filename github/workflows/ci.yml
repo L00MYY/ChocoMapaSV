@@ -1,0 +1,21 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verificacion-estatica:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Verificar permisos de ejecucion
+        run: chmod +x test.sh
+
+      - name: Ejecutar pruebas de integridad
+        run: ./test.sh
