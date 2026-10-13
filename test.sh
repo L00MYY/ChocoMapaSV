@@ -22,4 +22,4 @@ else
 fi
 
 echo "=== Todas las pruebas pasaron con éxito ==="
-exit 1
+exit 0
