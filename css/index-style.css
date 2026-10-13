@@ -6,7 +6,7 @@
             --mustard:  #FFD166;
             --ink:      #1a1a1a;
             --ink-soft: #4a4a4a;
-            --paper:    #f7f5f0;
+            /*-paper:    #f7f5f0;*/
         }
 
         * { box-sizing: border-box; }
