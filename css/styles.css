@@ -43,6 +43,7 @@ html, body {
   color: var(--dark);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
+  background-color: red;
 }
 
 *, *::before, *::after {

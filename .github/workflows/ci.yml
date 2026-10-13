@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  verificacion-estatica:
+  # Trabajo 1: Pruebas de integridad
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Descargar el codigo del repositorio
         uses: actions/checkout@v4
@@ -19,3 +19,21 @@ jobs:
 
       - name: Ejecutar pruebas de integridad
         run: ./test.sh
+
+  # Trabajo 2: Despliegue automático a Vercel
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar CLI de Vercel
+        run: npm install --global vercel@latest
+
+      - name: Desplegar en produccion
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
