@@ -2,25 +2,110 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ministerio de turismo SV</title>
-
-    <!-- Fuentes (mismas del mapa) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Estilos globales (los mismos de mapa.html) -->
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#13293D">
+    <title>Inicio</title>
+    <!-- Fuentes unificadas -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Hojas de Estilos -->
     <link rel="stylesheet" href="css/index-style.css">
 </head>
 <body>
-    <a href="mapa.html" class="btn-primary">
-        Abrir el mapa
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
-    </a>
+
+    <!-- Manchas decorativas fluidas de fondo -->
+    <div class="blobs" aria-hidden="true">
+        <i class="blob b1"></i>
+        <i class="blob b2"></i>
+        <i class="blob b3"></i>
+    </div>
+
+    <!-- Barra de navegación fija (Criterio de aceptación 2) -->
+    <header class="app-header">
+        <div class="brand">
+            <img src="https://mitur.gob.sv" class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async" fetchpriority="high">
+            <h1>Ministerio de Turismo</h1>
+        </div>
+        <button class="burger" id="burger" type="button" aria-label="Abrir menú" aria-controls="menu" aria-expanded="false">
+            <i></i><i></i><i></i>
+        </button>
+        <nav class="menu" id="menu" aria-label="Navegación principal">
+            <a href="index.html" aria-current="page" class="active">Inicio</a>
+            <a href="mapa.html">Mapa</a>
+            <a href="#lugares">Lugares turísticos</a>
+            <a href="#tours">Tours</a>
+        </nav>
+    </header>
+
+    <main>
+        <!--Bienvenida -->
+        <section class="hero" id="inicio">
+            <span class="eyebrow">Bienvenido a ChocoMapaSV</span>
+            <h2>Explora El Salvador <em>a tu ritmo</em></h2>
+            <p>Descubre rutas, miradores y tours en un solo mapa interactivo. Busca tu próximo destino y planifica tu visita de manera fácil.</p>
+            <a class="cta" href="mapa.html">
+                Explorar el Mapa Interactivo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                </svg>
+            </a>
+        </section>
+
+        <!-- Accesos rápidos-->
+        <section class="access" aria-labelledby="acc-title">
+            <h3 id="acc-title">Accesos rápidos</h3>
+            <p>Ve directo a lo que quieres conocer de la aplicación.</p>
+            <div class="grid">
+                <a class="card" id="mapa" href="mapa.html">
+                    <span class="ico">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>
+                        </svg>
+                    </span>
+                    <h4>Mapa</h4>
+                    <p>Ubica sitios turísticos en el mapa y busca por nombre o categoría de forma interactiva.</p>
+                    <span class="go">Ir al mapa →</span>
+                </a>
+
+                <a class="card" id="lugares" href="#lugares">
+                    <span class="ico">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
+                        </svg>
+                    </span>
+                    <h4>Lugares turísticos</h4>
+                    <p>Conoce sitios históricos, restaurantes y miradores con su respectiva información.</p>
+                    <span class="go">Ver lugares →</span>
+                </a>
+
+                <a class="card" id="tours" href="#tours">
+                    <span class="ico">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>
+                        </svg>
+                    </span>
+                    <h4>Tours</h4>
+                    <p>Descubre los tours disponibles en el país y planifica tu próximo recorrido guiado.</p>
+                    <span class="go">Ver tours →</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript soporte de menú móvil -->
+    <script>
+        const burger = document.getElementById('burger');
+        const menu = document.getElementById('menu');
+        function setMenu(open) {
+            menu.classList.toggle('open', open);
+            burger.setAttribute('aria-expanded', open);
+            burger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+        }
+        burger.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+        menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+        window.addEventListener('resize', () => { if (window.innerWidth > 768) setMenu(false); });
+    </script>
 </body>
 </html>
