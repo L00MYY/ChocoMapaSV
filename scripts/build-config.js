@@ -59,7 +59,3 @@ try {
   console.error('❌ Error al generar archivos de configuración:', error);
   process.exit(1);
 }
-
-// Nota: Para desarrollo local con Node < 20.6.0, si el flag --env-file no está disponible,
-// puedes requerir 'dotenv' manualmente, pero no está instalado por defecto para 
-// mantener el entorno limpio para Vercel.
