@@ -1,5 +1,14 @@
+:root {
+    /*Paleta de colores Oficial del Proyecto */
+    --deep-space-blue: #13293D;
+    --baltic-blue: #006494;
+    --cerulean: #247BA0;
+    --blue-bell: #1B98E0;
+    --alice-blue: #E8F1F2;
+    --surface: #FFFFFF;
+    --border-color: #D1E3E6;
+=======
 /* index-style.css — Inicio: Descuentos en Tours (usa las variables de styles.css) */
-
 * { box-sizing: border-box; }
 
 /* styles.css fija html/body a 100% con overflow hidden (pensado para el mapa).
