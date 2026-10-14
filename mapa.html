@@ -18,33 +18,56 @@
 </head>
 <body>
     <div class="app-layout">
-        <!-- Barra de Navegación Superior -->
+        <!-- Barra de Navegación Superior Institucional -->
         <header class="app-header">
-            <!-- Logo con su recuadro oscuro gracias al CSS -->
-            <div class="app-logo-container">
-        <!-- Logo institucional -->
-<img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async" fetchpriority="high">
-        <h1>Ministerio de Turismo</h1>
-    </div>
-            
-            <!-- Barra de Búsqueda y Leyenda agrupadas a la derecha -->
-            <section class="search-section">
-                <div class="search-container">
-                    <div class="search-box">
-                        <input type="text" id="search-input" placeholder="Buscar lugares turísticos en El Salvador...">
-                        <ul class="results-list hidden" id="results-list"></ul>
-                    </div>
-                </div>
-                
-                <!-- Leyenda de Colores -->
-                  <div class="legend-box">
-                       <div class="legend-item"><span class="color-dot"></span> Históricos</div>
-                       <div class="legend-item"><span class="color-dot"></span> Restaurantes</div>
-                       <div class="legend-item"><span class="color-dot"></span> Miradores</div>
-                       <div class="legend-item"><span class="color-dot"></span> Tours</div>
-                  </div>
-            </section>
+            <div class="header-container">
+                <!-- Logo institucional -->
+                <a href="mapa.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async" fetchpriority="high">
+                    <h1 class="header-title">Ministerio de Turismo</h1>
+                </a>
+
+                <!-- Navegación Principal -->
+                <nav class="header-navigation" aria-label="Navegación principal">
+                    <a href="mapa.html" class="nav-link active" id="nav-mapa" aria-current="page">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Mapa</span>
+                    </a>
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Lugares turísticos</span>
+                    </a>
+                </nav>
+            </div>
         </header>
+
+        <!-- Franja Dedicada: Búsqueda y Filtros por Categoría -->
+        <section class="search-filter-bar">
+            <!-- Buscador de Lugares -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Buscar lugares turísticos en El Salvador...">
+                    <ul class="results-list hidden" id="results-list"></ul>
+                </div>
+            </div>
+            
+            <!-- Filtros por Categoría (Etiquetas tipo píldora) -->
+            <div class="legend-box">
+                <div class="legend-item"><span class="color-dot"></span> Históricos</div>
+                <div class="legend-item"><span class="color-dot"></span> Restaurantes</div>
+                <div class="legend-item"><span class="color-dot"></span> Miradores</div>
+                <div class="legend-item"><span class="color-dot"></span> Tours</div>
+            </div>
+        </section>
 
         <!-- Contenedor Principal: Mapa y Tarjeta Flotante -->
         <section class="map-section">

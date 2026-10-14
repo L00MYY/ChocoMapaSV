@@ -146,6 +146,7 @@ export function openPopupAndFly(lugar, colorHex) {
                 <span class="sidebar-category" style="color: ${color};">${lugar.category}</span>
                 <h3 class="sidebar-title">${lugar.name}</h3>
                 <p class="sidebar-description">${lugar.description}</p>
+                <a href="detalle-lugar.html?id=${lugar.id}" class="sidebar-btn-more">Ver más información</a>
             </div>
         `;
     }
