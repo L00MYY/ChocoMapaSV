@@ -365,11 +365,10 @@ function mostrarEstado(estado, mensajeError = null) {
 }
 
 /**
- * Configura la navegación dinámica para el botón de retorno ("Volver")
- * Si document.referrer proviene del mismo dominio (ej. mapa.html o lugares-turisticos.html)
- * o si existe historial de navegación en la sesión, regresa a la vista previa con window.history.back().
- * Si el usuario ingresó directamente abriendo la URL en una nueva pestaña (sin historial previo),
- * redirige de forma segura a mapa.html.
+ * Configura la navegación contextual para el botón de retorno ("Volver")
+ * - Si document.referrer incluye "lugares-turisticos.html", redirige a lugares-turisticos.html.
+ * - En cualquier otro caso (viniendo de mapa.html, referrer vacío o cualquier otra procedencia),
+ *   redirige directamente a mapa.html.
  */
 function configurarBotonRetorno() {
     const btnRetorno = document.getElementById('btn-return-map');
@@ -378,28 +377,10 @@ function configurarBotonRetorno() {
     btnRetorno.addEventListener('click', (evento) => {
         evento.preventDefault();
 
-        const referrer = document.referrer;
-        let esMismoDominio = false;
+        const referrer = document.referrer || '';
 
-        if (referrer) {
-            try {
-                const urlReferrer = new URL(referrer);
-                const mismoHost = urlReferrer.hostname === window.location.hostname;
-                const mismoOrigen = (window.location.origin !== 'null' && urlReferrer.origin === window.location.origin);
-                const rutaInterna = referrer.includes('mapa.html') || referrer.includes('lugares-turisticos.html');
-
-                esMismoDominio = Boolean(mismoHost || mismoOrigen || rutaInterna);
-            } catch {
-                esMismoDominio = referrer.includes(window.location.hostname) ||
-                                 referrer.includes('mapa.html') ||
-                                 referrer.includes('lugares-turisticos.html');
-            }
-        }
-
-        const tieneHistorialNavegacion = window.history.length > 1 && Boolean(referrer);
-
-        if (esMismoDominio || tieneHistorialNavegacion) {
-            window.history.back();
+        if (referrer.includes('lugares-turisticos.html')) {
+            window.location.href = 'lugares-turisticos.html';
         } else {
             window.location.href = 'mapa.html';
         }

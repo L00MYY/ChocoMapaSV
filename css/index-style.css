@@ -39,14 +39,18 @@ body {
     background-color: var(--light); /* Fondo suave Alice Blue de la paleta */
     color: var(--dark);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     overflow-x: hidden; /* Garantiza el cumplimiento de no scroll horizontal */
     -webkit-font-smoothing: antialiased;
 }
 
 /* --- BIENVENIDA --- */
 .hero-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: relative;
     z-index: 1;
     max-width: 800px;

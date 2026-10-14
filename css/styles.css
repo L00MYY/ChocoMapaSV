@@ -64,13 +64,16 @@ html, body {
 }
 
 /* --- COMPONENTE: APP-HEADER (Navbar Institucional MITUR) --- */
-.app-header {
+.app-header,
+.navbar {
   position: relative;
   z-index: 20;
   display: flex;
   align-items: center;
   padding: 10px var(--gutter);
   min-height: 68px;
+  width: 100%;
+  box-sizing: border-box;
   flex-shrink: 0;
   background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
   border-bottom: 2px solid var(--cerulean); /* Línea divisoria */
