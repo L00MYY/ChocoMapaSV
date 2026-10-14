@@ -236,6 +236,47 @@ function renderizarGridLugares(lista) {
 }
 
 /**
+ * Normaliza un texto para comparación uniforme (minúsculas, trim y sin acentos/tildes)
+ * @param {string} texto - Cadena a normalizar
+ * @returns {string} Texto normalizado
+ */
+function normalizarTexto(texto) {
+    if (!texto || typeof texto !== 'string') return '';
+    return texto
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Obtiene el parámetro 'categoria' de la URL actual
+ * @returns {string|null} Valor del parámetro o null si no existe
+ */
+function obtenerCategoriaDesdeURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('categoria');
+}
+
+/**
+ * Sincroniza la URL en la barra de direcciones con la categoría activa mediante replaceState
+ * @param {string} categoria - Categoría seleccionada o 'todos'
+ */
+function actualizarURLConCategoria(categoria) {
+    try {
+        const url = new URL(window.location.href);
+        if (!categoria || categoria === 'todos') {
+            url.searchParams.delete('categoria');
+        } else {
+            url.searchParams.set('categoria', categoria);
+        }
+        window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch (e) {
+        console.warn('No se pudo actualizar la URL del navegador:', e);
+    }
+}
+
+/**
  * Aplica los filtros de búsqueda en texto y de categoría activa
  */
 function aplicarFiltros() {
@@ -243,21 +284,22 @@ function aplicarFiltros() {
 
     // Filtro por categoría seleccionada
     if (categoriaActiva !== 'todos') {
-        filtrados = filtrados.filter(lugar => 
+        filtrados = filtrados.filter(lugar =>
             lugar.category && lugar.category.trim().toLowerCase() === categoriaActiva
         );
     }
 
     // Filtro por texto ingresado en el buscador
     if (terminoBusqueda.length > 0) {
+        const busquedaNorm = normalizarTexto(terminoBusqueda);
         filtrados = filtrados.filter(lugar => {
-            const nombre = (lugar.name || '').toLowerCase();
-            const descripcion = (lugar.description || '').toLowerCase();
-            const categoria = (lugar.category || '').toLowerCase();
+            const nombre = normalizarTexto(lugar.name || '');
+            const descripcion = normalizarTexto(lugar.description || '');
+            const categoria = normalizarTexto(lugar.category || '');
 
-            return nombre.includes(terminoBusqueda) || 
-                   descripcion.includes(terminoBusqueda) || 
-                   categoria.includes(terminoBusqueda);
+            return nombre.includes(busquedaNorm) ||
+                descripcion.includes(busquedaNorm) ||
+                categoria.includes(busquedaNorm);
         });
     }
 
@@ -285,13 +327,27 @@ function inicializarFiltrosCategorias(lista) {
     // Limpiar botones previos excepto "Todos"
     categoryPillsContainer.querySelectorAll('.pill-btn:not([data-category="todos"])').forEach(el => el.remove());
 
+    // Configurar listener y estado inicial del botón "Todos"
+    const btnTodos = categoryPillsContainer.querySelector('[data-category="todos"]');
+    const esTodosActivo = (categoriaActiva === 'todos');
+    if (btnTodos) {
+        btnTodos.classList.toggle('active', esTodosActivo);
+        btnTodos.setAttribute('aria-checked', esTodosActivo ? 'true' : 'false');
+        btnTodos.onclick = () => {
+            seleccionarCategoria('todos', btnTodos, true);
+        };
+    }
+
     categoriasMap.forEach((color, categoria) => {
+        const catNorm = normalizarTexto(categoria);
+        const esActivo = (categoriaActiva !== 'todos' && categoriaActiva === catNorm);
+
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'pill-btn';
-        btn.dataset.category = categoria.toLowerCase();
+        btn.className = `pill-btn ${esActivo ? 'active' : ''}`;
+        btn.dataset.category = catNorm;
         btn.setAttribute('role', 'radio');
-        btn.setAttribute('aria-checked', 'false');
+        btn.setAttribute('aria-checked', esActivo ? 'true' : 'false');
 
         if (color) {
             const dot = document.createElement('span');
@@ -305,35 +361,38 @@ function inicializarFiltrosCategorias(lista) {
         btn.appendChild(label);
 
         btn.addEventListener('click', () => {
-            seleccionarCategoria(categoria.toLowerCase(), btn);
+            seleccionarCategoria(catNorm, btn, true, categoria.toLowerCase());
         });
 
         categoryPillsContainer.appendChild(btn);
     });
-
-    // Configurar listener del botón "Todos"
-    const btnTodos = categoryPillsContainer.querySelector('[data-category="todos"]');
-    if (btnTodos) {
-        btnTodos.onclick = () => {
-            seleccionarCategoria('todos', btnTodos);
-        };
-    }
 }
 
 /**
- * Cambia la categoría activa y actualiza estilos de píldoras
- * @param {string} categoria - Nombre de la categoría en minúsculas o 'todos'
- * @param {HTMLElement} btnSeleccionado - Botón presionado
+ * Cambia la categoría activa, actualiza estilos de píldoras y sincroniza la URL
+ * @param {string} categoria - Nombre normalizado de la categoría o 'todos'
+ * @param {HTMLElement} [btnSeleccionado] - Botón presionado
+ * @param {boolean} [sincronizarURL=true] - Si se debe actualizar la URL con replaceState
+ * @param {string} [categoriaOriginal] - Valor original para la query string
  */
-function seleccionarCategoria(categoria, btnSeleccionado) {
+function seleccionarCategoria(categoria, btnSeleccionado, sincronizarURL = true, categoriaOriginal = '') {
     categoriaActiva = categoria;
 
     // Actualizar estados visuales de las píldoras
-    categoryPillsContainer.querySelectorAll('.pill-btn').forEach(btn => {
-        const esActivo = btn === btnSeleccionado;
-        btn.classList.toggle('active', esActivo);
-        btn.setAttribute('aria-checked', esActivo ? 'true' : 'false');
-    });
+    if (categoryPillsContainer) {
+        categoryPillsContainer.querySelectorAll('.pill-btn').forEach(btn => {
+            const esActivo = btnSeleccionado
+                ? (btn === btnSeleccionado)
+                : (btn.dataset.category === categoria);
+            btn.classList.toggle('active', esActivo);
+            btn.setAttribute('aria-checked', esActivo ? 'true' : 'false');
+        });
+    }
+
+    if (sincronizarURL) {
+        const valorURL = (categoria === 'todos') ? 'todos' : (categoriaOriginal || categoria);
+        actualizarURLConCategoria(valorURL);
+    }
 
     aplicarFiltros();
 }
@@ -390,6 +449,23 @@ async function cargarLugares() {
 
         // Desduplicar y guardar en memoria para filtrado instantáneo
         todosLosLugares = desduplicarLugares(respuesta);
+
+        // Paso 1 y 2: Leer y normalizar parámetro 'categoria' de la URL al iniciar
+        const paramURL = obtenerCategoriaDesdeURL();
+        if (paramURL) {
+            const paramNorm = normalizarTexto(paramURL);
+            const coincidencia = todosLosLugares.find(l =>
+                normalizarTexto(l.category) === paramNorm
+            );
+
+            if (coincidencia) {
+                categoriaActiva = paramNorm;
+            } else {
+                categoriaActiva = 'todos';
+            }
+        } else {
+            categoriaActiva = 'todos';
+        }
 
         // Inicializar categorías y renderizar listado
         inicializarFiltrosCategorias(todosLosLugares);
@@ -451,14 +527,20 @@ function inicializarEventos() {
             }
 
             const btnTodos = categoryPillsContainer?.querySelector('[data-category="todos"]');
-            if (btnTodos) {
-                seleccionarCategoria('todos', btnTodos);
-            } else {
-                categoriaActiva = 'todos';
-                aplicarFiltros();
-            }
+            seleccionarCategoria('todos', btnTodos, true);
         });
     }
+
+    // 5. Soporte para navegación con historial (botones atrás/adelante)
+    window.addEventListener('popstate', () => {
+        const catURL = obtenerCategoriaDesdeURL();
+        const catNorm = catURL ? normalizarTexto(catURL) : 'todos';
+        const coincidencia = (catNorm === 'todos') || todosLosLugares.some(l => normalizarTexto(l.category) === catNorm);
+        const catFinal = coincidencia ? catNorm : 'todos';
+
+        const btnMatch = categoryPillsContainer?.querySelector(`[data-category="${catFinal}"]`);
+        seleccionarCategoria(catFinal, btnMatch, false);
+    });
 }
 
 // Iniciar aplicación una vez cargado el DOM

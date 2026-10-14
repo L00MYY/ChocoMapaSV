@@ -54,21 +54,32 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+html, body {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-y: auto !important;
+  overflow-x: hidden;
   font-family: var(--font-family);
   background-color: var(--deep-space-blue);
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
 }
 
 .page-layout {
   display: flex;
   flex-direction: column;
+  height: auto;
   min-height: 100vh;
+  overflow: visible;
   background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+}
+
+main,
+.detail-main {
+  height: auto;
+  overflow: visible;
 }
 
 /* ==========================================================================
@@ -78,6 +89,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
   background-color: var(--deep-space-blue);
   border-bottom: 2px solid var(--cerulean);
   box-shadow: 0 4px 18px rgba(19, 41, 61, 0.3);
@@ -85,20 +100,24 @@ body {
 }
 
 .header-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 12px var(--gutter);
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .app-logo-container {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .app-logo {
@@ -125,14 +144,21 @@ body {
 .header-navigation {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 4px;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 7px;
+  padding: 7px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
   color: var(--alice-blue);
   font-size: 0.92rem;
   font-weight: 600;
@@ -894,21 +920,247 @@ body {
   }
 }
 
+/* ==========================================================================
+   Sección de Tours del Lugar (CP-013 y CP-014)
+   ========================================================================== */
+.place-tours-panel .panel-body {
+  padding: 24px 28px;
+}
+
+.place-tours-filter {
+  margin-bottom: 24px;
+  background: var(--alice-blue);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.place-filter-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--baltic-blue);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.date-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.place-date-input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--deep-space-blue);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 220px;
+}
+
+.place-date-input:focus {
+  border-color: var(--blue-bell);
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
+}
+
+.btn-clear-date {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-clear-date:hover {
+  background: var(--surface);
+  color: var(--deep-space-blue);
+  border-color: var(--baltic-blue);
+}
+
+/* Mensaje exacto de no disponibilidad por fecha (CP-014) */
+.place-tours-empty {
+  padding: 36px 20px;
+  text-align: center;
+  background: #FDFEFE;
+  border: 1.5px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.place-empty-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+  margin: 0;
+}
+
+/* Grid de tours dentro del lugar */
+.place-tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.place-tours-grid .tour-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
+
+.place-tours-grid .tour-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--blue-bell);
+}
+
+.place-tours-grid .tour-card-media {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: #0b1a26;
+  overflow: hidden;
+}
+
+.place-tours-grid .tour-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.place-tours-grid .tour-card:hover .tour-card-image {
+  transform: scale(1.05);
+}
+
+.place-tours-grid .tour-card-discount-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  background: #E74C3C;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+}
+
+.place-tours-grid .tour-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.place-tours-grid .tour-card-title {
+  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+  line-height: 1.3;
+}
+
+.place-tours-grid .tour-card-description {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.place-tours-grid .tour-card-meta {
+  border-top: 1px solid var(--border-light);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.place-tours-grid .tour-card-guide {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.place-tours-grid .tour-card-pricing {
+  text-align: right;
+}
+
+.place-tours-grid .price-original {
+  font-size: 0.8rem;
+  color: #95A5A6;
+  text-decoration: line-through;
+  margin-right: 4px;
+}
+
+.place-tours-grid .price-amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--baltic-blue);
+}
+
+.place-tours-grid .price-amount.price-discounted {
+  color: #C0392B;
+}
+
+.place-tours-grid .tour-card-footer {
+  padding: 10px 16px;
+  background: #F8FBFB;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.place-tours-grid .tour-card-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--baltic-blue);
+}
+
+.place-tours-grid .tour-card-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--baltic-blue);
+}
+
 @media (max-width: 580px) {
   .header-title {
-    display: none;
+    font-size: 1.05rem;
   }
 }
 
 @media (max-width: 440px) {
-  .nav-link span {
-    display: none;
-  }
   .nav-link {
-    padding: 8px 10px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
   .header-navigation {
-    gap: 8px;
+    gap: 6px;
   }
 }
 

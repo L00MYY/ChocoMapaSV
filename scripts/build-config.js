@@ -38,7 +38,7 @@ try {
   }
 
   // 3. Copiar archivos estáticos al directorio dist
-  const itemsToCopy = ['css', 'img', 'js', 'index.html', 'mapa.html', 'lugares-turisticos.html', 'detalle-lugar.html'];
+  const itemsToCopy = ['css', 'img', 'js', 'index.html', 'mapa.html', 'lugares-turisticos.html', 'detalle-lugar.html', 'tours.html', 'tour-detalle.html'];
   const rootDir = path.join(__dirname, '..');
   
   itemsToCopy.forEach(item => {
