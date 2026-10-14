@@ -32,6 +32,10 @@
   --color-miradores: #A9DFBF;
   --color-tours: #F7DC6F;
   --color-otros: #F1948A;
+
+  /* Formas y transiciones */
+  --radius-pill: 9999px;
+  --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html, body {
@@ -39,11 +43,11 @@ html, body {
   padding: 0;
   height: 100%;
   font-family: var(--font-family);
-  background-color: var(--deep-space-blue); /* sin franjas blancas o grises al hacer scroll */
+  background-color: var(--deep-space-blue); /* sin franjas blancas o grises */
   color: var(--dark);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
-  background-color: red;
+  overflow: hidden; /* Evita scroll vertical en la ventana */
 }
 
 *, *::before, *::after {
@@ -54,29 +58,51 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--field-gradient); /* campo azul detrás de buscador y mapa */
 }
 
-/* --- COMPONENTE: APP-HEADER (logo + nav del Ministerio) --- */
+/* --- COMPONENTE: APP-HEADER (Navbar Institucional MITUR) --- */
 .app-header {
   position: relative;
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Mantiene el título/logo a la izquierda y el bloque de búsqueda agrupado a la derecha */
-  flex-wrap: wrap;
-  gap: 24px;
-  padding: 12px var(--gutter);
-  min-height: 96px;
-  height: auto;
-  background-color: var(--deep-space-blue); /* Fondo azul marino */
-  border-bottom: 3px solid var(--blue-bell); /* Línea divisoria en azul */
-  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.25);
+  padding: 10px var(--gutter);
+  min-height: 68px;
+  flex-shrink: 0;
+  background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
+  border-bottom: 2px solid var(--cerulean); /* Línea divisoria */
+  box-shadow: 0 4px 14px rgba(19, 41, 61, 0.25);
 }
 
-.app-header h1 {
+.header-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.app-logo-container:hover {
+  opacity: 0.92;
+}
+
+.app-header h1,
+.header-title {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--alice-blue); /* Texto del título contrastante */
@@ -85,60 +111,85 @@ html, body {
 /* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
 .app-logo {
   display: block;
-  height: 80px;
+  height: 52px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
   background: transparent;
   border: 0;
+  transition: transform 0.2s ease;
 }
 
-/* Espacio para el nav del Ministerio de Turismo (se oculta si está vacío) */
-.ministry-nav {
+.app-logo:hover {
+  transform: scale(1.02);
+}
+
+/* Navegación Principal Institucional */
+.header-navigation {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 24px;
+  gap: 12px;
 }
 
-.ministry-nav:empty {
-  display: none;
-}
-
-.ministry-nav a {
-  padding: 8px 4px;
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
   color: var(--alice-blue);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(232, 241, 242, 0.15);
+  background: rgba(232, 241, 242, 0.05);
+  transition: var(--transition-fast);
+  cursor: pointer;
 }
 
-.ministry-nav a:hover,
-.ministry-nav a:focus-visible {
-  color: var(--blue-bell);
-  border-bottom-color: var(--blue-bell);
+.nav-link:hover {
+  background: rgba(232, 241, 242, 0.15);
+  color: #FFFFFF;
+  border-color: rgba(232, 241, 242, 0.35);
+  transform: translateY(-1px);
 }
 
-/* --- 🛠️ MODIFICACIÓN FUCSIA: BÚSQUEDA Y LEYENDA JUNTOS (Agrupados a la derecha) --- */
+.nav-link.active {
+  background: var(--blue-bell);
+  color: #FFFFFF;
+  border-color: var(--blue-bell);
+  box-shadow: 0 2px 10px rgba(27, 152, 224, 0.4);
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* --- FRANJA DEDICADA: BÚSQUEDA Y FILTROS POR CATEGORÍA --- */
+.search-filter-bar,
 .search-section {
   position: relative;
   z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: center; /* Alineación limpia y centrada mediante Flexbox */
   flex-wrap: wrap;
-  justify-content: flex-end;      /* Junta los elementos empujándolos al lado derecho */
-  align-items: center;            /* Centrado vertical perfecto */
-  gap: 16px;                      /* Espaciado controlado para que se vean juntos */
-  flex: 1;                        /* Ocupa el espacio disponible en la barra */
-  min-width: 280px;
+  gap: 14px 20px;
+  padding: 12px var(--gutter);
+  flex-shrink: 0; /* Mantiene su altura calculada sin comprimir el layout */
+  background-color: rgba(19, 41, 61, 0.65); /* Consistencia visual con el fondo */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(209, 227, 230, 0.15);
+  box-shadow: 0 4px 16px rgba(19, 41, 61, 0.12);
 }
 
 .search-container {
-  flex: none;
-  width: 320px;                   /* Ancho fijo estilizado para el buscador en barra */
-  min-width: 0;
+  flex: 0 1 380px;
+  min-width: 260px;
 }
 
 .search-box {
@@ -147,22 +198,22 @@ html, body {
 }
 
 #search-input {
-    width: 100%;
-    padding: 12px 20px;           /* Ajustado para encajar de forma más compacta en la barra */
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    background: var(--surface);
-    font-family: var(--font-family);
-    font-size: 0.95rem;
-    color: var(--deep-space-blue);
-    box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 9999px; /* Forma de píldora armónica con los filtros */
+  border: 2px solid var(--border-color);
+  background: var(--surface);
+  font-family: var(--font-family);
+  font-size: 0.92rem;
+  color: var(--deep-space-blue);
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.12);
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 #search-input:focus {
-    border-color: rgba(27, 152, 224, 0.65); /* --blue-bell translúcido */
-    box-shadow: 0 0 0 4px rgb(27, 152, 224), 0 4px 12px rgba(19, 41, 61, 0.15);
+  border-color: var(--blue-bell);
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25), 0 4px 14px rgba(19, 41, 61, 0.15);
 }
 
 /* Lista de resultados de búsqueda (desplegable bajo el input) */
@@ -179,7 +230,7 @@ html, body {
   overflow-y: auto;
   background: var(--surface);
   border: 2px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 0 10px 30px rgba(19, 41, 61, 0.3);
 }
 
@@ -190,7 +241,7 @@ html, body {
 .results-list li {
   padding: 10px 16px;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--deep-space-blue);
   cursor: pointer;
 }
@@ -200,32 +251,43 @@ html, body {
   color: var(--baltic-blue);
 }
 
-/* Diseño Modular de la Leyenda de Colores */
+/* --- FILTROS POR CATEGORÍA (ETIQUETAS TIPO PÍLDORA) --- */
 .legend-box {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  background: var(--surface);
-  padding: 10px 18px;             /* Reducido levemente para homogeneizar altura con el buscador */
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
+  gap: 8px 12px;
 }
 
 .legend-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 9999px; /* Diseño tipo píldora */
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--deep-space-blue); /* Textos de la leyenda */
-  gap: 8px;
+  color: var(--deep-space-blue);
+  box-shadow: 0 2px 8px rgba(19, 41, 61, 0.08);
+  cursor: default;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
+  border-color: var(--blue-bell);
 }
 
 .color-dot {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .legend-item:nth-child(1) .color-dot { background-color: var(--color-historicos); }
@@ -234,10 +296,11 @@ html, body {
 .legend-item:nth-child(4) .color-dot { background-color: var(--color-tours); }
 .legend-item:nth-child(5) .color-dot { background-color: var(--color-otros); }
 
-/* --- 🛠️ MODIFICACIÓN ROJA: SECCIÓN DEL MAPA (Márgenes corregidos para dar espacio arriba) --- */
+/* --- SECCIÓN DEL MAPA (ALTURA DISPONIBLE DINÁMICA SIN SCROLL) --- */
 .map-section {
   flex: 1;
-  padding: 24px var(--gutter) var(--gutter) var(--gutter); /* Añadidos 24px de espacio arriba del mapa para evitar colisiones */
+  min-height: 0; /* Clave flexbox: permite calcular con precisión la altura restante */
+  padding: 16px var(--gutter) var(--gutter) var(--gutter);
   position: relative;
   display: flex;
 }
@@ -245,6 +308,7 @@ html, body {
 .map-container {
   width: 100%;
   height: 100%;
+  min-height: 0;
   border-radius: 16px;
   border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
   overflow: hidden;
@@ -368,6 +432,44 @@ html, body {
   text-align: justify;
 }
 
+.sidebar-btn-more {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 20px;
+  background-color: var(--baltic-blue);
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 100, 148, 0.25);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-btn-more:hover {
+  background-color: var(--blue-bell);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 152, 224, 0.35);
+}
+
+.sidebar-btn-more:active {
+  background-color: var(--baltic-blue);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 100, 148, 0.2);
+}
+
+.sidebar-btn-more:focus-visible {
+  outline: 2px solid var(--blue-bell);
+  outline-offset: 2px;
+}
+
 /* --- RESPONSIVE --- */
 /* Tablets */
 @media (max-width: 1024px) {
@@ -375,7 +477,15 @@ html, body {
     --gutter: 24px;
   }
   .app-logo {
-    height: 72px;
+    height: 48px;
+  }
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+  .search-filter-bar,
+  .search-section {
+    gap: 12px 18px;
+    padding: 10px var(--gutter);
   }
   .info-sidebar {
     width: 300px;
@@ -388,27 +498,34 @@ html, body {
     --gutter: 16px;
   }
   .app-layout {
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
   }
   .app-header {
-    justify-content: center;
+    padding: 8px var(--gutter);
+    min-height: 56px;
+  }
+  .header-container {
+    padding: 0;
+    gap: 12px;
   }
   .app-logo {
-    height: 64px;
+    height: 42px;
   }
-  .ministry-nav {
-    width: 100%;
-    justify-content: center;
+  .app-header h1,
+  .header-title {
+    font-size: 1.15rem;
   }
   
-  /* 🛠️ COMPORTAMIENTO RESPONSIVE: En móviles se apilan en columna de forma ordenada */
+  /* En móviles se apilan el buscador y las píldoras en la franja intermedia */
+  .search-filter-bar,
   .search-section {
     flex-direction: column; 
-    align-items: stretch;
+    align-items: center;
     width: 100%;
-    gap: 16px;
+    gap: 10px;
+    padding: 10px var(--gutter);
   }
   .search-container {
     width: 100%;
@@ -417,67 +534,100 @@ html, body {
   .legend-box {
     justify-content: center;
     width: 100%;
-    gap: 12px 16px;
+    gap: 8px 10px;
+  }
+  .legend-item {
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
   .map-section {
-    min-height: 420px;
-padding-top: 16px;             /* Ajustado margen en móvil */
+    padding: 8px var(--gutter) var(--gutter) var(--gutter);
+  }
+  .map-container {
+    border-radius: 12px;
+    height: 100%;
+    min-height: 0;
+  }
+  .info-sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 24px 24px 0 0;
+    border: none;
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(0);
+  }
+  .info-sidebar.hidden {
+    transform: translateY(100%);
+  }
+  .sidebar-image {
+    height: 160px;
+  }
+  .sidebar-details {
+    padding: 18px;
+  }
+  .sidebar-title {
+    font-size: 1.3rem;
+  }
+  .sidebar-description {
+    text-align: left;
+  }
+  .sidebar-btn-more {
+    margin-top: 14px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
 }
-.map-container {
-height: auto;
+
+/* Celulares medianos / compactos */
+@media (max-width: 580px) {
+  .header-title {
+    display: none;
+  }
 }
-.info-sidebar {
-position: fixed;
-top: auto;
-bottom: 0;
-left: 0;
-right: 0;
-width: 100%;
-max-height: 50vh;
-border-radius: 24px 24px 0 0;
-border: none;
-border-top: 2px solid var(--border-color);
-box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
-padding-bottom: env(safe-area-inset-bottom);
-transform: translateY(0);
-}
-.info-sidebar.hidden {
-transform: translateY(100%);
-}
-.sidebar-image {
-height: 160px;
-}
-.sidebar-details {
-padding: 20px;
-}
-.sidebar-title {
-font-size: 1.35rem;
-}
-.sidebar-description {
-text-align: left;
-}
-}
+
 /* Celulares pequeños */
 @media (max-width: 480px) {
-:root {
---gutter: 12px;
+  :root {
+    --gutter: 12px;
+  }
+  .app-logo {
+    height: 36px;
+  }
+  .app-header h1,
+  .header-title {
+    font-size: 1.05rem;
+  }
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 0.84rem;
+  }
+  #search-input {
+    padding: 9px 16px;
+    font-size: 0.88rem;
+  }
+  .legend-item {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+  .color-dot {
+    width: 9px;
+    height: 9px;
+  }
 }
-.app-logo {
-height: 56px;
-}
-#search-input {
-padding: 10px 16px;
-}
-.legend-box {
-padding: 12px 14px;
-}
-.legend-item {
-font-size: 0.8rem;
-}
-.map-section {
-min-height: 380px;
-}
-.map-container {
-border-radius: 12px;
-}
+
+/* Dispositivos muy estrechos */
+@media (max-width: 380px) {
+  .nav-link span {
+    display: none;
+  }
+  .nav-link {
+    padding: 8px 10px;
+  }
 }

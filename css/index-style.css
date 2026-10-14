@@ -18,9 +18,18 @@
             background: var(--paper);
             color: var(--ink);
             display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .index-content {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
         }
 
         /* Manchas decorativas de fondo (misma paleta del mapa) */
