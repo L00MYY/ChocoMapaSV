@@ -41,38 +41,60 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  height: auto !important;
+  min-height: 100vh;
   font-family: var(--font-family);
   background-color: var(--deep-space-blue); /* sin franjas blancas o grises */
   color: var(--dark);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden; /* Evita scroll vertical en la ventana */
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* Solo en la vista del mapa (mapa.html) se bloquea el scroll vertical para mantener el mapa fijo */
+body.mapa-body,
+html:has(body.mapa-body) {
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+}
+
+body.mapa-body .app-layout {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Contenedores principales: permiten crecer dinámicamente y hacer scroll vertical completo */
+main,
+.app-layout,
+.page-layout,
+.tours-main,
+.tour-detail-main,
+.catalog-main,
+.detail-main,
+.home-main {
+  height: auto;
+  overflow: visible;
 }
 
 *, *::before, *::after {
   box-sizing: inherit;
 }
 
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  background: var(--field-gradient); /* campo azul detrás de buscador y mapa */
-}
-
 /* --- COMPONENTE: APP-HEADER (Navbar Institucional MITUR) --- */
 .app-header,
 .navbar {
   position: relative;
-  z-index: 20;
+  z-index: 100;
   display: flex;
   align-items: center;
-  padding: 10px var(--gutter);
+  padding: 8px 16px;
   min-height: 68px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
   background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
@@ -84,18 +106,22 @@ html, body {
   width: 100%;
   max-width: 1320px;
   margin: 0 auto;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .app-logo-container {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-decoration: none;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .app-logo-container:hover {
@@ -105,7 +131,7 @@ html, body {
 .app-header h1,
 .header-title {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--alice-blue); /* Texto del título contrastante */
@@ -114,7 +140,7 @@ html, body {
 /* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
 .app-logo {
   display: block;
-  height: 52px;
+  height: 48px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
@@ -131,16 +157,21 @@ html, body {
 .header-navigation {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 4px; /* Margen de seguridad derecho para evitar recorte */
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 7px;
+  padding: 7px 14px;
   color: var(--alice-blue);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: var(--radius-pill);
@@ -148,6 +179,8 @@ html, body {
   background: rgba(232, 241, 242, 0.05);
   transition: var(--transition-fast);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {
@@ -157,7 +190,8 @@ html, body {
   transform: translateY(-1px);
 }
 
-.nav-link.active {
+.nav-link.active,
+.nav-link[aria-current="page"] {
   background: var(--blue-bell);
   color: #FFFFFF;
   border-color: var(--blue-bell);
@@ -505,13 +539,21 @@ html, body {
     height: 100dvh;
     overflow: hidden;
   }
-  .app-header {
+  .app-header,
+  .navbar {
     padding: 8px var(--gutter);
     min-height: 56px;
+    height: auto;
   }
   .header-container {
     padding: 0;
     gap: 12px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .header-navigation {
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .app-logo {
     height: 42px;
@@ -588,10 +630,38 @@ html, body {
   }
 }
 
+/* Tablets y pantallas intermedias: asegura que los 4 botones no se corten */
+@media (max-width: 768px) {
+  .header-container {
+    justify-content: center;
+    gap: 12px;
+  }
+  .header-navigation {
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+    padding-right: 0;
+  }
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
 /* Celulares medianos / compactos */
 @media (max-width: 580px) {
+  .header-container {
+    justify-content: center;
+    gap: 10px;
+  }
+  .app-header h1,
   .header-title {
-    display: none;
+    font-size: 1.05rem;
+  }
+  .header-navigation {
+    justify-content: center;
+    gap: 6px;
+    padding-right: 0;
   }
 }
 
@@ -600,16 +670,33 @@ html, body {
   :root {
     --gutter: 12px;
   }
+  .header-container {
+    justify-content: center;
+    gap: 10px;
+  }
+  .app-logo-container {
+    justify-content: center;
+  }
   .app-logo {
     height: 36px;
   }
   .app-header h1,
   .header-title {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
+  }
+  .header-navigation {
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
   }
   .nav-link {
-    padding: 6px 12px;
-    font-size: 0.84rem;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+  .nav-icon {
+    width: 16px;
+    height: 16px;
   }
   #search-input {
     padding: 9px 16px;
@@ -627,10 +714,23 @@ html, body {
 
 /* Dispositivos muy estrechos */
 @media (max-width: 380px) {
-  .nav-link span {
-    display: none;
+  .header-container {
+    gap: 8px;
+  }
+  .app-header h1,
+  .header-title {
+    font-size: 0.88rem;
+  }
+  .header-navigation {
+    gap: 5px;
   }
   .nav-link {
-    padding: 8px 10px;
+    padding: 5px 8px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+  .nav-icon {
+    width: 14px;
+    height: 14px;
   }
 }

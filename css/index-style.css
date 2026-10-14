@@ -15,16 +15,17 @@
    El inicio es una página con scroll normal. */
 html,
 body {
-    height: auto;
-    min-height: 100%;
+    height: auto !important;
+    min-height: 100vh;
+    overflow-y: auto !important;
     overflow-x: hidden;
-    overflow-y: auto;
 }
 
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    height: auto;
     background-color: var(--light);
     color: var(--dark);
 }
@@ -34,7 +35,10 @@ body {
     outline-offset: 3px;
 }
 
+main,
 .home-main {
+    height: auto;
+    overflow: visible;
     flex: 1;
     width: 100%;
     max-width: 1100px;
@@ -264,9 +268,13 @@ body {
 
 /* --- CELULARES --- */
 @media (max-width: 520px) {
+    .home-hero {
+        padding: 32px 0 24px;
+    }
     .home-acciones .btn-primary,
     .home-acciones .btn-secondary {
         width: 100%;
+        max-width: 360px;
     }
 }
 

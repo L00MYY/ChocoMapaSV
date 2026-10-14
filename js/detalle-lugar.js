@@ -1,5 +1,6 @@
 // js/detalle-lugar.js
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+import { obtenerToursPorLugar } from './tours-service.js';
 
 /**
  * Constantes y Configuraciones
@@ -410,6 +411,193 @@ async function inicializarVistaDetalle() {
 
     // Renderizar datos del lugar exitosamente
     renderizarDetalle(lugar);
+
+    // CP-013 y CP-014: Consultar y renderizar tours del sitio turístico
+    await cargarToursDelSitio(lugar.id);
+}
+
+/**
+ * Estado y controladores para la sección de tours del sitio turístico (CP-013 y CP-014)
+ */
+let toursDelLugar = [];
+
+function crearTarjetaTourLugar(tour) {
+    const card = document.createElement('article');
+    card.className = 'tour-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `Ver información completa de ${tour.name || 'tour oficial'}`);
+    card.dataset.id = tour.id;
+
+    card.addEventListener('click', () => {
+        window.location.href = `tour-detalle.html?id=${encodeURIComponent(tour.id)}`;
+    });
+
+    card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = `tour-detalle.html?id=${encodeURIComponent(tour.id)}`;
+        }
+    });
+
+    const media = document.createElement('div');
+    media.className = 'tour-card-media';
+
+    const img = document.createElement('img');
+    img.className = 'tour-card-image';
+    img.alt = `Fotografía de ${tour.name || 'Tour oficial'}`;
+    img.loading = 'lazy';
+    img.src = (tour.image_url && typeof tour.image_url === 'string' && tour.image_url.trim()) ? tour.image_url.trim() : IMAGEN_FALLBACK;
+    img.addEventListener('error', () => { img.src = IMAGEN_FALLBACK; });
+    media.appendChild(img);
+
+    // CP-013: Etiqueta de descuento SI Y SOLO SI has_offer === true
+    if (tour.has_offer === true && Number(tour.discount_percentage) > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'tour-card-discount-badge';
+        badge.textContent = `-${tour.discount_percentage}% Descuento`;
+        media.appendChild(badge);
+    }
+    card.appendChild(media);
+
+    const body = document.createElement('div');
+    body.className = 'tour-card-body';
+
+    const title = document.createElement('h3');
+    title.className = 'tour-card-title';
+    title.textContent = tour.name || 'Tour turístico';
+    body.appendChild(title);
+
+    const desc = document.createElement('p');
+    desc.className = 'tour-card-description';
+    desc.textContent = tour.short_description || 'Sin descripción disponible para este tour.';
+    body.appendChild(desc);
+
+    const meta = document.createElement('div');
+    meta.className = 'tour-card-meta';
+
+    const guide = document.createElement('span');
+    guide.className = 'tour-card-guide';
+    guide.textContent = `Guía: ${tour.guide_name || 'Certificado'}`;
+    meta.appendChild(guide);
+
+    const pricing = document.createElement('div');
+    pricing.className = 'tour-card-pricing';
+    if (tour.has_offer === true && Number(tour.discount_percentage) > 0) {
+        const orig = document.createElement('span');
+        orig.className = 'price-original';
+        orig.textContent = `$${Number(tour.price).toFixed(2)}`;
+        pricing.appendChild(orig);
+
+        const disc = document.createElement('strong');
+        disc.className = 'price-amount price-discounted';
+        const finalP = tour.final_price !== null && tour.final_price !== undefined 
+            ? tour.final_price 
+            : (Number(tour.price) - (Number(tour.price) * Number(tour.discount_percentage) / 100));
+        disc.textContent = `$${Number(finalP).toFixed(2)}`;
+        pricing.appendChild(disc);
+    } else {
+        const reg = document.createElement('strong');
+        reg.className = 'price-amount';
+        reg.textContent = `$${Number(tour.price).toFixed(2)}`;
+        pricing.appendChild(reg);
+    }
+    meta.appendChild(pricing);
+    body.appendChild(meta);
+    card.appendChild(body);
+
+    const footer = document.createElement('div');
+    footer.className = 'tour-card-footer';
+    footer.innerHTML = `
+        <span class="tour-card-action">Ver tour completo</span>
+        <svg class="tour-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+    `;
+    card.appendChild(footer);
+
+    return card;
+}
+
+function filtrarYRenderizarToursLugar() {
+    const inputDate = document.getElementById('place-tour-date');
+    const clearBtn = document.getElementById('btn-clear-place-date');
+    const emptyBox = document.getElementById('place-tours-empty');
+    const emptyText = document.getElementById('place-empty-text');
+    const grid = document.getElementById('place-tours-grid');
+    if (!grid) return;
+
+    grid.replaceChildren();
+    const fechaSeleccionada = inputDate ? inputDate.value.trim() : '';
+
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !fechaSeleccionada);
+    }
+
+    let toursFiltrados = toursDelLugar;
+    if (fechaSeleccionada) {
+        toursFiltrados = toursDelLugar.filter(t => 
+            Array.isArray(t.tour_dates) && t.tour_dates.some(td => td.departure_date === fechaSeleccionada)
+        );
+    }
+
+    // Si no hay tours
+    if (toursFiltrados.length === 0) {
+        grid.classList.add('hidden');
+        if (emptyBox) {
+            emptyBox.classList.remove('hidden');
+            if (emptyText) {
+                // Si el usuario seleccionó una fecha: CP-014 texto exacto
+                // Si no hay datos en general para este sitio: texto exacto "No hay datos disponibles para mostrar"
+                emptyText.textContent = fechaSeleccionada 
+                    ? 'No hay tours disponibles para la fecha seleccionada'
+                    : 'No hay datos disponibles para mostrar';
+            }
+        }
+        return;
+    }
+
+    if (emptyBox) emptyBox.classList.add('hidden');
+    grid.classList.remove('hidden');
+
+    const fragment = document.createDocumentFragment();
+    toursFiltrados.forEach(tour => {
+        fragment.appendChild(crearTarjetaTourLugar(tour));
+    });
+    grid.appendChild(fragment);
+}
+
+async function cargarToursDelSitio(placeId) {
+    const inputDate = document.getElementById('place-tour-date');
+    const clearBtn = document.getElementById('btn-clear-place-date');
+
+    if (inputDate) {
+        inputDate.addEventListener('change', filtrarYRenderizarToursLugar);
+    }
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (inputDate) inputDate.value = '';
+            filtrarYRenderizarToursLugar();
+        });
+    }
+
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout de seguridad (6s) al cargar tours del sitio')), 6000);
+    });
+
+    try {
+        const tours = await Promise.race([
+            obtenerToursPorLugar(placeId),
+            timeoutPromise
+        ]);
+        toursDelLugar = Array.isArray(tours) ? tours : [];
+    } catch (e) {
+        console.warn('Error o timeout al cargar tours del sitio:', e);
+        toursDelLugar = [];
+    } finally {
+        filtrarYRenderizarToursLugar();
+    }
 }
 
 // Ejecución inicial
