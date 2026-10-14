@@ -1,149 +1,266 @@
-:root {
-    /* 🌊 Inyección de la Nueva Paleta Océano Oficial del Proyecto */
-    --deep-space-blue: #13293D;
-    --baltic-blue: #006494;
-    --cerulean: #247BA0;
-    --blue-bell: #1B98E0;
-    --alice-blue: #E8F1F2;
-    --surface: #FFFFFF;
-    --border-color: #D1E3E6;
+/* index-style.css — Inicio: Descuentos en Tours (usa las variables de styles.css) */
 
-    /* Configuración semántica */
-    --primary: var(--baltic-blue);
-    --primary-hover: var(--blue-bell);
-    --dark: var(--deep-space-blue);
-    --light: var(--alice-blue);
-    --shadow: 0 10px 30px rgba(19, 41, 61, 0.08);
-    --font-family: 'Plus Jakarta Sans', sans-serif;
-}
+* { box-sizing: border-box; }
 
-.index-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    position: relative;
-    z-index: 1;
-}
-
-* { 
-    box-sizing: border-box; 
+/* styles.css fija html/body a 100% con overflow hidden (pensado para el mapa).
+   El inicio es una página con scroll normal. */
+html,
+body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    font-family: var(--font-family);
-    background-color: var(--light); /* Fondo suave Alice Blue de la paleta */
-    color: var(--dark);
     display: flex;
     flex-direction: column;
-    overflow-x: hidden; /* Garantiza el cumplimiento de no scroll horizontal */
-    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    background-color: var(--light);
+    color: var(--dark);
+}
+
+:focus-visible {
+    outline: 3px solid var(--blue-bell);
+    outline-offset: 3px;
+}
+
+.home-main {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 24px;
 }
 
 /* --- BIENVENIDA --- */
-.hero-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
+.home-hero {
     max-width: 800px;
-    width: 100%;
     margin: 0 auto;
+    padding: 56px 0 32px;
     text-align: center;
-    padding: 40px 24px;
 }
 
-.hero-eyebrow {
+.home-insignia {
+    display: inline-block;
+    padding: 6px 16px;
+    margin-bottom: 18px;
     font-size: 0.9rem;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--primary);
-    display: block;
-    margin-bottom: 16px;
-}
-
-.hero-title {
-    font-size: 3rem;
-    font-weight: 800;
     color: var(--dark);
-    margin: 0 0 20px 0;
-    line-height: 1.2;
+    background: var(--color-tours);
+    border-radius: var(--radius-pill);
+}
+
+.home-titulo {
+    margin: 0 auto 16px;
+    max-width: 18ch;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
     letter-spacing: -0.5px;
+    color: var(--dark);
 }
 
-.hero-title em {
-    font-style: normal;
-    color: var(--cerulean);
-}
-
-.hero-description {
-    font-size: 1.2rem;
+.home-descripcion {
+    max-width: 52ch;
+    margin: 0 auto 28px;
+    font-size: clamp(1rem, 2.4vw, 1.2rem);
     line-height: 1.65;
     color: var(--dark);
     opacity: 0.85;
-    margin: 0 0 40px 0;
 }
 
-/* Boton .btn-primary */
-.btn-primary {
-    position: relative;
-    z-index: 1;
+.home-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* --- BOTONES --- */
+.btn-primary,
+.btn-secondary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    padding: 18px 48px;
+    padding: 16px 36px;
     font-family: var(--font-family);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 800;
-    letter-spacing: .01em;
-    color: #ffffff;
-    background: var(--dark); 
-    border: none;
-    border-radius: 16px; /* Bordes redondeados según requerimiento */
     text-decoration: none;
     cursor: pointer;
+    border-radius: 16px;
+    transition: transform .25s ease, background-color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.btn-primary {
+    color: #ffffff;
+    background: var(--dark);
+    border: 2px solid var(--dark);
     box-shadow: 0 16px 36px -12px rgba(19, 41, 61, 0.35);
-    transition: transform .25s ease, background-color .25s ease, box-shadow .25s ease;
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px);
-    background-color: var(--primary); /* Hover fluido usando el Azul Báltico */
-    box-shadow: 0 20px 40px -12px rgba(0, 100, 148, 0.4);
+    transform: translateY(-2px);
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
-.btn-primary:active {
-    transform: translateY(0);
+.btn-secondary {
+    color: var(--dark);
+    background: transparent;
+    border: 2px solid var(--dark);
 }
 
-.btn-primary svg {
-    transition: transform .25s ease;
+.btn-secondary:hover {
+    color: #ffffff;
+    background: var(--dark);
 }
 
-.btn-primary:hover svg {
-    transform: translateX(6px); /* Animación nativa de la flecha */
+/* --- DATOS DE CONFIANZA --- */
+.home-confianza {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 640px;
+    margin: 36px auto 0;
+    padding: 18px 8px;
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
 }
 
-/* --- Media Query  --- */
+.home-confianza strong {
+    display: block;
+    font-size: clamp(1rem, 3.4vw, 1.25rem);
+    font-weight: 800;
+    color: var(--dark);
+}
+
+.home-confianza span {
+    font-size: 0.8rem;
+    color: var(--cerulean);
+    font-weight: 600;
+}
+
+/* --- SECCIONES --- */
+.home-seccion {
+    padding-top: 40px;
+}
+
+.home-seccion-cabecera {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.home-seccion h2,
+.home-mapa h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+/* --- TIPOS --- */
+.home-tipos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-tipo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+.home-tipo:hover {
+    border-color: var(--cerulean);
+    background: var(--alice-blue);
+}
+
+.home-punto {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* --- LLAMADA AL MAPA --- */
+.home-mapa {
+    margin-top: 44px;
+    padding: 36px 20px;
+    text-align: center;
+    color: #ffffff;
+    background: var(--deep-space-blue);
+    border-radius: 20px;
+}
+
+.home-mapa h2 {
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.home-mapa p {
+    margin: 0 0 20px;
+    color: var(--alice-blue);
+}
+
+.btn-claro {
+    color: var(--dark);
+    background: #ffffff;
+    border-color: #ffffff;
+    box-shadow: none;
+}
+
+.btn-claro:hover {
+    color: var(--dark);
+    background: var(--alice-blue);
+    border-color: var(--alice-blue);
+}
+
+/* --- PIE --- */
+.home-pie {
+    padding: 20px 24px 28px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--cerulean);
+    border-top: 1px solid var(--border-color);
+}
+
+.home-pie p { margin: 0; }
+
+/* --- PANTALLAS GRANDES --- */
+@media (min-width: 760px) {
+    .home-hero { padding: 88px 0 40px; }
+    .home-mapa { padding: 48px 32px; }
+}
+
+/* --- CELULARES --- */
 @media (max-width: 520px) {
-    .hero-title {
-        font-size: 2.1rem;
+    .home-acciones .btn-primary,
+    .home-acciones .btn-secondary {
+        width: 100%;
     }
-    .hero-description {
-        font-size: 1rem;
-    }
-    .btn-primary {
-        padding: 16px 32px;
-        font-size: 1rem;
-        width: 100%; /* Botón fluido de ancho completo en celulares */
-    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
 }
