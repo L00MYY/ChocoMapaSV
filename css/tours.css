@@ -1,606 +1,616 @@
 /* ==========================================================================
    css/tours.css
    Estilos oficiales para el catálogo general de Tours (MITUR SV)
-   Cumple con CP-015, CP-016 y CP-017
    ========================================================================== */
 
 :root {
-  --deep-space-blue: #13293D;
-  --baltic-blue: #006494;
-  --cerulean: #247BA0;
-  --blue-bell: #1B98E0;
-  --alice-blue: #E8F1F2;
-  --surface: #FFFFFF;
-  --surface-card: #FFFFFF;
-  --border-color: #D1E3E6;
-  
-  --text-primary: #13293D;
-  --text-secondary: #4A6572;
-  --text-muted: #7E97A6;
-  --text-light: #E8F1F2;
+    --deep-space-blue: #13293D;
+    --baltic-blue: #006494;
+    --cerulean: #247BA0;
+    --blue-bell: #1B98E0;
+    --alice-blue: #E8F1F2;
+    --surface: #FFFFFF;
+    --surface-card: #FFFFFF;
+    --border-color: #D1E3E6;
 
-  --color-offer-bg: #E74C3C;
-  --color-offer-text: #FFFFFF;
-  --color-tag-bg: #FEF9E7;
-  --color-tag-text: #7D6608;
+    --text-primary: #13293D;
+    --text-secondary: #4A6572;
+    --text-muted: #7E97A6;
+    --text-light: #E8F1F2;
 
-  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-brand: 'Caacupe One', sans-serif;
+    --color-offer-bg: #E74C3C;
+    --color-offer-text: #FFFFFF;
+    --color-tag-bg: #FEF9E7;
+    --color-tag-text: #7D6608;
 
-  --gutter: 24px;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-pill: 9999px;
+    --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-brand: 'Caacupe One', sans-serif;
 
-  --shadow-sm: 0 2px 8px rgba(19, 41, 61, 0.06);
-  --shadow-md: 0 8px 24px -4px rgba(19, 41, 61, 0.10);
-  --shadow-hover: 0 16px 36px -6px rgba(19, 41, 61, 0.22);
-  --transition-fast: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    --gutter: 24px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-pill: 9999px;
+
+    --shadow-sm: 0 2px 8px rgba(19, 41, 61, 0.06);
+    --shadow-md: 0 8px 24px -4px rgba(19, 41, 61, 0.10);
+    --shadow-hover: 0 16px 36px -6px rgba(19, 41, 61, 0.22);
+    --transition-fast: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-html, body {
-  height: auto !important;
-  min-height: 100vh;
-  font-family: var(--font-family);
-  background-color: var(--deep-space-blue);
-  color: var(--text-primary);
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+html,
+body {
+    height: auto !important;
+    min-height: 100vh;
+    font-family: var(--font-family);
+    background-color: var(--deep-space-blue);
+    color: var(--text-primary);
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 .page-layout {
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  min-height: 100vh;
-  overflow: visible;
-  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0c1a27 100%);
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0c1a27 100%);
 }
 
 main,
 .tours-main {
-  height: auto;
-  overflow: visible;
-  flex: 1;
+    height: auto;
+    overflow: visible;
+    flex: 1;
 }
 
 .hidden {
-  display: none !important;
+    display: none !important;
 }
 
 /* --- Hero del Catálogo --- */
 .tours-hero {
-  padding: 44px var(--gutter) 24px;
-  text-align: center;
-  max-width: 900px;
-  margin: 0 auto;
+    padding: 44px var(--gutter) 24px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 18px;
-  margin-bottom: 14px;
-  background: rgba(27, 152, 224, 0.15);
-  border: 1px solid rgba(27, 152, 224, 0.35);
-  border-radius: var(--radius-pill);
-  color: var(--blue-bell);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    margin-bottom: 14px;
+    background: rgba(27, 152, 224, 0.15);
+    border: 1px solid rgba(27, 152, 224, 0.35);
+    border-radius: var(--radius-pill);
+    color: var(--blue-bell);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .hero-title {
-  color: var(--alice-blue);
-  font-size: clamp(2rem, 5vw, 2.9rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-  margin-bottom: 14px;
+    color: var(--alice-blue);
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 14px;
 }
 
 .hero-subtitle {
-  color: #B5CBD8;
-  font-size: clamp(0.95rem, 2.2vw, 1.12rem);
-  line-height: 1.6;
-  max-width: 680px;
-  margin: 0 auto;
+    color: #B5CBD8;
+    font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+    line-height: 1.6;
+    max-width: 680px;
+    margin: 0 auto;
 }
 
 /* --- Barra de Filtros Combinables (4 Filtros Obligatorios) --- */
 .filters-section {
-  max-width: 1240px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 var(--gutter) 28px;
+    max-width: 1240px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gutter) 28px;
 }
 
 .filters-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(209, 227, 230, 0.18);
-  border-radius: var(--radius-lg);
-  padding: 22px 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(209, 227, 230, 0.18);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .filters-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-  gap: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .filters-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--alice-blue);
-  font-size: 1.1rem;
-  font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--alice-blue);
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
 .filters-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--blue-bell);
+    width: 20px;
+    height: 20px;
+    color: var(--blue-bell);
 }
 
 .btn-reset-filters {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  background: transparent;
-  color: var(--alice-blue);
-  border: 1px solid rgba(232, 241, 242, 0.25);
-  border-radius: var(--radius-pill);
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: transparent;
+    color: var(--alice-blue);
+    border: 1px solid rgba(232, 241, 242, 0.25);
+    border-radius: var(--radius-pill);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
 }
 
 .btn-reset-filters:hover {
-  background: rgba(232, 241, 242, 0.15);
-  color: #FFFFFF;
-  border-color: rgba(232, 241, 242, 0.45);
+    background: rgba(232, 241, 242, 0.15);
+    color: #FFFFFF;
+    border-color: rgba(232, 241, 242, 0.45);
 }
 
 .filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
 }
 
 .filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .filter-label {
-  color: #B5CBD8;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+    color: #B5CBD8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
 .filter-input,
 .filter-select {
-  width: 100%;
-  padding: 10px 14px;
-  background: var(--surface);
-  color: var(--deep-space-blue);
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: 500;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--surface);
+    color: var(--deep-space-blue);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .filter-input:focus,
 .filter-select:focus {
-  border-color: var(--blue-bell);
-  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
+    border-color: var(--blue-bell);
+    box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
 }
 
 /* --- Barra de Estado / Contador --- */
 .status-bar {
-  max-width: 1240px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 var(--gutter) 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    max-width: 1240px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gutter) 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .results-counter {
-  color: #A9C2D1;
-  font-size: 0.92rem;
-  font-weight: 600;
+    color: #A9C2D1;
+    font-size: 0.92rem;
+    font-weight: 600;
 }
 
 /* --- Grid de Tarjetas de Tours (CP-015, CP-017) --- */
 .tours-container {
-  max-width: 1240px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 var(--gutter) 60px;
-  flex: 1;
+    max-width: 1240px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gutter) 60px;
+    flex: 1;
 }
 
 .tours-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 28px;
 }
 
 /* Tarjeta de Tour Estándar */
 .tour-card {
-  background: var(--surface-card);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  transition: var(--transition-fast);
-  position: relative;
+    background: var(--surface-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition-fast);
+    position: relative;
 }
 
 .tour-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--blue-bell);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--blue-bell);
 }
 
 .tour-card:focus-visible {
-  outline: 3px solid var(--blue-bell);
-  outline-offset: 3px;
+    outline: 3px solid var(--blue-bell);
+    outline-offset: 3px;
 }
 
 /* Contenedor Multimedia */
 .tour-card-media {
-  position: relative;
-  width: 100%;
-  height: 210px;
-  background-color: #0b1a26;
-  overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 210px;
+    background-color: #0b1a26;
+    overflow: hidden;
 }
 
 .tour-card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
 }
 
 .tour-card:hover .tour-card-image {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 
 /* Etiqueta de Descuento (CP-017) */
 .tour-card-discount-badge {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 2;
-  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
-  color: #FFFFFF;
-  font-size: 0.82rem;
-  font-weight: 800;
-  padding: 5px 12px;
-  border-radius: var(--radius-pill);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.45);
-  letter-spacing: 0.3px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+    color: #FFFFFF;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.45);
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* Cuerpo de la Tarjeta */
 .tour-card-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .tour-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .tour-card-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--deep-space-blue);
-  line-height: 1.3;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--deep-space-blue);
+    line-height: 1.3;
 }
 
 .tour-card-dept {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--baltic-blue);
-  background: var(--alice-blue);
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--baltic-blue);
+    background: var(--alice-blue);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    flex-shrink: 0;
 }
 
 .dept-icon {
-  width: 13px;
-  height: 13px;
+    width: 13px;
+    height: 13px;
 }
 
 .tour-card-description {
-  color: var(--text-secondary);
-  font-size: 0.92rem;
-  line-height: 1.55;
-  margin-bottom: 18px;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-  flex: 1;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin-bottom: 18px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    flex: 1;
 }
 
 /* Metadatos y Precio */
 .tour-card-meta {
-  border-top: 1px solid rgba(209, 227, 230, 0.6);
-  padding-top: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+    border-top: 1px solid rgba(209, 227, 230, 0.6);
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .tour-card-guide {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .tour-card-guide strong {
-  color: var(--deep-space-blue);
-  font-weight: 700;
+    color: var(--deep-space-blue);
+    font-weight: 700;
 }
 
 .meta-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--cerulean);
-  flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--cerulean);
+    flex-shrink: 0;
 }
 
 .tour-card-pricing {
-  text-align: right;
+    text-align: right;
 }
 
 .price-label {
-  display: block;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 700;
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
 }
 
 .price-values {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  justify-content: flex-end;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: flex-end;
 }
 
 .price-original {
-  font-size: 0.85rem;
-  color: #95A5A6;
-  text-decoration: line-through;
-  font-weight: 600;
+    font-size: 0.85rem;
+    color: #95A5A6;
+    text-decoration: line-through;
+    font-weight: 600;
 }
 
 .price-amount {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--baltic-blue);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--baltic-blue);
 }
 
 .price-amount.price-discounted {
-  color: #C0392B;
+    color: #C0392B;
 }
 
 /* Pie de Tarjeta con feedback de acción */
 .tour-card-footer {
-  padding: 12px 20px;
-  background: #F8FBFB;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    padding: 12px 20px;
+    background: #F8FBFB;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .tour-card-action {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--baltic-blue);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--baltic-blue);
 }
 
 .tour-card-arrow {
-  width: 18px;
-  height: 18px;
-  color: var(--baltic-blue);
-  transition: transform 0.2s ease;
+    width: 18px;
+    height: 18px;
+    color: var(--baltic-blue);
+    transition: transform 0.2s ease;
 }
 
 .tour-card:hover .tour-card-arrow {
-  transform: translateX(4px);
-  color: var(--blue-bell);
+    transform: translateX(4px);
+    color: var(--blue-bell);
 }
 
 /* --- Estado Vacío / Sin Resultados (CP-016 Mensaje Exacto) --- */
 .state-no-results {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  padding: 56px 24px;
-  text-align: center;
-  max-width: 600px;
-  margin: 30px auto;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 56px 24px;
+    text-align: center;
+    max-width: 600px;
+    margin: 30px auto;
 }
 
 .no-results-icon-box {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 18px;
-  border-radius: 50%;
-  background: var(--alice-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: var(--alice-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-results-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--baltic-blue);
+    width: 32px;
+    height: 32px;
+    color: var(--baltic-blue);
 }
 
 .no-results-message {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--deep-space-blue);
-  line-height: 1.45;
-  margin-bottom: 20px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--deep-space-blue);
+    line-height: 1.45;
+    margin-bottom: 20px;
 }
 
 .btn-secondary-reset {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 24px;
-  background: var(--baltic-blue);
-  color: #FFFFFF;
-  border: none;
-  border-radius: var(--radius-pill);
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 24px;
+    background: var(--baltic-blue);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-fast);
 }
 
 .btn-secondary-reset:hover {
-  background: var(--blue-bell);
+    background: var(--blue-bell);
 }
 
 /* Skeletons de Carga */
 .skeleton-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 28px;
 }
 
 .skeleton-card {
-  background: var(--surface);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
 }
 
 .skeleton-image {
-  height: 210px;
-  background: linear-gradient(90deg, #18334a 25%, #22435f 50%, #18334a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+    height: 210px;
+    background: linear-gradient(90deg, #18334a 25%, #22435f 50%, #18334a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }
 
 .skeleton-body {
-  padding: 20px;
+    padding: 20px;
 }
 
 .skeleton-line {
-  height: 14px;
-  margin-bottom: 12px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #E2EDF0 25%, #F0F6F7 50%, #E2EDF0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+    height: 14px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #E2EDF0 25%, #F0F6F7 50%, #E2EDF0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }
 
 .skeleton-title {
-  height: 20px;
-  width: 70%;
-  margin-bottom: 16px;
+    height: 20px;
+    width: 70%;
+    margin-bottom: 16px;
 }
 
 .skeleton-text-short {
-  width: 45%;
+    width: 45%;
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 /* Footer Institucional */
 .tours-footer {
-  padding: 28px var(--gutter);
-  background: #091520;
-  border-top: 1px solid rgba(209, 227, 230, 0.12);
-  text-align: center;
-  color: #7E97A6;
-  font-size: 0.88rem;
+    padding: 28px var(--gutter);
+    background: #091520;
+    border-top: 1px solid rgba(209, 227, 230, 0.12);
+    text-align: center;
+    color: #7E97A6;
+    font-size: 0.88rem;
 }
 
 .tours-footer p {
-  margin: 4px 0;
+    margin: 4px 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .tours-hero {
-    padding: 32px var(--gutter) 20px;
-  }
-  .filters-card {
-    padding: 16px 18px;
-  }
-  .filters-grid {
-    grid-template-columns: 1fr;
-  }
-  .tours-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+    .tours-hero {
+        padding: 32px var(--gutter) 20px;
+    }
+
+    .filters-card {
+        padding: 16px 18px;
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tours-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
 }
