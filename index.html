@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ministerio de turismo SV</title>
+    <meta name="description" content="Tours y destinos oficiales con descuento en El Salvador, verificados por el Ministerio de Turismo.">
+    <title>Descuentos en Tours | Ministerio de Turismo SV</title>
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,9 +17,9 @@
     <!-- Barra de Navegación Institucional Estandarizada -->
     <header class="navbar app-header" style="width: 100%;">
         <div class="header-container">
-            <a href="mapa.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+            <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
                 <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async" fetchpriority="high">
-                <h1 class="header-title">Ministerio de Turismo</h1>
+                <span class="header-title">Ministerio de Turismo</span>
             </a>
             <nav class="header-navigation" aria-label="Navegación principal">
                 <a href="mapa.html" class="nav-link" id="nav-mapa">
@@ -42,24 +43,51 @@
         </div>
     </header>
 
-    <!-- Bienvenida -->
-    <main class="hero-wrapper">
-        <section class="hero-content">
-            <span class="hero-eyebrow">Bienvenido a ChocoMapaSV</span>
-            <h2 class="hero-title">Explora El Salvador <em>a tu ritmo</em></h2>
-            <p class="hero-description">
-                Descubre rutas, miradores y tours en un solo mapa interactivo. Busca tu próximo destino y planifica tu visita de manera fácil.
+    <main class="home-main">
+        <!-- Bienvenida -->
+        <section class="home-hero" aria-labelledby="home-titulo">
+            <span class="home-insignia">Descuentos en tours</span>
+            <h1 class="home-titulo" id="home-titulo">Vive El Salvador con tours oficiales y precios especiales</h1>
+            <p class="home-descripcion">
+                Tours y destinos verificados por el Ministerio de Turismo. Compara, elige y planifica tu visita.
             </p>
-            
-            <!-- Botón -->
-            <a href="mapa.html" class="btn-primary">
-                Abrir el mapa
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </a>
+            <div class="home-acciones">
+                <a href="lugares-turisticos.html" class="btn-primary">Ver lugares turísticos</a>
+                <a href="mapa.html" class="btn-secondary">Abrir el mapa</a>
+            </div>
+
+            <ul class="home-confianza" aria-label="Datos del catálogo">
+                <li><strong id="dato-total">28</strong><span>Destinos oficiales</span></li>
+                <li><strong>Verificados</strong><span>Por el Ministerio</span></li>
+                <li><strong>Descuentos</strong><span>En tours seleccionados</span></li>
+            </ul>
+        </section>
+
+        <!-- Explorar por tipo -->
+        <section class="home-seccion" aria-labelledby="tipos-titulo">
+            <div class="home-seccion-cabecera">
+                <h2 id="tipos-titulo">Explora por tipo</h2>
+            </div>
+            <ul class="home-tipos">
+                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=tours"><span class="home-punto" style="background: var(--color-tours)"></span>Tours</a></li>
+                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=miradores"><span class="home-punto" style="background: var(--color-miradores)"></span>Miradores</a></li>
+                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=sitios%20hist%C3%B3ricos"><span class="home-punto" style="background: var(--color-historicos)"></span>Sitios históricos</a></li>
+                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=restaurantes"><span class="home-punto" style="background: var(--color-restaurantes)"></span>Restaurantes</a></li>
+            </ul>
+        </section>
+
+        <!-- Llamada al mapa -->
+        <section class="home-mapa" aria-labelledby="mapa-titulo">
+            <h2 id="mapa-titulo">Planifica tu próxima aventura</h2>
+            <p>Encuentra tours y destinos cerca de ti en el mapa interactivo.</p>
+            <a href="mapa.html" class="btn-primary btn-claro">Abrir el mapa</a>
         </section>
     </main>
+
+    <footer class="home-pie">
+        <p>Ministerio de Turismo · Gobierno de El Salvador</p>
+    </footer>
+
+    <script type="module" src="js/index.js"></script>
 </body>
 </html>
