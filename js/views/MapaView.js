@@ -1,5 +1,5 @@
-// js/map.js
-import { MAPBOX_TOKEN } from './config.js';
+// Vista e integración visual de Mapbox.
+import { MAPBOX_TOKEN } from '../models/config.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -94,27 +94,29 @@ function calcularPromedioRatings(ratings) {
     return Math.min(5.0, Math.max(1.0, Math.round(promedio * 10) / 10));
 }
 
-/**
- * Genera el HTML de estrellas amarillas (llenas/vacias) según la calificación.
- * @param {number} calificacion - Valor flotante de 1.0 a 5.0
- * @returns {string} HTML con 5 SVG de estrellas
- */
-function generarEstrellasHTML(calificacion) {
+function crearEstrellas(calificacion) {
     const estrellasLlenas = Math.floor(calificacion);
     const tieneFraccion = (calificacion - estrellasLlenas) >= 0.4;
-    let html = '';
+    const fragment = document.createDocumentFragment();
 
     for (let i = 1; i <= 5; i++) {
         const llena = i <= estrellasLlenas || (i === estrellasLlenas + 1 && tieneFraccion);
         const color = llena ? '#F59E0B' : '#D1D5DB'; // amarillo / gris
-        html += `<svg viewBox="0 0 24 24" width="14" height="14"
-                      fill="${color}" stroke="${color}" stroke-width="1.5"
-                      stroke-linecap="round" stroke-linejoin="round"
-                      style="display:inline-block;flex-shrink:0">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                 </svg>`;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('fill', color);
+        svg.setAttribute('stroke', color);
+        svg.setAttribute('stroke-width', '1.5');
+        svg.style.display = 'inline-block';
+        svg.style.flexShrink = '0';
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+        svg.appendChild(polygon);
+        fragment.appendChild(svg);
     }
-    return html;
+    return fragment;
 }
 
 let activeMarkers = {};
@@ -137,6 +139,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+export const MapaView = {
+    elements: {
+        searchInput: document.getElementById('search-input'),
+        searchResults: document.getElementById('results-list'),
+        closeSidebar: document.getElementById('close-sidebar'),
+        sidebar: document.getElementById('info-sidebar')
+    },
+
+    renderizarResultados(lugares, onSelectLugar) {
+        const { searchResults } = this.elements;
+        if (!searchResults) return;
+
+        searchResults.replaceChildren();
+        if (!lugares.length) {
+            searchResults.classList.add('hidden');
+            return;
+        }
+
+        searchResults.classList.remove('hidden');
+        const fragment = document.createDocumentFragment();
+        lugares.forEach(lugar => {
+            const item = document.createElement('li');
+            item.className = 'result-item';
+
+            const title = document.createElement('span');
+            title.className = 'result-item-title';
+            title.textContent = lugar.name || 'Sitio turístico';
+
+            const category = document.createElement('span');
+            category.className = 'result-item-category';
+            category.style.color = lugar.color || '#FF6B6B';
+            category.textContent = lugar.category || 'Turismo';
+
+            item.append(title, category);
+            item.addEventListener('click', () => onSelectLugar(lugar));
+            fragment.appendChild(item);
+        });
+        searchResults.appendChild(fragment);
+    },
+
+    ocultarResultados() {
+        this.elements.searchResults?.classList.add('hidden');
+    }
+};
+
 export function renderizarMarcadores(lugares) {
     Object.values(activeMarkers).forEach(item => item.marker.remove());
     activeMarkers = {};
@@ -151,7 +198,7 @@ export function renderizarMarcadores(lugares) {
 
         marker.getElement().addEventListener('mouseenter', () => {
             hoverPopup.setLngLat(lugar.coords)
-                .setHTML(`<span>${lugar.name}</span>`)
+                .setText(lugar.name || '')
                 .addTo(map);
         });
 
@@ -187,39 +234,59 @@ export function openPopupAndFly(lugar, colorHex) {
         const promedio = calcularPromedioRatings(lugar.ratings);
         const hayRating = promedio > 0;
         const ratingTexto = hayRating ? promedio.toFixed(1) : 'Sin calificaciones';
-        const estrellasSVG = hayRating ? generarEstrellasHTML(promedio) : '';
-
         // --- Horarios (columna opening_days de public.places) ---
         const horarios = lugar.opening_days && lugar.opening_days.trim().length > 0
             ? lugar.opening_days.trim()
             : 'Consultar disponibilidad';
+        const image = document.createElement('img');
+        image.className = 'sidebar-image';
+        image.src = lugar.image_url || '';
+        image.alt = lugar.name || 'Sitio turístico';
 
-        sidebarContent.innerHTML = `
-            <img src="${lugar.image_url}" alt="${lugar.name}" class="sidebar-image">
-            <div class="sidebar-details">
-                <span class="sidebar-category" style="color: ${color};">${lugar.category}</span>
-                <h3 class="sidebar-title">${lugar.name}</h3>
-                <p class="sidebar-description">${lugar.description}</p>
+        const details = document.createElement('div');
+        details.className = 'sidebar-details';
+        const category = document.createElement('span');
+        category.className = 'sidebar-category';
+        category.style.color = color;
+        category.textContent = lugar.category || 'Turismo';
+        const title = document.createElement('h3');
+        title.className = 'sidebar-title';
+        title.textContent = lugar.name || 'Sitio turístico';
+        const description = document.createElement('p');
+        description.className = 'sidebar-description';
+        description.textContent = lugar.description || '';
 
-                <!-- Calificación promedio con estrellas dinámicas -->
-                <div class="sidebar-rating" style="display:flex;align-items:center;gap:6px;margin:8px 0;">
-                    <span style="display:flex;gap:2px;align-items:center;">${estrellasSVG}</span>
-                    <span style="font-size:0.85rem;font-weight:600;color:#374151;">${ratingTexto}</span>
-                    ${hayRating ? `<span style="font-size:0.75rem;color:#6B7280;">(${lugar.ratings.length} resena${lugar.ratings.length !== 1 ? 's' : ''})</span>` : ''}
-                </div>
+        const rating = document.createElement('div');
+        rating.className = 'sidebar-rating';
+        rating.style.cssText = 'display:flex;align-items:center;gap:6px;margin:8px 0;';
+        const stars = document.createElement('span');
+        stars.style.cssText = 'display:flex;gap:2px;align-items:center;';
+        if (hayRating) stars.appendChild(crearEstrellas(promedio));
+        const ratingLabel = document.createElement('span');
+        ratingLabel.style.cssText = 'font-size:0.85rem;font-weight:600;color:#374151;';
+        ratingLabel.textContent = ratingTexto;
+        rating.append(stars, ratingLabel);
+        if (hayRating) {
+            const count = document.createElement('span');
+            count.style.cssText = 'font-size:0.75rem;color:#6B7280;';
+            const cantidadRatings = Array.isArray(lugar.ratings) ? lugar.ratings.length : 0;
+            count.textContent = `(${cantidadRatings} resena${cantidadRatings !== 1 ? 's' : ''})`;
+            rating.appendChild(count);
+        }
 
-                <!-- Horarios de apertura (opening_days) -->
-                <div class="sidebar-hours" style="display:flex;align-items:center;gap:6px;margin:4px 0 12px;font-size:0.8rem;color:#6B7280;">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <span>${horarios}</span>
-                </div>
+        const hours = document.createElement('div');
+        hours.className = 'sidebar-hours';
+        hours.style.cssText = 'display:flex;align-items:center;gap:6px;margin:4px 0 12px;font-size:0.8rem;color:#6B7280;';
+        const hoursLabel = document.createElement('span');
+        hoursLabel.textContent = horarios;
+        hours.appendChild(hoursLabel);
 
-                <a href="detalle-lugar.html?id=${lugar.id}" class="sidebar-btn-more">Ver más información</a>
-            </div>
-        `;
+        const link = document.createElement('a');
+        link.className = 'sidebar-btn-more';
+        link.textContent = 'Ver más información';
+        link.href = `detalle-lugar.html?id=${encodeURIComponent(lugar.id || '')}`;
+
+        details.append(category, title, description, rating, hours, link);
+        sidebarContent.replaceChildren(image, details);
     }
 }

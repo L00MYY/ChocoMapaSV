@@ -1,5 +1,4 @@
-// js/tours-service.js
-// Servicio oficial de integración con Supabase para el módulo de Tours y Reservas (MITUR SV)
+// Modelo y acceso a datos para tours y reservas (MITUR SV)
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
 const HEADERS = {
@@ -493,4 +492,59 @@ export function formatearFechaLarga(fechaStr) {
     }
     return String(fechaStr);
 }
+
+let todosLosTours = [];
+let lugaresDisponibles = [];
+
+export const ToursModel = {
+    async cargarCatalogo() {
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout de seguridad (6s) excedido al cargar catálogo')), 6000);
+        });
+
+        const [tours, lugares] = await Promise.race([
+            Promise.all([obtenerToursActivos(), obtenerLugaresParaFiltro()]),
+            timeoutPromise
+        ]);
+
+        todosLosTours = Array.isArray(tours) ? tours : [];
+        lugaresDisponibles = Array.isArray(lugares) ? lugares : [];
+        return { tours: todosLosTours, lugares: lugaresDisponibles };
+    },
+
+    getToursFiltrados(filtros = {}) {
+        const { fecha = '', departamento = '', oferta = '', lugar = '' } = filtros;
+        const deptoNormalizado = departamento.trim().toLowerCase();
+
+        return todosLosTours.filter(tour => {
+            if (fecha && !(Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => item.departure_date === fecha))) {
+                return false;
+            }
+
+            if (deptoNormalizado && (tour.department || '').trim().toLowerCase() !== deptoNormalizado) {
+                return false;
+            }
+
+            const tieneOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
+            if (oferta === 'oferta' && !tieneOferta) return false;
+            if (oferta === 'sin_oferta' && tieneOferta) return false;
+
+            if (lugar && !(Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
+                item.place_id === lugar || item.places?.id === lugar
+            ))) {
+                return false;
+            }
+
+            return true;
+        });
+    },
+
+    getTotalTours() {
+        return todosLosTours.length;
+    },
+
+    getLugaresDisponibles() {
+        return lugaresDisponibles;
+    }
+};
 
