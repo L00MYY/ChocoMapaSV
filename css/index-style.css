@@ -7,9 +7,12 @@
     --alice-blue: #E8F1F2;
     --surface: #FFFFFF;
     --border-color: #D1E3E6;
-=======
+}
+
 /* index-style.css — Inicio: Descuentos en Tours (usa las variables de styles.css) */
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 /* styles.css fija html/body a 100% con overflow hidden (pensado para el mapa).
    El inicio es una página con scroll normal. */
@@ -258,12 +261,19 @@ main,
     border-top: 1px solid var(--border-color);
 }
 
-.home-pie p { margin: 0; }
+.home-pie p {
+    margin: 0;
+}
 
 /* --- PANTALLAS GRANDES --- */
 @media (min-width: 760px) {
-    .home-hero { padding: 88px 0 40px; }
-    .home-mapa { padding: 48px 32px; }
+    .home-hero {
+        padding: 88px 0 40px;
+    }
+
+    .home-mapa {
+        padding: 48px 32px;
+    }
 }
 
 /* --- CELULARES --- */
@@ -279,5 +289,7 @@ main,
 }
 
 @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
+    * {
+        transition: none !important;
+    }
 }

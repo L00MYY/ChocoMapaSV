@@ -46,11 +46,11 @@ const SERVICIOS_PREDETERMINADOS = [
 function extraerParametroId() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
-    
+
     if (id && id.trim().length > 0) {
         return id.trim();
     }
-    
+
     // Si no viene en la URL, permitir valor de respaldo para desarrollo local
     console.info(`No se especificó parámetro 'id' en la URL. Usando fallback de desarrollo: ${DEFAULT_FALLBACK_ID}`);
     return DEFAULT_FALLBACK_ID;
@@ -63,10 +63,12 @@ function extraerParametroId() {
  */
 async function obtenerDetalleLugar(id) {
     try {
-        // Consultamos la tabla places uniendo categorías, servicios y calificaciones
+        // Consultamos la tabla places uniendo categorías, servicios y calificaciones.
+        // ratings(score): trae SOLO la columna numérica de la tabla public.ratings.
+        // No se selecciona place_id de ratings porque no es necesario en el frontend.
         const queryParams = new URLSearchParams({
             id: `eq.${id}`,
-            select: '*,categories(*),place_services(services(*)),ratings(*)'
+            select: 'id,name,description,image_url,opening_days,opening_time,closing_time,department,region,is_active,latitude,longitude,categories(name,color),place_services(services(name)),ratings(score)'
         });
 
         const url = `${SUPABASE_URL}/rest/v1/places?${queryParams.toString()}`;
@@ -211,8 +213,8 @@ function renderizarHorarios(lugar) {
     const noteElement = document.getElementById('schedule-note-text');
 
     // Días de atención
-    const dias = lugar.opening_days && lugar.opening_days.trim().length > 0 
-        ? lugar.opening_days.trim() 
+    const dias = lugar.opening_days && lugar.opening_days.trim().length > 0
+        ? lugar.opening_days.trim()
         : 'Martes a Domingo';
     if (daysElement) daysElement.textContent = dias;
 
@@ -224,7 +226,7 @@ function renderizarHorarios(lugar) {
     if (hoursElement) hoursElement.textContent = textoHorario;
 
     if (noteElement) {
-        noteElement.textContent = dias.toLowerCase().includes('martes') 
+        noteElement.textContent = dias.toLowerCase().includes('martes')
             ? 'Nota oficial: Cerrado los días lunes por labores de mantenimiento y preservación ecológica.'
             : 'Nota oficial: Se recomienda ingresar al menos una hora antes del cierre institucional.';
     }
@@ -240,7 +242,7 @@ function formatearHora(horaStr) {
     const partes = horaStr.split(':');
     let horas = parseInt(partes[0], 10);
     const minutos = partes[1] || '00';
-    
+
     if (isNaN(horas)) return horaStr;
 
     const ampm = horas >= 12 ? 'PM' : 'AM';
@@ -277,8 +279,8 @@ function renderizarDetalle(lugar) {
         const ubicacionPartes = [];
         if (lugar.department) ubicacionPartes.push(lugar.department);
         if (lugar.region) ubicacionPartes.push(`Región ${lugar.region}`);
-        locationText.textContent = ubicacionPartes.length > 0 
-            ? ubicacionPartes.join(' • ') 
+        locationText.textContent = ubicacionPartes.length > 0
+            ? ubicacionPartes.join(' • ')
             : 'El Salvador';
     }
 
@@ -309,8 +311,8 @@ function renderizarDetalle(lugar) {
 
     const mediaRegion = document.getElementById('place-media-region');
     if (mediaRegion) {
-        mediaRegion.textContent = lugar.department 
-            ? `${lugar.department}, El Salvador` 
+        mediaRegion.textContent = lugar.department
+            ? `${lugar.department}, El Salvador`
             : 'El Salvador';
     }
 

@@ -79,6 +79,44 @@ const nav = new mapboxgl.NavigationControl({
 });
 map.addControl(nav, 'bottom-right');
 
+/**
+ * Calcula el promedio de calificaciones leyendo la columna `score`
+ * de la tabla public.ratings unida al lugar.
+ * @param {Array<{score: number}>} ratings - Arreglo de objetos rating
+ * @returns {number} Promedio con 1 decimal, o 0 si no hay datos
+ */
+function calcularPromedioRatings(ratings) {
+    if (!Array.isArray(ratings) || ratings.length === 0) return 0;
+
+    const suma = ratings.reduce((acum, item) => acum + (Number(item.score) || 0), 0);
+    const promedio = suma / ratings.length;
+    // Redondear a 1 decimal y limitar entre 1 y 5
+    return Math.min(5.0, Math.max(1.0, Math.round(promedio * 10) / 10));
+}
+
+/**
+ * Genera el HTML de estrellas amarillas (llenas/vacias) según la calificación.
+ * @param {number} calificacion - Valor flotante de 1.0 a 5.0
+ * @returns {string} HTML con 5 SVG de estrellas
+ */
+function generarEstrellasHTML(calificacion) {
+    const estrellasLlenas = Math.floor(calificacion);
+    const tieneFraccion = (calificacion - estrellasLlenas) >= 0.4;
+    let html = '';
+
+    for (let i = 1; i <= 5; i++) {
+        const llena = i <= estrellasLlenas || (i === estrellasLlenas + 1 && tieneFraccion);
+        const color = llena ? '#F59E0B' : '#D1D5DB'; // amarillo / gris
+        html += `<svg viewBox="0 0 24 24" width="14" height="14"
+                      fill="${color}" stroke="${color}" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="round"
+                      style="display:inline-block;flex-shrink:0">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                 </svg>`;
+    }
+    return html;
+}
+
 let activeMarkers = {};
 
 const hoverPopup = new mapboxgl.Popup({
@@ -113,8 +151,8 @@ export function renderizarMarcadores(lugares) {
 
         marker.getElement().addEventListener('mouseenter', () => {
             hoverPopup.setLngLat(lugar.coords)
-                      .setHTML(`<span>${lugar.name}</span>`)
-                      .addTo(map);
+                .setHTML(`<span>${lugar.name}</span>`)
+                .addTo(map);
         });
 
         marker.getElement().addEventListener('mouseleave', () => {
@@ -145,12 +183,41 @@ export function openPopupAndFly(lugar, colorHex) {
 
         const color = colorHex || '#FF6B6B';
 
+        // --- Calificación promedio (columna score de public.ratings) ---
+        const promedio = calcularPromedioRatings(lugar.ratings);
+        const hayRating = promedio > 0;
+        const ratingTexto = hayRating ? promedio.toFixed(1) : 'Sin calificaciones';
+        const estrellasSVG = hayRating ? generarEstrellasHTML(promedio) : '';
+
+        // --- Horarios (columna opening_days de public.places) ---
+        const horarios = lugar.opening_days && lugar.opening_days.trim().length > 0
+            ? lugar.opening_days.trim()
+            : 'Consultar disponibilidad';
+
         sidebarContent.innerHTML = `
             <img src="${lugar.image_url}" alt="${lugar.name}" class="sidebar-image">
             <div class="sidebar-details">
                 <span class="sidebar-category" style="color: ${color};">${lugar.category}</span>
                 <h3 class="sidebar-title">${lugar.name}</h3>
                 <p class="sidebar-description">${lugar.description}</p>
+
+                <!-- Calificación promedio con estrellas dinámicas -->
+                <div class="sidebar-rating" style="display:flex;align-items:center;gap:6px;margin:8px 0;">
+                    <span style="display:flex;gap:2px;align-items:center;">${estrellasSVG}</span>
+                    <span style="font-size:0.85rem;font-weight:600;color:#374151;">${ratingTexto}</span>
+                    ${hayRating ? `<span style="font-size:0.75rem;color:#6B7280;">(${lugar.ratings.length} resena${lugar.ratings.length !== 1 ? 's' : ''})</span>` : ''}
+                </div>
+
+                <!-- Horarios de apertura (opening_days) -->
+                <div class="sidebar-hours" style="display:flex;align-items:center;gap:6px;margin:4px 0 12px;font-size:0.8rem;color:#6B7280;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>${horarios}</span>
+                </div>
+
                 <a href="detalle-lugar.html?id=${lugar.id}" class="sidebar-btn-more">Ver más información</a>
             </div>
         `;
