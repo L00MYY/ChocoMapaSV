@@ -55,18 +55,18 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Solo en la vista del mapa (mapa.html) se bloquea el scroll vertical para mantener el mapa fijo */
+/* Vista del mapa (mapa.html) con footer institucional estandarizado */
 body.mapa-body,
 html:has(body.mapa-body) {
-  height: 100% !important;
-  min-height: 100vh !important;
+  height: auto !important;
+  min-height: 100vh;
 }
 
 body.mapa-body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
 }
@@ -74,12 +74,12 @@ body.mapa-body {
 body.mapa-body .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Contenedores principales: permiten crecer dinámicamente y hacer scroll vertical completo */
@@ -364,7 +364,7 @@ main,
   flex: 1;
   width: 100%;
   height: 100%;
-  min-height: 450px; /* Fallback explícito: previene colapso a altura 0 */
+  min-height: 380px; /* Fallback explícito armónico */
   position: relative;
   border-radius: 16px;
   border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
@@ -852,8 +852,9 @@ main,
   }
 
   .map-section {
-    height: calc(100vh - 56px);
-    height: calc(100dvh - 56px);
+    flex: 1;
+    min-height: 380px;
+    height: auto;
   }
 
   #search-input {
@@ -895,38 +896,3 @@ main,
     top: 68px;
   }
 }
-
-/* ==========================================================================
-   Footer Institucional Estandarizado (home-pie) - MITUR SV
-   ========================================================================== */
-.home-pie {
-  padding: 20px 24px 28px;
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--cerulean);
-  border-top: 1px solid var(--border-color);
-  margin-top: auto;
-  width: 100%;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.home-pie p {
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Adaptación para vistas con fondo oscuro institucional */
-.page-layout .home-pie,
-.app-layout .home-pie,
-body.mapa-body .home-pie,
-body.page-tours .home-pie,
-body.page-tour-detail .home-pie {
-  color: rgba(232, 241, 242, 0.75);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* En la vista de mapa interactivo, diseño compacto */
-body.mapa-body .home-pie {
-  padding: 12px 24px 14px;
-}
