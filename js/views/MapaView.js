@@ -1,5 +1,5 @@
 // Vista e integración visual de Mapbox.
-import { MAPBOX_TOKEN } from '.././config.js';
+import { MAPBOX_TOKEN } from '../config.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 

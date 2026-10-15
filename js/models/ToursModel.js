@@ -1,5 +1,5 @@
 // Modelo y acceso a datos para tours y reservas (MITUR SV)
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '.././config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
