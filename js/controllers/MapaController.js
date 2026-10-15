@@ -15,6 +15,11 @@ export const MapaController = {
             }
         });
 
+        // Forzar redibujado de Mapbox en resize de ventana
+        window.addEventListener('resize', () => {
+            if (map) map.resize();
+        });
+
         searchInput?.addEventListener('input', event => {
             const termino = event.target.value.trim();
             MapaView.renderizarResultados(MapaModel.buscarLugares(termino), lugar => {
