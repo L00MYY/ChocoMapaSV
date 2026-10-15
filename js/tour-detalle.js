@@ -364,9 +364,16 @@ function renderizarGaleria(tour) {
         });
     }
 
-    // Renderizar miniaturas
+    // Renderizar miniaturas (solo si el tour tiene más de una imagen)
     if (elements.thumbnailsStrip) {
         elements.thumbnailsStrip.innerHTML = '';
+
+        if (todasLasImagenes.length <= 1) {
+            elements.thumbnailsStrip.style.display = 'none';
+            return;
+        }
+
+        elements.thumbnailsStrip.style.display = 'grid';
 
         todasLasImagenes.forEach((url, idx) => {
             const thumbBtn = document.createElement('button');
