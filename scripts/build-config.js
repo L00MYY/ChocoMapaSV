@@ -18,7 +18,7 @@ export const SUPABASE_URL = '${supabaseUrl}';
 export const SUPABASE_ANON_KEY = '${supabaseAnonKey}';
 `;
 
-const configPath = path.join(__dirname, '..', 'js', 'config.js');
+const configPath = path.join(__dirname, '..', 'js', 'models', 'config.js');
 
 try {
   // Asegurarse de que el directorio js/ exista localmente
@@ -29,7 +29,7 @@ try {
 
   // 1. Escribir archivo local para desarrollo
   fs.writeFileSync(configPath, fileContent, 'utf8');
-  console.log('✅ js/config.js generado con variables de entorno (Local)');
+  console.log('✅ js/models/config.js generado con variables de entorno (Local)');
 
   // 2. Crear directorio de distribución (dist) para Vercel
   const distDir = path.join(__dirname, '..', 'dist');
@@ -38,7 +38,7 @@ try {
   }
 
   // 3. Copiar archivos estáticos al directorio dist
-  const itemsToCopy = ['css', 'img', 'js', 'index.html', 'mapa.html'];
+  const itemsToCopy = ['css', 'img', 'js', 'index.html', 'mapa.html', 'lugares-turisticos.html', 'detalle-lugar.html', 'tours.html', 'tour-detalle.html'];
   const rootDir = path.join(__dirname, '..');
   
   itemsToCopy.forEach(item => {
@@ -51,9 +51,9 @@ try {
   });
 
   // 4. Escribir archivo en el directorio dist/js
-  const distConfigPath = path.join(distDir, 'js', 'config.js');
+  const distConfigPath = path.join(distDir, 'js', 'models', 'config.js');
   fs.writeFileSync(distConfigPath, fileContent, 'utf8');
-  console.log('✅ dist/js/config.js generado para Producción en Vercel');
+  console.log('✅ dist/js/models/config.js generado para Producción en Vercel');
 
 } catch (error) {
   console.error('❌ Error al generar archivos de configuración:', error);

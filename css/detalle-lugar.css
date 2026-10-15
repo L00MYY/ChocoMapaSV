@@ -1,0 +1,1915 @@
+/* css/detalle-lugar.css */
+
+:root {
+  /* Paleta Océano para la Interfaz (Consistente con ChocoMapaSV) */
+  --deep-space-blue: #13293D;
+  --baltic-blue: #006494;
+  --cerulean: #247BA0;
+  --blue-bell: #1B98E0;
+  --alice-blue: #E8F1F2;
+  --surface: #FFFFFF;
+  --border-color: #D1E3E6;
+
+  /* Mapeo de Colores UI */
+  --primary: var(--baltic-blue);
+  --primary-hover: var(--blue-bell);
+  --dark: var(--deep-space-blue);
+  --light: var(--alice-blue);
+  --surface-panel: #FFFFFF;
+  --surface-subtle: #F4F8FA;
+  --text-primary: #13293D;
+  --text-secondary: #4A6572;
+  --text-muted: #7E97A6;
+  --border-light: rgba(19, 41, 61, 0.1);
+  --gold-star: #FFB800;
+  --gold-star-bg: #E0E7EC;
+
+  /* Tipografías y Espaciado */
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-brand: 'Caacupe One', sans-serif;
+  --gutter: clamp(12px, 3vw, 32px);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 6px rgba(19, 41, 61, 0.05);
+  --shadow-md: 0 8px 24px -4px rgba(19, 41, 61, 0.1), 0 2px 8px -1px rgba(19, 41, 61, 0.05);
+  --shadow-lg: 0 16px 36px -6px rgba(19, 41, 61, 0.15), 0 4px 12px -2px rgba(19, 41, 61, 0.08);
+
+  /* Transición */
+  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   Reset y Modelo de Caja Fluido
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+html, body {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  font-family: var(--font-family);
+  background-color: var(--deep-space-blue);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+  box-sizing: border-box;
+}
+
+main,
+.detail-main {
+  height: auto;
+  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   1. Header / Navbar Institucional
+   ========================================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  background-color: var(--deep-space-blue);
+  border-bottom: 2px solid var(--cerulean);
+  box-shadow: 0 4px 18px rgba(19, 41, 61, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.app-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.app-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  background: transparent;
+  transition: transform 0.2s ease;
+}
+
+.app-logo:hover {
+  transform: scale(1.02);
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--alice-blue);
+  letter-spacing: -0.4px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Navegación Principal Institucional */
+.header-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 4px;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--alice-blue);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(232, 241, 242, 0.15);
+  background: rgba(232, 241, 242, 0.05);
+  transition: var(--transition);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.nav-link:hover {
+  background: rgba(232, 241, 242, 0.15);
+  color: #FFFFFF;
+  border-color: rgba(232, 241, 242, 0.35);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  background: var(--blue-bell);
+  color: #FFFFFF;
+  border-color: var(--blue-bell);
+  box-shadow: 0 2px 10px rgba(27, 152, 224, 0.4);
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-return-map {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(232, 241, 242, 0.12);
+  color: var(--alice-blue);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(232, 241, 242, 0.25);
+  transition: var(--transition);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.btn-return-map:hover {
+  background-color: var(--blue-bell);
+  color: #FFFFFF;
+  border-color: var(--blue-bell);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 152, 224, 0.35);
+}
+
+.icon-return {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-return-map:hover .icon-return {
+  transform: translateX(-3px);
+}
+
+/* ==========================================================================
+   Contenedor Principal y Estados (Carga / Error / Detalle)
+   ========================================================================== */
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3.5vw, 2rem) var(--gutter) clamp(2rem, 5vw, 3.75rem);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Estados de Carga y Error */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 40px 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.state-loading .spinner-pulse {
+  width: 56px;
+  height: 56px;
+  border: 4px solid rgba(232, 241, 242, 0.15);
+  border-top-color: var(--blue-bell);
+  border-radius: 50%;
+  animation: spin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.state-text {
+  color: var(--alice-blue);
+  font-size: 1.05rem;
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Tarjeta de Error / Fallback */
+.error-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+  max-width: 540px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  animation: fadeIn 0.3s ease;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.error-icon-box {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 20px;
+  background-color: #FEE2E2;
+  color: #DC2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.error-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.error-title {
+  color: var(--deep-space-blue);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.error-message {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.btn-primary-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--baltic-blue);
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(0, 100, 148, 0.3);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-primary-return:hover {
+  background-color: var(--blue-bell);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 152, 224, 0.4);
+}
+
+/* ==========================================================================
+   2. Encabezado del Lugar
+   ========================================================================== */
+.detail-article {
+  animation: fadeIn 0.4s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.place-header-section {
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #FFFFFF;
+  background-color: var(--baltic-blue);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  max-width: 100%;
+  flex-wrap: wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--alice-blue);
+  background-color: rgba(232, 241, 242, 0.12);
+  border: 1px solid rgba(232, 241, 242, 0.18);
+  max-width: 100%;
+  flex-wrap: wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.badge-icon {
+  width: 14px;
+  height: 14px;
+  stroke: var(--blue-bell);
+  flex-shrink: 0;
+}
+
+#place-location-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.place-official-title {
+  color: #FFFFFF;
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 4px rgba(19, 41, 61, 0.5);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Barra de Calificación con 5 Estrellas Gráficas */
+.place-rating-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.rating-badge-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.96);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.rating-numeric-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.rating-stars-graphic {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.star-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--gold-star);
+  stroke: var(--gold-star);
+  filter: drop-shadow(0 1px 2px rgba(255, 184, 0, 0.3));
+  flex-shrink: 0;
+}
+
+.star-icon.empty {
+  fill: var(--gold-star-bg);
+  stroke: #CBD5E1;
+  filter: none;
+}
+
+.rating-caption-label {
+  color: var(--alice-blue);
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.9;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   3. Galería / Multimedia Principal
+   ========================================================================== */
+.place-media-section {
+  margin-bottom: 32px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.media-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: 520px;
+  height: clamp(200px, 45vw, 500px);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #0d1e2e;
+  box-sizing: border-box;
+}
+
+.place-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.media-container:hover .place-hero-image {
+  transform: scale(1.02);
+}
+
+.media-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(19, 41, 61, 0.05) 60%, rgba(19, 41, 61, 0.7) 100%);
+  pointer-events: none;
+}
+
+.media-tag {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(19, 41, 61, 0.85);
+  color: var(--alice-blue);
+  backdrop-filter: blur(8px);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.4px;
+  max-width: calc(100% - 40px);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Cuadrícula de Contenidos: Estructura Fluida
+   ========================================================================== */
+.place-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 960px) {
+  .place-content-grid {
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+}
+
+.content-primary-column,
+.content-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Tarjetas y Paneles Blancos (Shared Panel Rules) */
+.card-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.card-panel:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.panel-header {
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem) clamp(0.75rem, 2vw, 1.125rem);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.panel-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background-color: var(--alice-blue);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.panel-icon-wrap svg {
+  width: 22px;
+  height: 22px;
+}
+
+.panel-heading-texts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.panel-title {
+  color: var(--deep-space-blue);
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.panel-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-top: 2px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.panel-body {
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   4. Información Descriptiva (Card Panel: Descripción)
+   ========================================================================== */
+.place-full-description {
+  color: var(--text-primary);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.75;
+  margin-bottom: 24px;
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.place-attributes-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.attribute-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background-color: var(--surface-subtle);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  font-size: 0.9rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.attribute-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.attribute-value {
+  color: var(--deep-space-blue);
+  font-weight: 700;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.attribute-highlight {
+  color: #059669;
+}
+
+/* ==========================================================================
+   5. Sección de Servicios e Instalaciones (Card Panel: Servicios)
+   ========================================================================== */
+.services-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.service-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--surface-subtle);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.service-badge-item:hover {
+  background-color: #FFFFFF;
+  border-color: var(--blue-bell);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.service-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(0, 100, 148, 0.08);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+.service-badge-item:hover .service-icon-box {
+  background-color: var(--baltic-blue);
+  color: #FFFFFF;
+}
+
+.service-icon-box svg {
+  width: 20px;
+  height: 20px;
+}
+
+.service-name-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--deep-space-blue);
+  line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  min-width: 0;
+  flex: 1;
+}
+
+/* ==========================================================================
+   Sección de Tours para este Sitio Turístico (Card Panel: Tours)
+   ========================================================================== */
+.place-tours-panel .panel-body {
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-tours-filter {
+  margin-bottom: 24px;
+  background: var(--alice-blue);
+  padding: clamp(0.75rem, 2.5vw, 1rem) clamp(0.75rem, 3vw, 1.25rem);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-filter-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--baltic-blue);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.date-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-date-input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--deep-space-blue);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 180px;
+  box-sizing: border-box;
+}
+
+.place-date-input:focus {
+  border-color: var(--blue-bell);
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
+}
+
+.btn-clear-date {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+.btn-clear-date:hover {
+  background: var(--surface);
+  color: var(--deep-space-blue);
+  border-color: var(--baltic-blue);
+}
+
+/* Mensaje exacto de no disponibilidad por fecha (CP-014) */
+.place-tours-empty {
+  padding: clamp(1.5rem, 4vw, 2.25rem) 1rem;
+  text-align: center;
+  background: #FDFEFE;
+  border: 1.5px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-empty-text {
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+  font-weight: 700;
+  color: var(--deep-space-blue);
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Grid de tours dentro del lugar */
+.place-tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--blue-bell);
+}
+
+.place-tours-grid .tour-card-media {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: #0b1a26;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.place-tours-grid .tour-card:hover .tour-card-image {
+  transform: scale(1.05);
+}
+
+.place-tours-grid .tour-card-discount-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  background: #E74C3C;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+  max-width: calc(100% - 24px);
+  word-break: break-word;
+}
+
+.place-tours-grid .tour-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card-title {
+  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+  line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.place-tours-grid .tour-card-description {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.place-tours-grid .tour-card-meta {
+  border-top: 1px solid var(--border-light);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card-guide {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.place-tours-grid .tour-card-pricing {
+  text-align: right;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.place-tours-grid .price-original {
+  font-size: 0.8rem;
+  color: #95A5A6;
+  text-decoration: line-through;
+  margin-right: 4px;
+}
+
+.place-tours-grid .price-amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--baltic-blue);
+}
+
+.place-tours-grid .price-amount.price-discounted {
+  color: #C0392B;
+}
+
+.place-tours-grid .tour-card-footer {
+  padding: 10px 16px;
+  background: #F8FBFB;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.place-tours-grid .tour-card-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--baltic-blue);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.place-tours-grid .tour-card-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--baltic-blue);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   6. Sección de Horarios de Atención (Card Panel: Horarios)
+   ========================================================================== */
+.schedule-status-banner {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+
+.status-indicator-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.schedule-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background-color: var(--surface-subtle);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.schedule-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(0, 100, 148, 0.08);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  box-sizing: border-box;
+}
+
+.schedule-item-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.schedule-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.schedule-item-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.schedule-item-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.schedule-note-box {
+  background-color: #F8FAFC;
+  border-left: 3px solid var(--baltic-blue);
+  padding: 12px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-note-text {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   Panel Institucional (Card Panel: Turismo Responsable)
+   ========================================================================== */
+.guidelines-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.guidelines-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.guidelines-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--baltic-blue);
+  font-weight: 800;
+}
+
+.btn-secondary-explore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background-color: var(--surface-subtle);
+  color: var(--baltic-blue);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.btn-secondary-explore span {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.btn-secondary-explore svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-secondary-explore:hover {
+  background-color: var(--baltic-blue);
+  color: #FFFFFF;
+  border-color: var(--baltic-blue);
+}
+
+.btn-secondary-explore:hover svg {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Footer Institucional (Centralizado en css/footer.css)
+   ========================================================================== */
+
+/* ==========================================================================
+   Responsividad: Tablets y Pantallas Medianas (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  /* Navbar compacto en una sola línea */
+  .app-header {
+    padding: 6px var(--gutter);
+    min-height: 58px;
+  }
+
+  .header-container {
+    padding: 0;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .app-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .app-logo {
+    height: 38px;
+    width: auto;
+  }
+
+  /* Ocultar texto institucional en móvil para garantizar barra horizontal limpia */
+  .header-title {
+    display: none;
+  }
+
+  /* Navegación horizontal en una sola fila (sin desbordamiento) */
+  .header-navigation {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    max-width: 100%;
+    padding-right: 0;
+    flex-shrink: 0;
+  }
+
+  /* Ocultar texto interior de los enlaces (estándar de mapa.html) */
+  .nav-link span,
+  .btn-return-map span {
+    display: none;
+  }
+
+  /* Botones circulares compactos con iconos perfectamente centrados */
+  .nav-link {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Botón de retorno Volver con tamaño armónico y circular */
+  .btn-return-map {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .icon-return {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .btn-return-map:hover .icon-return {
+    transform: none;
+  }
+
+  .place-official-title {
+    font-size: 1.85rem;
+  }
+
+  .place-content-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .content-primary-column,
+  .content-sidebar-column {
+    gap: 20px;
+  }
+
+  .panel-header {
+    padding: 18px 20px 14px;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 18px 20px;
+  }
+
+  .services-badges-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .place-tours-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Responsividad: Móviles Estándar (<= 581px y <= 480px)
+   ========================================================================== */
+@media (max-width: 581px) {
+  :root {
+    --gutter: 12px;
+  }
+
+  .main-content {
+    padding: 20px var(--gutter) 40px;
+  }
+
+  .place-official-title {
+    font-size: 1.6rem;
+  }
+
+  .media-container {
+    height: clamp(200px, 50vw, 280px);
+  }
+
+  .panel-header {
+    padding: 16px 16px 12px;
+    gap: 12px;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 16px 16px;
+  }
+
+  .place-tours-filter {
+    padding: 12px 14px;
+  }
+
+  .date-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Control y normalización de altura en el input de fecha de tours */
+  .place-date-input {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: unset;
+    max-height: 44px;
+    padding: 10px 14px;
+    align-self: flex-start;
+    font-size: 0.95rem;
+    line-height: normal;
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+  }
+
+  .btn-clear-date {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 44px;
+    padding: 10px 16px;
+    text-align: center;
+  }
+
+  .place-attributes-strip {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .attribute-pill {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 440px) {
+  .header-navigation {
+    gap: 5px;
+  }
+}
+
+/* ==========================================================================
+   Responsividad: Pantallas Ultra-Compactas (<= 360px y hasta 280px)
+   Requerimientos específicos para evitar desbordamiento horizontal:
+   - Reset fluido y box-sizing: border-box en todas las tarjetas
+   - Padding dinámico seguro: clamp(0.75rem, 3vw, 1rem) / 1rem 0.75rem
+   - Columnas 1fr / minmax(0, 1fr)
+   - flex-wrap: wrap y word-break / overflow-wrap en badges, títulos y textos
+   - Reducción proporcional y armónica de tipografías e iconos
+   ========================================================================== */
+@media (max-width: 360px) {
+  :root {
+    --gutter: 8px;
+  }
+
+  .app-header {
+    padding: 6px 8px;
+  }
+
+  .header-container {
+    padding: 2px 0;
+    gap: 6px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .app-logo-container {
+    gap: 6px;
+  }
+
+  .app-logo {
+    height: 32px;
+  }
+
+  .header-navigation {
+    width: auto;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .nav-link,
+  .btn-return-map {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .nav-icon,
+  .icon-return {
+    width: 16px;
+    height: 16px;
+  }
+
+  .main-content {
+    padding: 12px var(--gutter) 32px;
+  }
+
+  /* Encabezado del lugar */
+  .place-header-section {
+    margin-bottom: 16px;
+  }
+
+  .place-meta-tags {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .category-badge,
+  .location-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .badge-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .place-official-title {
+    font-size: 1.35rem;
+    letter-spacing: -0.4px;
+    margin-bottom: 12px;
+  }
+
+  .place-rating-bar {
+    gap: 8px;
+  }
+
+  .rating-badge-container {
+    padding: 4px 10px;
+    gap: 6px;
+  }
+
+  .rating-numeric-value {
+    font-size: 1.05rem;
+  }
+
+  .star-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .rating-caption-label {
+    font-size: 0.78rem;
+  }
+
+  /* Multimedia */
+  .place-media-section {
+    margin-bottom: 20px;
+  }
+
+  .media-container {
+    height: 180px;
+    border-radius: var(--radius-md);
+  }
+
+  .media-tag {
+    bottom: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    max-width: calc(100% - 20px);
+  }
+
+  /* Tarjetas de Información (Descripción, Servicios, Tours, Horarios, Turismo Responsable) */
+  .place-content-grid {
+    gap: 16px;
+  }
+
+  .content-primary-column,
+  .content-sidebar-column {
+    gap: 16px;
+  }
+
+  .card-panel {
+    border-radius: var(--radius-md);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .panel-header {
+    padding: 1rem 0.75rem 0.75rem;
+    gap: 10px;
+  }
+
+  .panel-icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+  }
+
+  .panel-icon-wrap svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .panel-title {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .panel-subtitle {
+    font-size: 0.76rem;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 1rem 0.75rem;
+  }
+
+  /* 1. Descripción */
+  .place-full-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .place-attributes-strip {
+    padding-top: 14px;
+    gap: 6px;
+  }
+
+  .attribute-pill {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* 2. Servicios e Instalaciones */
+  .service-badge-item {
+    padding: 10px 10px;
+    gap: 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .service-icon-box {
+    width: 32px;
+    height: 32px;
+  }
+
+  .service-icon-box svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .service-name-text {
+    font-size: 0.84rem;
+  }
+
+  /* 3. Tours */
+  .place-tours-filter {
+    padding: 10px 10px;
+    margin-bottom: 16px;
+  }
+
+  .place-filter-label {
+    font-size: 0.76rem;
+  }
+
+  .place-date-input {
+    flex: none;
+    height: auto;
+    min-height: unset;
+    max-height: 44px;
+    font-size: 0.84rem;
+    padding: 8px 10px;
+  }
+
+  .btn-clear-date {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  .place-empty-text {
+    font-size: 0.9rem;
+  }
+
+  .place-tours-grid .tour-card-media {
+    height: 150px;
+  }
+
+  .place-tours-grid .tour-card-body {
+    padding: 12px;
+  }
+
+  .place-tours-grid .tour-card-title {
+    font-size: 1rem;
+  }
+
+  .place-tours-grid .tour-card-description {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+
+  .place-tours-grid .tour-card-meta {
+    padding-top: 10px;
+  }
+
+  .place-tours-grid .price-amount {
+    font-size: 1.05rem;
+  }
+
+  .place-tours-grid .tour-card-footer {
+    padding: 8px 12px;
+  }
+
+  /* 4. Horarios de Atención */
+  .schedule-status-banner {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    margin-bottom: 14px;
+  }
+
+  .schedule-details-list {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .schedule-item-card {
+    padding: 10px 10px;
+    gap: 10px;
+  }
+
+  .schedule-item-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .schedule-item-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .schedule-item-label {
+    font-size: 0.72rem;
+  }
+
+  .schedule-item-value {
+    font-size: 0.92rem;
+  }
+
+  .schedule-note-box {
+    padding: 10px 10px;
+  }
+
+  .schedule-note-text {
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  /* 5. Turismo Responsable */
+  .guidelines-list {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .guidelines-list li {
+    font-size: 0.84rem;
+    padding-left: 18px;
+  }
+
+  .btn-secondary-explore {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+
+  .btn-secondary-explore svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Error Card */
+  .error-card {
+    padding: 24px 12px;
+  }
+
+  .error-icon-box {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 14px;
+  }
+
+  .error-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .error-title {
+    font-size: 1.25rem;
+  }
+
+  .error-message {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .btn-primary-return {
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+
+  /* Footer centralizado en css/footer.css */
+}

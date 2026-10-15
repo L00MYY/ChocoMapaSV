@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo oficial de tours guiados y paquetes turísticos con descuento en El Salvador - Ministerio de Turismo (MITUR).">
+    <title>Tours Oficiales | Ministerio de Turismo SV</title>
+
+    <!-- Fuentes Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Estilos globales y de tours -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/tours.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+<body>
+    <div class="page-layout">
+        <!-- 1. Header / Navbar Institucional Estandarizada -->
+        <header class="navbar app-header">
+            <div class="header-container">
+                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
+                         class="app-logo" 
+                         alt="Ministerio de Turismo de El Salvador" 
+                         decoding="async" 
+                         fetchpriority="high">
+                    <span class="header-title">Ministerio de Turismo</span>
+                </a>
+                <nav class="header-navigation" aria-label="Navegación principal">
+                    <a href="index.html" class="nav-link" id="nav-inicio">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link" id="nav-mapa">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Mapa</span>
+                    </a>
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Lugares turísticos</span>
+                    </a>
+                    <a href="tours.html" class="nav-link active" id="nav-tours" aria-current="page">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Tours</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 2. Hero de Sección -->
+        <main class="tours-main">
+            <section class="tours-hero" aria-labelledby="tours-heading">
+                <h1 class="hero-title" id="tours-heading">Descubre El Salvador con Tours Oficiales</h1>
+                <p class="hero-subtitle">
+                    Compara paquetes guiados por profesionales certificados, consulta fechas de salida disponibles y reserva tu cupo en los mejores destinos del país.
+                </p>
+            </section>
+
+            <!-- 3. Sección de Filtros Combinables (4 Filtros Obligatorios) -->
+            <section class="filters-section" aria-label="Filtros del catálogo">
+                <div class="filters-card">
+                    <div class="filters-header">
+                        <div class="filters-heading">
+                            <svg class="filters-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            <span>Filtros combinables</span>
+                        </div>
+                        <button type="button" id="btn-clear-filters" class="btn-reset-filters">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <span>Limpiar filtros</span>
+                        </button>
+                    </div>
+
+                    <div class="filters-grid">
+                        <!-- Filtro 1: Fecha (departure_date) -->
+                        <div class="filter-group">
+                            <label for="filter-date" class="filter-label">Fecha de salida</label>
+                            <input type="date" id="filter-date" class="filter-input" aria-label="Filtrar por fecha de salida">
+                        </div>
+
+                        <!-- Filtro 2: Departamento (department) -->
+                        <div class="filter-group">
+                            <label for="filter-department" class="filter-label">Departamento</label>
+                            <select id="filter-department" class="filter-select" aria-label="Filtrar por departamento">
+                                <option value="">Todos los departamentos</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro 3: Descuento aplicable (has_offer) -->
+                        <div class="filter-group">
+                            <label for="filter-offer" class="filter-label">Descuento aplicable</label>
+                            <select id="filter-offer" class="filter-select" aria-label="Filtrar por descuento aplicable">
+                                <option value="">Todos los tours</option>
+                                <option value="oferta">Con oferta / descuento</option>
+                                <option value="sin_oferta">Precio regular</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro 4: Lugar turístico (place_id) -->
+                        <div class="filter-group">
+                            <label for="filter-place" class="filter-label">Lugar turístico</label>
+                            <select id="filter-place" class="filter-select" aria-label="Filtrar por lugar turístico">
+                                <option value="">Todos los lugares</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Barra de Estado / Contador de Resultados -->
+            <div class="status-bar">
+                <span class="results-counter" id="results-counter" aria-live="polite">Cargando catálogo de tours...</span>
+            </div>
+
+            <!-- 4. Contenedor de Tarjetas de Tours -->
+            <section class="tours-container" aria-label="Lista de tours oficiales">
+                <!-- Estado de Carga (Skeletons) -->
+                <div class="skeleton-grid" id="state-loading" aria-live="polite" aria-busy="true">
+                    <div class="skeleton-card">
+                        <div class="skeleton-image"></div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-line skeleton-title"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line skeleton-text-short"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-image"></div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-line skeleton-title"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line skeleton-text-short"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-image"></div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-line skeleton-title"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line skeleton-text-short"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado Sin Resultados (CP-016 Mensaje Exacto) -->
+                <div class="state-no-results hidden" id="state-no-results" role="status">
+                    <div class="no-results-icon-box" aria-hidden="true">
+                        <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <p class="no-results-message" id="no-results-message">No hay tours que coincidan con los filtros seleccionados</p>
+                    <button type="button" class="btn-secondary-reset" id="btn-reset-empty">Restablecer filtros</button>
+                </div>
+
+                <!-- Grid de Tarjetas (CP-015 y CP-017) -->
+                <div class="tours-grid hidden" id="tours-grid">
+                    <!-- Tarjetas inyectadas dinámicamente por el controlador MVC -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Pie de página institucional -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="js/controllers/ToursController.js"></script>
+</body>
+</html>

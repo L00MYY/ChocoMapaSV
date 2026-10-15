@@ -1,3 +1,7 @@
+html{
+  overflow-y: scroll !important;
+}
+
 .caacupe-one-regular {
   font-family: "Caacupe One", sans-serif;
   font-weight: 400;
@@ -32,51 +36,117 @@
   --color-miradores: #A9DFBF;
   --color-tours: #F7DC6F;
   --color-otros: #F1948A;
+
+  /* Formas y transiciones */
+  --radius-pill: 9999px;
+  --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  height: auto !important;
+  min-height: 100vh;
   font-family: var(--font-family);
-  background-color: var(--deep-space-blue); /* sin franjas blancas o grises al hacer scroll */
+  background-color: var(--deep-space-blue); /* sin franjas blancas o grises */
   color: var(--dark);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
-  background-color: red;
+  overflow-x: hidden;
+}
+
+/* Vista del mapa (mapa.html) con footer institucional estandarizado */
+body.mapa-body,
+html:has(body.mapa-body) {
+  height: 100%;
+  min-height: 100vh;
+}
+
+body.mapa-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--deep-space-blue);
+  overflow-x: hidden;
+}
+
+body.mapa-body .app-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  width: 100%;
+}
+
+/* Contenedores principales: permiten crecer dinámicamente y hacer scroll vertical completo */
+main,
+.app-layout,
+.page-layout,
+.tours-main,
+.tour-detail-main,
+.catalog-main,
+.detail-main,
+.home-main {
+  height: auto;
+  overflow: visible;
 }
 
 *, *::before, *::after {
   box-sizing: inherit;
 }
 
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: var(--field-gradient); /* campo azul detrás de buscador y mapa */
-}
-
-/* --- COMPONENTE: APP-HEADER (logo + nav del Ministerio) --- */
-.app-header {
+/* --- COMPONENTE: APP-HEADER (Navbar Institucional MITUR) --- */
+.app-header,
+.navbar {
   position: relative;
-  z-index: 20;
+  z-index: 100;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Mantiene el título/logo a la izquierda y el bloque de búsqueda agrupado a la derecha */
-  flex-wrap: wrap;
-  gap: 24px;
-  padding: 12px var(--gutter);
-  min-height: 96px;
-  height: auto;
-  background-color: var(--deep-space-blue); /* Fondo azul marino */
-  border-bottom: 3px solid var(--blue-bell); /* Línea divisoria en azul */
-  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.25);
+  padding: 8px 16px;
+  min-height: 68px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
+  border-bottom: 2px solid var(--cerulean); /* Línea divisoria */
+  box-shadow: 0 4px 14px rgba(19, 41, 61, 0.25);
 }
 
-.app-header h1 {
+.header-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.app-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.app-logo-container:hover {
+  opacity: 0.92;
+}
+
+.app-header h1,
+.header-title {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--alice-blue); /* Texto del título contrastante */
@@ -85,60 +155,93 @@ html, body {
 /* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
 .app-logo {
   display: block;
-  height: 80px;
+  height: 48px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
   background: transparent;
   border: 0;
+  transition: transform 0.2s ease;
 }
 
-/* Espacio para el nav del Ministerio de Turismo (se oculta si está vacío) */
-.ministry-nav {
+.app-logo:hover {
+  transform: scale(1.02);
+}
+
+/* Navegación Principal Institucional */
+.header-navigation {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 24px;
+  justify-content: flex-end;
+  gap: 8px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 4px; /* Margen de seguridad derecho para evitar recorte */
 }
 
-.ministry-nav:empty {
-  display: none;
-}
-
-.ministry-nav a {
-  padding: 8px 4px;
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
   color: var(--alice-blue);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(232, 241, 242, 0.15);
+  background: rgba(232, 241, 242, 0.05);
+  transition: var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.ministry-nav a:hover,
-.ministry-nav a:focus-visible {
-  color: var(--blue-bell);
-  border-bottom-color: var(--blue-bell);
+.nav-link:hover {
+  background: rgba(232, 241, 242, 0.15);
+  color: #FFFFFF;
+  border-color: rgba(232, 241, 242, 0.35);
+  transform: translateY(-1px);
 }
 
-/* --- 🛠️ MODIFICACIÓN FUCSIA: BÚSQUEDA Y LEYENDA JUNTOS (Agrupados a la derecha) --- */
+.nav-link.active,
+.nav-link[aria-current="page"] {
+  background: var(--blue-bell);
+  color: #FFFFFF;
+  border-color: var(--blue-bell);
+  box-shadow: 0 2px 10px rgba(27, 152, 224, 0.4);
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* --- FRANJA DEDICADA: BÚSQUEDA Y FILTROS POR CATEGORÍA --- */
+.search-filter-bar,
 .search-section {
   position: relative;
   z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: center; /* Alineación limpia y centrada mediante Flexbox */
   flex-wrap: wrap;
-  justify-content: flex-end;      /* Junta los elementos empujándolos al lado derecho */
-  align-items: center;            /* Centrado vertical perfecto */
-  gap: 16px;                      /* Espaciado controlado para que se vean juntos */
-  flex: 1;                        /* Ocupa el espacio disponible en la barra */
-  min-width: 280px;
+  gap: 14px 20px;
+  padding: 12px var(--gutter);
+  flex-shrink: 0; /* Mantiene su altura calculada sin comprimir el layout */
+  background-color: rgba(19, 41, 61, 0.65); /* Consistencia visual con el fondo */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(209, 227, 230, 0.15);
+  box-shadow: 0 4px 16px rgba(19, 41, 61, 0.12);
 }
 
 .search-container {
-  flex: none;
-  width: 320px;                   /* Ancho fijo estilizado para el buscador en barra */
-  min-width: 0;
+  flex: 0 1 380px;
+  min-width: 260px;
 }
 
 .search-box {
@@ -147,22 +250,22 @@ html, body {
 }
 
 #search-input {
-    width: 100%;
-    padding: 12px 20px;           /* Ajustado para encajar de forma más compacta en la barra */
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    background: var(--surface);
-    font-family: var(--font-family);
-    font-size: 0.95rem;
-    color: var(--deep-space-blue);
-    box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 9999px; /* Forma de píldora armónica con los filtros */
+  border: 2px solid var(--border-color);
+  background: var(--surface);
+  font-family: var(--font-family);
+  font-size: 0.92rem;
+  color: var(--deep-space-blue);
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.12);
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 #search-input:focus {
-    border-color: rgba(27, 152, 224, 0.65); /* --blue-bell translúcido */
-    box-shadow: 0 0 0 4px rgb(27, 152, 224), 0 4px 12px rgba(19, 41, 61, 0.15);
+  border-color: var(--blue-bell);
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25), 0 4px 14px rgba(19, 41, 61, 0.15);
 }
 
 /* Lista de resultados de búsqueda (desplegable bajo el input) */
@@ -179,7 +282,7 @@ html, body {
   overflow-y: auto;
   background: var(--surface);
   border: 2px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 0 10px 30px rgba(19, 41, 61, 0.3);
 }
 
@@ -190,7 +293,7 @@ html, body {
 .results-list li {
   padding: 10px 16px;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--deep-space-blue);
   cursor: pointer;
 }
@@ -200,32 +303,43 @@ html, body {
   color: var(--baltic-blue);
 }
 
-/* Diseño Modular de la Leyenda de Colores */
+/* --- FILTROS POR CATEGORÍA (ETIQUETAS TIPO PÍLDORA) --- */
 .legend-box {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  background: var(--surface);
-  padding: 10px 18px;             /* Reducido levemente para homogeneizar altura con el buscador */
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
+  gap: 8px 12px;
 }
 
 .legend-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 9999px; /* Diseño tipo píldora */
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--deep-space-blue); /* Textos de la leyenda */
-  gap: 8px;
+  color: var(--deep-space-blue);
+  box-shadow: 0 2px 8px rgba(19, 41, 61, 0.08);
+  cursor: default;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
+  border-color: var(--blue-bell);
 }
 
 .color-dot {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .legend-item:nth-child(1) .color-dot { background-color: var(--color-historicos); }
@@ -234,17 +348,25 @@ html, body {
 .legend-item:nth-child(4) .color-dot { background-color: var(--color-tours); }
 .legend-item:nth-child(5) .color-dot { background-color: var(--color-otros); }
 
-/* --- 🛠️ MODIFICACIÓN ROJA: SECCIÓN DEL MAPA (Márgenes corregidos para dar espacio arriba) --- */
+/* --- SECCIÓN DEL MAPA (ALTURA DISPONIBLE DINÁMICA SIN SCROLL) --- */
 .map-section {
   flex: 1;
-  padding: 24px var(--gutter) var(--gutter) var(--gutter); /* Añadidos 24px de espacio arriba del mapa para evitar colisiones */
-  position: relative;
   display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  width: 100%;
+  padding: 16px var(--gutter) 20px var(--gutter);
+  box-sizing: border-box;
 }
 
-.map-container {
+.map-container,
+#map {
+  flex: 1;
   width: 100%;
   height: 100%;
+  min-height: calc(100vh - 180px);
+  position: relative;
   border-radius: 16px;
   border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
   overflow: hidden;
@@ -368,6 +490,44 @@ html, body {
   text-align: justify;
 }
 
+.sidebar-btn-more {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 20px;
+  background-color: var(--baltic-blue);
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 100, 148, 0.25);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-btn-more:hover {
+  background-color: var(--blue-bell);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 152, 224, 0.35);
+}
+
+.sidebar-btn-more:active {
+  background-color: var(--baltic-blue);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 100, 148, 0.2);
+}
+
+.sidebar-btn-more:focus-visible {
+  outline: 2px solid var(--blue-bell);
+  outline-offset: 2px;
+}
+
 /* --- RESPONSIVE --- */
 /* Tablets */
 @media (max-width: 1024px) {
@@ -375,109 +535,382 @@ html, body {
     --gutter: 24px;
   }
   .app-logo {
-    height: 72px;
+    height: 48px;
+  }
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+  .search-filter-bar,
+  .search-section {
+    gap: 12px 18px;
+    padding: 10px var(--gutter);
   }
   .info-sidebar {
     width: 300px;
   }
 }
 
-/* Celulares */
+/* --- RESPONSIVE: MÓVIL Y PANTALLAS PEQUEÑAS --- */
 @media (max-width: 768px) {
   :root {
     --gutter: 16px;
   }
-  .app-layout {
-    height: auto;
+
+  body.mapa-body,
+  html:has(body.mapa-body) {
+    height: auto !important;
+    overflow-y: auto !important;
+  }
+
+  body.mapa-body .app-layout {
+    position: relative;
     min-height: 100vh;
     min-height: 100dvh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
   }
-  .app-header {
-    justify-content: center;
+
+  /* Navbar compacto en una sola línea */
+  .app-header,
+  .navbar {
+    padding: 6px var(--gutter);
+    min-height: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
+
+  .header-container {
+    padding: 0;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .app-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
   .app-logo {
-    height: 64px;
+    height: 36px;
+    width: auto;
   }
-  .ministry-nav {
+
+  /* Ocultar texto institucional en móvil para que todos los enlaces quepan en una fila */
+  .app-header h1,
+  .header-title {
+    display: none;
+  }
+
+  /* Navegación horizontal en una sola fila (sin desbordar a 2 filas) */
+  .header-navigation {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    max-width: 100%;
+    padding-right: 0;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* 1. Altura completa del mapa y eliminación de marcos */
+  .map-section {
+    flex: 1 0 auto;
     width: 100%;
-    justify-content: center;
+    height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px);
+    padding: 0;
+    margin: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    order: 2;
   }
-  
-  /* 🛠️ COMPORTAMIENTO RESPONSIVE: En móviles se apilan en columna de forma ordenada */
+
+  .map-container,
+  #map {
+    width: 100%;
+    height: calc(100vh - 70px); /* 70px del navbar */
+    min-height: calc(100dvh - 70px);
+    position: relative;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    flex: 1 0 auto;
+  }
+
+  /* 2. Barra de búsqueda y filtros flotantes sobre el mapa */
+  .search-filter-bar,
   .search-section {
-    flex-direction: column; 
+    position: absolute;
+    z-index: 10;
+    top: 16px;
+    top: calc(58px + 14px); /* 14px por debajo del navbar en móvil */
+    left: 16px;
+    right: 16px;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 auto;
+    width: auto;
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
     align-items: stretch;
-    width: 100%;
-    gap: 16px;
+    gap: 8px;
+    pointer-events: none;
   }
+
+  /* Footer en móvil ubicado al final del scroll natural */
+  body.mapa-body .app-footer {
+    order: 3;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
   .search-container {
     width: 100%;
     max-width: 100%;
+    flex: none;
+    min-width: 0;
+    pointer-events: auto;
   }
-  .legend-box {
-    justify-content: center;
+
+  .search-box {
+    position: relative;
     width: 100%;
-    gap: 12px 16px;
   }
-  .map-section {
-    min-height: 420px;
-padding-top: 16px;             /* Ajustado margen en móvil */
+
+  #search-input {
+    width: 100%;
+    background-color: var(--surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 4px 14px rgba(19, 41, 61, 0.16);
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    color: var(--deep-space-blue);
+  }
+
+  #search-input:focus {
+    border-color: var(--blue-bell);
+    box-shadow: 0 4px 18px rgba(27, 152, 224, 0.25), 0 0 0 2px rgba(27, 152, 224, 0.2);
+  }
+
+  .results-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: var(--surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(19, 41, 61, 0.2);
+    pointer-events: auto;
+  }
+
+  /* 3. Filtros de categoría con scroll horizontal fluido */
+  .legend-box {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    width: 100%;
+    padding: 2px 2px 6px 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    pointer-events: auto;
+  }
+
+  .legend-box::-webkit-scrollbar {
+    display: none;
+  }
+
+  .legend-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background-color: var(--surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 8px rgba(19, 41, 61, 0.12);
+    color: var(--deep-space-blue);
+    user-select: none;
+  }
+
+  .color-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Tarjeta lateral flotante en móvil como bottom sheet */
+  .info-sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    z-index: 25;
+    border-radius: 24px 24px 0 0;
+    border: none;
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(0);
+  }
+
+  .info-sidebar.hidden {
+    transform: translateY(100%);
+  }
+
+  .sidebar-image {
+    height: 160px;
+  }
+
+  .sidebar-details {
+    padding: 18px;
+  }
+
+  .sidebar-title {
+    font-size: 1.3rem;
+  }
+
+  .sidebar-description {
+    text-align: left;
+  }
+
+  .sidebar-btn-more {
+    margin-top: 14px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
 }
-.map-container {
-height: auto;
+
+/* Celulares compactos: iconos limpios para ajuste perfecto en una sola fila */
+@media (max-width: 520px) {
+  :root {
+    --gutter: 12px;
+  }
+
+  .app-header,
+  .navbar {
+    padding: 4px var(--gutter);
+    min-height: 56px;
+    height: 56px;
+  }
+
+  .header-container {
+    gap: 6px;
+  }
+
+  .app-logo {
+    height: 32px;
+  }
+
+  .header-navigation {
+    gap: 6px;
+  }
+
+  .nav-link {
+    padding: 7px 10px;
+    gap: 0;
+  }
+
+  /* Ocultar etiquetas de texto para dar protagonismo a los iconos en pantallas angostas */
+  .nav-link span {
+    display: none;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-filter-bar,
+  .search-section {
+    top: 68px;
+    gap: 6px;
+  }
+
+  #search-input {
+    padding: 9px 16px;
+    font-size: 0.88rem;
+  }
+
+  .legend-item {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
 }
-.info-sidebar {
-position: fixed;
-top: auto;
-bottom: 0;
-left: 0;
-right: 0;
-width: 100%;
-max-height: 50vh;
-border-radius: 24px 24px 0 0;
-border: none;
-border-top: 2px solid var(--border-color);
-box-shadow: 0 -10px 30px rgba(19, 41, 61, 0.15);
-padding-bottom: env(safe-area-inset-bottom);
-transform: translateY(0);
-}
-.info-sidebar.hidden {
-transform: translateY(100%);
-}
-.sidebar-image {
-height: 160px;
-}
-.sidebar-details {
-padding: 20px;
-}
-.sidebar-title {
-font-size: 1.35rem;
-}
-.sidebar-description {
-text-align: left;
-}
-}
-/* Celulares pequeños */
-@media (max-width: 480px) {
-:root {
---gutter: 12px;
-}
-.app-logo {
-height: 56px;
-}
-#search-input {
-padding: 10px 16px;
-}
-.legend-box {
-padding: 12px 14px;
-}
-.legend-item {
-font-size: 0.8rem;
-}
-.map-section {
-min-height: 380px;
-}
-.map-container {
-border-radius: 12px;
-}
+
+/* Dispositivos ultra estrechos */
+@media (max-width: 380px) {
+  .header-container {
+    gap: 4px;
+  }
+
+  .app-logo {
+    height: 28px;
+  }
+
+  .header-navigation {
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 6px 8px;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-filter-bar,
+  .search-section {
+    top: 68px;
+  }
 }

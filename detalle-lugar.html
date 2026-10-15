@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Información turística oficial de sitios de interés en El Salvador - Ministerio de Turismo (MITUR).">
+    <title>Detalle del Lugar | Tours por El Salvador</title>
+    
+    <!-- Fuentes Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Hojas de estilo -->
+    <link rel="stylesheet" href="css/detalle-lugar.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+<body>
+    <div class="page-layout">
+        <!-- 1. Header / Navbar Institucional -->
+        <header class="navbar app-header">
+            <div class="header-container">
+                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
+                         alt="Ministerio de Turismo de El Salvador" 
+                         class="app-logo" 
+                         decoding="async" 
+                         fetchpriority="high">
+                    <span class="header-title">Ministerio de Turismo</span>
+                </a>
+
+                <!-- Navegación Principal y Retorno Dinámico -->
+                <nav class="header-navigation" aria-label="Navegación principal">
+                    <a href="index.html" class="nav-link" id="nav-inicio" aria-label="Inicio">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link" id="nav-mapa" aria-label="Mapa">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Mapa</span>
+                    </a>
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares" aria-label="Lugares turísticos">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Lugares turísticos</span>
+                    </a>
+                    <a href="tours.html" class="nav-link" id="nav-tours" aria-label="Tours">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Tours</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link btn-return btn-return-map" id="btn-return-map" aria-label="Volver a la página anterior">
+                        <svg class="nav-icon icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>Volver</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Contenedor Principal con Scroll Vertical Limpio -->
+        <main class="main-content" id="main-content">
+            <!-- Estado de Carga (Loading Spinner / Skeleton) -->
+            <section class="state-container state-loading" id="state-loading" aria-live="polite">
+                <div class="spinner-pulse" aria-hidden="true"></div>
+                <p class="state-text">Cargando información oficial del sitio turístico...</p>
+            </section>
+
+            <!-- Estado de Error / Fallback ("Lugar no encontrado") -->
+            <section class="state-container state-error hidden" id="state-error" role="alert">
+                <div class="error-card">
+                    <div class="error-icon-box" aria-hidden="true">
+                        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h2 class="error-title">Lugar no encontrado</h2>
+                    <p class="error-message" id="error-message">
+                        No se ha podido localizar el sitio turístico solicitado. El identificador puede ser incorrecto o el registro no está disponible en este momento.
+                    </p>
+                    <a href="mapa.html" class="btn-primary-return">
+                        <svg class="icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>Volver al mapa</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Vista Completa de Detalle del Lugar -->
+            <article class="detail-article hidden" id="state-content">
+                <!-- 2. Encabezado del Lugar -->
+                <header class="place-header-section">
+                    <div class="place-meta-tags">
+                        <span class="category-badge" id="place-category-badge">Categoría</span>
+                        <span class="location-badge" id="place-location-badge">
+                            <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span id="place-location-text">El Salvador</span>
+                        </span>
+                    </div>
+
+                    <h1 class="place-official-title" id="place-title">Nombre del Sitio Turístico</h1>
+
+                    <!-- Calificación promedio y estrellas gráficas -->
+                    <div class="place-rating-bar" aria-label="Calificación del lugar">
+                        <div class="rating-badge-container">
+                            <span class="rating-numeric-value" id="rating-numeric-value">0.0</span>
+                            <div class="rating-stars-graphic" id="rating-stars-graphic" role="img" aria-label="Calificación en estrellas">
+                                <!-- Las 5 estrellas serán inyectadas de forma segura por JS -->
+                            </div>
+                        </div>
+                        <span class="rating-caption-label">Calificación promedio de visitantes</span>
+                    </div>
+                </header>
+
+                <!-- 3. Galería / Multimedia Principal -->
+                <section class="place-media-section" aria-label="Fotografía del lugar">
+                    <div class="media-container">
+                        <img id="place-hero-image" 
+                             class="place-hero-image" 
+                             src="" 
+                             alt="Fotografía principal del sitio turístico" 
+                             loading="eager">
+                        <div class="media-gradient-overlay" aria-hidden="true"></div>
+                        <span class="media-tag" id="place-media-region">Destino Nacional</span>
+                    </div>
+                </section>
+
+                <!-- Cuadrícula de Contenidos: Información, Servicios y Horarios -->
+                <div class="place-content-grid">
+                    <!-- Columna Principal -->
+                    <div class="content-primary-column">
+                        <!-- 4. Información Descriptiva -->
+                        <section class="card-panel description-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                </div>
+                                <h2 class="panel-title">Descripción del Lugar</h2>
+                            </div>
+                            <div class="panel-body">
+                                <p class="place-full-description" id="place-description">
+                                    Cargando descripción...
+                                </p>
+
+                                <div class="place-attributes-strip" id="place-attributes-strip">
+                                    <div class="attribute-pill">
+                                        <span class="attribute-label">Departamento:</span>
+                                        <span class="attribute-value" id="attr-department">-</span>
+                                    </div>
+                                    <div class="attribute-pill">
+                                        <span class="attribute-label">Región:</span>
+                                        <span class="attribute-value" id="attr-region">-</span>
+                                    </div>
+                                    <div class="attribute-pill">
+                                        <span class="attribute-label">Estado:</span>
+                                        <span class="attribute-value attribute-highlight" id="attr-status">Sitio Activo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 5. Sección de Servicios Disponibles -->
+                        <section class="card-panel services-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                                <div class="panel-heading-texts">
+                                    <h2 class="panel-title">Servicios e Instalaciones</h2>
+                                    <p class="panel-subtitle">Facilidades disponibles para los visitantes</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="services-badges-grid" id="services-badges-grid">
+                                    <!-- Badges de servicios renderizados por JS de forma segura -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Sección de Tours para este Sitio Turístico (CP-013 y CP-014) -->
+                        <section class="card-panel place-tours-panel" id="place-tours-panel" aria-labelledby="place-tours-heading">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                    </svg>
+                                </div>
+                                <div class="panel-heading-texts">
+                                    <h2 class="panel-title" id="place-tours-heading">Tours</h2>
+                                    <p class="panel-subtitle">Paquetes guiados oficiales que incluyen este destino</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <!-- ÚNICO filtro permitido: Fecha (CP-014) -->
+                                <div class="place-tours-filter">
+                                    <label for="place-tour-date" class="place-filter-label">Filtrar por fecha de salida:</label>
+                                    <div class="date-filter-row">
+                                        <input type="date" id="place-tour-date" class="place-date-input" aria-label="Filtrar tours por fecha de salida">
+                                        <button type="button" id="btn-clear-place-date" class="btn-clear-date hidden" aria-label="Limpiar filtro de fecha">Limpiar fecha</button>
+                                    </div>
+                                </div>
+
+                                <!-- Mensaje de estado sin resultados por fecha (CP-014 texto exacto) -->
+                                <div id="place-tours-empty" class="place-tours-empty hidden" role="status">
+                                    <p class="place-empty-text" id="place-empty-text">No hay tours disponibles para la fecha seleccionada</p>
+                                </div>
+
+                                <!-- Grid de tarjetas de tours del lugar (CP-013) -->
+                                <div id="place-tours-grid" class="place-tours-grid">
+                                    <!-- Tarjetas de tours inyectadas dinámicamente -->
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Columna Lateral / Secundaria -->
+                    <aside class="content-sidebar-column">
+                        <!-- 6. Sección de Horarios de Atención -->
+                        <section class="card-panel schedule-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </div>
+                                <h2 class="panel-title">Horarios de Atención</h2>
+                            </div>
+                            <div class="panel-body">
+                                <div class="schedule-status-banner">
+                                    <span class="status-indicator-dot"></span>
+                                    <span class="status-indicator-text">Abierto al público</span>
+                                </div>
+
+                                <div class="schedule-details-list">
+                                    <div class="schedule-item-card">
+                                        <div class="schedule-item-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="schedule-item-info">
+                                            <span class="schedule-item-label">Días de atención</span>
+                                            <strong class="schedule-item-value" id="schedule-days-value">Martes a Domingo</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-item-card">
+                                        <div class="schedule-item-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="schedule-item-info">
+                                            <span class="schedule-item-label">Horario de apertura y cierre</span>
+                                            <strong class="schedule-item-value" id="schedule-hours-value">08:00 AM – 05:00 PM</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="schedule-note-box">
+                                    <p class="schedule-note-text" id="schedule-note-text">
+                                        Recomendación: Se sugiere llegar al menos 1 hora antes del horario de cierre para disfrutar la experiencia completa.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Panel Informativo Institucional (MITUR) -->
+                        <section class="card-panel institucional-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                </div>
+                                <h2 class="panel-title">Turismo Responsable</h2>
+                            </div>
+                            <div class="panel-body">
+                                <ul class="guidelines-list">
+                                    <li>Cuida los recursos naturales y arqueológicos.</li>
+                                    <li>Deposita la basura en los contenedores designados.</li>
+                                    <li>Respeta las señalizaciones y las rutas autorizadas.</li>
+                                </ul>
+                                <a href="mapa.html" class="btn-secondary-explore">
+                                    <span>Explorar otros sitios en el mapa</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </article>
+        </main>
+
+        <!-- Pie de página institucional -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Script Modular para la Vista de Detalle -->
+    <script type="module" src="js/controllers/LugarDetalleController.js"></script>
+</body>
+</html>
