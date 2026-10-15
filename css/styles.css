@@ -1,3 +1,7 @@
+html{
+  overflow-y: scroll !important;
+}
+
 .caacupe-one-regular {
   font-family: "Caacupe One", sans-serif;
   font-weight: 400;
@@ -48,7 +52,6 @@ html, body {
   color: var(--dark);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
-  overflow-y: auto !important;
   overflow-x: hidden;
 }
 
@@ -57,8 +60,6 @@ body.mapa-body,
 html:has(body.mapa-body) {
   height: 100% !important;
   min-height: 100vh !important;
-  overflow: hidden !important;
-  overflow-y: hidden !important;
 }
 
 body.mapa-body {

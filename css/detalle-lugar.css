@@ -27,7 +27,7 @@
   /* Tipografías y Espaciado */
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-brand: 'Caacupe One', sans-serif;
-  --gutter: 32px;
+  --gutter: clamp(12px, 3vw, 32px);
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -42,7 +42,9 @@
   --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset y Base */
+/* ==========================================================================
+   Reset y Modelo de Caja Fluido
+   ========================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -52,6 +54,7 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 html, body {
@@ -72,14 +75,20 @@ html, body {
   flex-direction: column;
   height: auto;
   min-height: 100vh;
-  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+  box-sizing: border-box;
 }
 
 main,
 .detail-main {
   height: auto;
   overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -118,12 +127,14 @@ main,
   gap: 12px;
   text-decoration: none;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 .app-logo {
   display: block;
   height: 48px;
   width: auto;
+  max-width: 100%;
   object-fit: contain;
   background: transparent;
   transition: transform 0.2s ease;
@@ -138,6 +149,8 @@ main,
   font-weight: 800;
   color: var(--alice-blue);
   letter-spacing: -0.4px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Navegación Principal Institucional */
@@ -168,6 +181,7 @@ main,
   background: rgba(232, 241, 242, 0.05);
   transition: var(--transition);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .nav-link:hover {
@@ -204,6 +218,7 @@ main,
   border: 1px solid rgba(232, 241, 242, 0.25);
   transition: var(--transition);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .btn-return-map:hover {
@@ -218,6 +233,7 @@ main,
   width: 18px;
   height: 18px;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .btn-return-map:hover .icon-return {
@@ -232,7 +248,9 @@ main,
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px var(--gutter) 60px;
+  padding: clamp(1.25rem, 3.5vw, 2rem) var(--gutter) clamp(2rem, 5vw, 3.75rem);
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .hidden {
@@ -247,7 +265,10 @@ main,
   justify-content: center;
   min-height: 400px;
   text-align: center;
-  padding: 40px 20px;
+  padding: 40px 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .state-loading .spinner-pulse {
@@ -269,18 +290,23 @@ main,
   color: var(--alice-blue);
   font-size: 1.05rem;
   font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Tarjeta de Error / Fallback */
 .error-card {
   background: var(--surface);
   border-radius: var(--radius-lg);
-  padding: 48px 32px;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
   max-width: 540px;
   width: 100%;
+  box-sizing: border-box;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
   animation: fadeIn 0.3s ease;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .error-icon-box {
@@ -293,6 +319,7 @@ main,
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .error-icon {
@@ -302,9 +329,12 @@ main,
 
 .error-title {
   color: var(--deep-space-blue);
-  font-size: 1.65rem;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
   font-weight: 800;
   margin-bottom: 12px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .error-message {
@@ -312,6 +342,8 @@ main,
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 28px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .btn-primary-return {
@@ -328,6 +360,8 @@ main,
   border-radius: var(--radius-pill);
   transition: var(--transition);
   box-shadow: 0 4px 14px rgba(0, 100, 148, 0.3);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-primary-return:hover {
@@ -341,6 +375,10 @@ main,
    ========================================================================== */
 .detail-article {
   animation: fadeIn 0.4s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @keyframes fadeIn {
@@ -350,6 +388,9 @@ main,
 
 .place-header-section {
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-meta-tags {
@@ -358,6 +399,9 @@ main,
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .category-badge {
@@ -373,6 +417,11 @@ main,
   background-color: var(--baltic-blue);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+  max-width: 100%;
+  flex-wrap: wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 .location-badge {
@@ -386,22 +435,39 @@ main,
   color: var(--alice-blue);
   background-color: rgba(232, 241, 242, 0.12);
   border: 1px solid rgba(232, 241, 242, 0.18);
+  max-width: 100%;
+  flex-wrap: wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 .badge-icon {
   width: 14px;
   height: 14px;
   stroke: var(--blue-bell);
+  flex-shrink: 0;
+}
+
+#place-location-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .place-official-title {
   color: #FFFFFF;
-  font-size: 2.35rem;
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.6px;
   margin-bottom: 16px;
   text-shadow: 0 2px 4px rgba(19, 41, 61, 0.5);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Barra de Calificación con 5 Estrellas Gráficas */
@@ -410,6 +476,9 @@ main,
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .rating-badge-container {
@@ -421,6 +490,9 @@ main,
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .rating-numeric-value {
@@ -428,12 +500,14 @@ main,
   font-weight: 800;
   color: var(--deep-space-blue);
   letter-spacing: -0.3px;
+  flex-shrink: 0;
 }
 
 .rating-stars-graphic {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .star-icon {
@@ -442,6 +516,7 @@ main,
   fill: var(--gold-star);
   stroke: var(--gold-star);
   filter: drop-shadow(0 1px 2px rgba(255, 184, 0, 0.3));
+  flex-shrink: 0;
 }
 
 .star-icon.empty {
@@ -455,6 +530,8 @@ main,
   font-size: 0.9rem;
   font-weight: 500;
   opacity: 0.9;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================================================
@@ -462,18 +539,23 @@ main,
    ========================================================================== */
 .place-media-section {
   margin-bottom: 32px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .media-container {
   position: relative;
   width: 100%;
+  max-width: 100%;
   max-height: 520px;
-  height: clamp(280px, 45vw, 500px);
+  height: clamp(200px, 45vw, 500px);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background-color: #0d1e2e;
+  box-sizing: border-box;
 }
 
 .place-hero-image {
@@ -509,20 +591,27 @@ main,
   font-weight: 700;
   border: 1px solid rgba(255, 255, 255, 0.2);
   letter-spacing: 0.4px;
+  max-width: calc(100% - 40px);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
-   Cuadrícula de Contenidos (Información, Servicios, Horarios)
+   Cuadrícula de Contenidos: Estructura Fluida
    ========================================================================== */
 .place-content-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 960px) {
   .place-content-grid {
-    grid-template-columns: 1.8fr 1.2fr;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
     align-items: start;
   }
 }
@@ -532,9 +621,13 @@ main,
   display: flex;
   flex-direction: column;
   gap: 28px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-/* Tarjetas y Paneles */
+/* Tarjetas y Paneles Blancos (Shared Panel Rules) */
 .card-panel {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -542,6 +635,10 @@ main,
   border: 1px solid var(--border-color);
   overflow: hidden;
   transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .card-panel:hover {
@@ -549,11 +646,14 @@ main,
 }
 
 .panel-header {
-  padding: 24px 28px 18px;
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem) clamp(0.75rem, 2vw, 1.125rem);
   display: flex;
   align-items: center;
   gap: 14px;
   border-bottom: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .panel-icon-wrap {
@@ -566,6 +666,7 @@ main,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .panel-icon-wrap svg {
@@ -576,35 +677,49 @@ main,
 .panel-heading-texts {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .panel-title {
   color: var(--deep-space-blue);
-  font-size: 1.35rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.3px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .panel-subtitle {
   color: var(--text-secondary);
   font-size: 0.88rem;
   margin-top: 2px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .panel-body {
-  padding: 24px 28px;
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* ==========================================================================
-   4. Información Descriptiva
+   4. Información Descriptiva (Card Panel: Descripción)
    ========================================================================== */
 .place-full-description {
   color: var(--text-primary);
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
   line-height: 1.75;
   margin-bottom: 24px;
   white-space: pre-line;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .place-attributes-strip {
@@ -613,27 +728,39 @@ main,
   gap: 12px;
   padding-top: 20px;
   border-top: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .attribute-pill {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   background-color: var(--surface-subtle);
   padding: 8px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-light);
   font-size: 0.9rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .attribute-label {
   color: var(--text-muted);
   font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .attribute-value {
   color: var(--deep-space-blue);
   font-weight: 700;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .attribute-highlight {
@@ -641,12 +768,15 @@ main,
 }
 
 /* ==========================================================================
-   5. Sección de Servicios
+   5. Sección de Servicios e Instalaciones (Card Panel: Servicios)
    ========================================================================== */
 .services-badges-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
   gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .service-badge-item {
@@ -658,6 +788,10 @@ main,
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .service-badge-item:hover {
@@ -678,6 +812,7 @@ main,
   justify-content: center;
   flex-shrink: 0;
   transition: var(--transition);
+  box-sizing: border-box;
 }
 
 .service-badge-item:hover .service-icon-box {
@@ -695,244 +830,32 @@ main,
   font-weight: 600;
   color: var(--deep-space-blue);
   line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  min-width: 0;
+  flex: 1;
 }
 
 /* ==========================================================================
-   6. Sección de Horarios de Atención
-   ========================================================================== */
-.schedule-status-banner {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #ECFDF5;
-  color: #065F46;
-  border: 1px solid #A7F3D0;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-.status-indicator-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #10B981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-
-.schedule-details-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.schedule-item-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  background-color: var(--surface-subtle);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-}
-
-.schedule-item-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background-color: rgba(0, 100, 148, 0.08);
-  color: var(--baltic-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.schedule-item-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.schedule-item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.schedule-item-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-}
-
-.schedule-item-value {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--deep-space-blue);
-}
-
-.schedule-note-box {
-  background-color: #F8FAFC;
-  border-left: 3px solid var(--baltic-blue);
-  padding: 12px 14px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.schedule-note-text {
-  font-size: 0.86rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-/* Panel Institucional Recomendaciones */
-.guidelines-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 22px;
-}
-
-.guidelines-list li {
-  position: relative;
-  padding-left: 22px;
-  font-size: 0.92rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.guidelines-list li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--baltic-blue);
-  font-weight: 800;
-}
-
-.btn-secondary-explore {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--surface-subtle);
-  color: var(--baltic-blue);
-  text-decoration: none;
-  font-size: 0.92rem;
-  font-weight: 700;
-  padding: 12px 18px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  transition: var(--transition);
-}
-
-.btn-secondary-explore svg {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.2s ease;
-}
-
-.btn-secondary-explore:hover {
-  background-color: var(--baltic-blue);
-  color: #FFFFFF;
-  border-color: var(--baltic-blue);
-}
-
-.btn-secondary-explore:hover svg {
-  transform: translateX(4px);
-}
-
-/* ==========================================================================
-   Footer Institucional
-   ========================================================================== */
-.app-footer {
-  margin-top: auto;
-  background-color: #0a1926;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 24px var(--gutter);
-  text-align: center;
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-}
-
-.footer-copy {
-  color: var(--alice-blue);
-  font-size: 0.88rem;
-  opacity: 0.8;
-}
-
-.footer-tagline {
-  color: var(--blue-bell);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-/* ==========================================================================
-   Responsividad
-   ========================================================================== */
-@media (max-width: 768px) {
-  :root {
-    --gutter: 18px;
-  }
-
-  .header-container {
-    padding: 10px var(--gutter);
-  }
-
-  .header-title {
-    font-size: 1.1rem;
-  }
-
-  .btn-return-map span {
-    display: none; /* En móvil muestra solo el ícono para ahorrar espacio */
-  }
-
-  .btn-return-map {
-    padding: 10px 12px;
-  }
-
-  .place-official-title {
-    font-size: 1.85rem;
-  }
-
-  .panel-header {
-    padding: 18px 20px 14px;
-  }
-
-  .panel-body {
-    padding: 18px 20px;
-  }
-
-  .services-badges-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ==========================================================================
-   Sección de Tours del Lugar (CP-013 y CP-014)
+   Sección de Tours para este Sitio Turístico (Card Panel: Tours)
    ========================================================================== */
 .place-tours-panel .panel-body {
-  padding: 24px 28px;
+  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(0.875rem, 3vw, 1.75rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-tours-filter {
   margin-bottom: 24px;
   background: var(--alice-blue);
-  padding: 16px 20px;
+  padding: clamp(0.75rem, 2.5vw, 1rem) clamp(0.75rem, 3vw, 1.25rem);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-filter-label {
@@ -943,6 +866,8 @@ main,
   color: var(--baltic-blue);
   letter-spacing: 0.5px;
   margin-bottom: 8px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .date-filter-row {
@@ -950,6 +875,9 @@ main,
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-date-input {
@@ -962,7 +890,10 @@ main,
   background: var(--surface);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-width: 220px;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 180px;
+  box-sizing: border-box;
 }
 
 .place-date-input:focus {
@@ -981,6 +912,9 @@ main,
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
 .btn-clear-date:hover {
@@ -991,26 +925,34 @@ main,
 
 /* Mensaje exacto de no disponibilidad por fecha (CP-014) */
 .place-tours-empty {
-  padding: 36px 20px;
+  padding: clamp(1.5rem, 4vw, 2.25rem) 1rem;
   text-align: center;
   background: #FDFEFE;
   border: 1.5px dashed var(--border-color);
   border-radius: var(--radius-md);
   margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-empty-text {
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   font-weight: 700;
   color: var(--deep-space-blue);
   margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Grid de tours dentro del lugar */
 .place-tours-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
   gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card {
@@ -1025,6 +967,10 @@ main,
   text-decoration: none;
   color: inherit;
   transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card:hover {
@@ -1039,6 +985,7 @@ main,
   height: 180px;
   background: #0b1a26;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card-image {
@@ -1064,6 +1011,8 @@ main,
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+  max-width: calc(100% - 24px);
+  word-break: break-word;
 }
 
 .place-tours-grid .tour-card-body {
@@ -1071,6 +1020,10 @@ main,
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card-title {
@@ -1079,6 +1032,9 @@ main,
   font-weight: 800;
   color: var(--deep-space-blue);
   line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .place-tours-grid .tour-card-description {
@@ -1092,6 +1048,8 @@ main,
   line-clamp: 2;
   overflow: hidden;
   flex: 1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .place-tours-grid .tour-card-meta {
@@ -1100,15 +1058,24 @@ main,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card-guide {
   font-size: 0.8rem;
   color: var(--text-secondary);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .place-tours-grid .tour-card-pricing {
   text-align: right;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .place-tours-grid .price-original {
@@ -1135,33 +1102,863 @@ main,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .place-tours-grid .tour-card-action {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--baltic-blue);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .place-tours-grid .tour-card-arrow {
   width: 16px;
   height: 16px;
   color: var(--baltic-blue);
+  flex-shrink: 0;
 }
 
-@media (max-width: 580px) {
+/* ==========================================================================
+   6. Sección de Horarios de Atención (Card Panel: Horarios)
+   ========================================================================== */
+.schedule-status-banner {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+
+.status-indicator-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.schedule-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background-color: var(--surface-subtle);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.schedule-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(0, 100, 148, 0.08);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  box-sizing: border-box;
+}
+
+.schedule-item-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.schedule-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.schedule-item-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.schedule-item-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.schedule-note-box {
+  background-color: #F8FAFC;
+  border-left: 3px solid var(--baltic-blue);
+  padding: 12px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-note-text {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   Panel Institucional (Card Panel: Turismo Responsable)
+   ========================================================================== */
+.guidelines-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.guidelines-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.guidelines-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--baltic-blue);
+  font-weight: 800;
+}
+
+.btn-secondary-explore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background-color: var(--surface-subtle);
+  color: var(--baltic-blue);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.btn-secondary-explore span {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.btn-secondary-explore svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-secondary-explore:hover {
+  background-color: var(--baltic-blue);
+  color: #FFFFFF;
+  border-color: var(--baltic-blue);
+}
+
+.btn-secondary-explore:hover svg {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Footer Institucional
+   ========================================================================== */
+.app-footer {
+  margin-top: auto;
+  background-color: #0a1926;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px var(--gutter);
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-copy {
+  color: var(--alice-blue);
+  font-size: 0.88rem;
+  opacity: 0.8;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.footer-tagline {
+  color: var(--blue-bell);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   Responsividad: Tablets y Pantallas Medianas (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  /* Navbar compacto en una sola línea */
+  .app-header {
+    padding: 6px var(--gutter);
+    min-height: 58px;
+  }
+
+  .header-container {
+    padding: 0;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .app-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .app-logo {
+    height: 38px;
+    width: auto;
+  }
+
+  /* Ocultar texto institucional en móvil para garantizar barra horizontal limpia */
   .header-title {
-    font-size: 1.05rem;
+    display: none;
+  }
+
+  /* Navegación horizontal en una sola fila (sin desbordamiento) */
+  .header-navigation {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    max-width: 100%;
+    padding-right: 0;
+    flex-shrink: 0;
+  }
+
+  /* Ocultar texto interior de los enlaces (estándar de mapa.html) */
+  .nav-link span,
+  .btn-return-map span {
+    display: none;
+  }
+
+  /* Botones circulares compactos con iconos perfectamente centrados */
+  .nav-link {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Botón de retorno Volver con tamaño armónico y circular */
+  .btn-return-map {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .icon-return {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .btn-return-map:hover .icon-return {
+    transform: none;
+  }
+
+  .place-official-title {
+    font-size: 1.85rem;
+  }
+
+  .place-content-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .content-primary-column,
+  .content-sidebar-column {
+    gap: 20px;
+  }
+
+  .panel-header {
+    padding: 18px 20px 14px;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 18px 20px;
+  }
+
+  .services-badges-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .place-tours-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Responsividad: Móviles Estándar (<= 581px y <= 480px)
+   ========================================================================== */
+@media (max-width: 581px) {
+  :root {
+    --gutter: 12px;
+  }
+
+  .main-content {
+    padding: 20px var(--gutter) 40px;
+  }
+
+  .place-official-title {
+    font-size: 1.6rem;
+  }
+
+  .media-container {
+    height: clamp(200px, 50vw, 280px);
+  }
+
+  .panel-header {
+    padding: 16px 16px 12px;
+    gap: 12px;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 16px 16px;
+  }
+
+  .place-tours-filter {
+    padding: 12px 14px;
+  }
+
+  .date-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Control y normalización de altura en el input de fecha de tours */
+  .place-date-input {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: unset;
+    max-height: 44px;
+    padding: 10px 14px;
+    align-self: flex-start;
+    font-size: 0.95rem;
+    line-height: normal;
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+  }
+
+  .btn-clear-date {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 44px;
+    padding: 10px 16px;
+    text-align: center;
+  }
+
+  .place-attributes-strip {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .attribute-pill {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
 @media (max-width: 440px) {
-  .nav-link {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
   .header-navigation {
-    gap: 6px;
+    gap: 5px;
   }
 }
 
+/* ==========================================================================
+   Responsividad: Pantallas Ultra-Compactas (<= 360px y hasta 280px)
+   Requerimientos específicos para evitar desbordamiento horizontal:
+   - Reset fluido y box-sizing: border-box en todas las tarjetas
+   - Padding dinámico seguro: clamp(0.75rem, 3vw, 1rem) / 1rem 0.75rem
+   - Columnas 1fr / minmax(0, 1fr)
+   - flex-wrap: wrap y word-break / overflow-wrap en badges, títulos y textos
+   - Reducción proporcional y armónica de tipografías e iconos
+   ========================================================================== */
+@media (max-width: 360px) {
+  :root {
+    --gutter: 8px;
+  }
+
+  .app-header {
+    padding: 6px 8px;
+  }
+
+  .header-container {
+    padding: 2px 0;
+    gap: 6px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .app-logo-container {
+    gap: 6px;
+  }
+
+  .app-logo {
+    height: 32px;
+  }
+
+  .header-navigation {
+    width: auto;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .nav-link,
+  .btn-return-map {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .nav-icon,
+  .icon-return {
+    width: 16px;
+    height: 16px;
+  }
+
+  .main-content {
+    padding: 12px var(--gutter) 32px;
+  }
+
+  /* Encabezado del lugar */
+  .place-header-section {
+    margin-bottom: 16px;
+  }
+
+  .place-meta-tags {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .category-badge,
+  .location-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .badge-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .place-official-title {
+    font-size: 1.35rem;
+    letter-spacing: -0.4px;
+    margin-bottom: 12px;
+  }
+
+  .place-rating-bar {
+    gap: 8px;
+  }
+
+  .rating-badge-container {
+    padding: 4px 10px;
+    gap: 6px;
+  }
+
+  .rating-numeric-value {
+    font-size: 1.05rem;
+  }
+
+  .star-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .rating-caption-label {
+    font-size: 0.78rem;
+  }
+
+  /* Multimedia */
+  .place-media-section {
+    margin-bottom: 20px;
+  }
+
+  .media-container {
+    height: 180px;
+    border-radius: var(--radius-md);
+  }
+
+  .media-tag {
+    bottom: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    max-width: calc(100% - 20px);
+  }
+
+  /* Tarjetas de Información (Descripción, Servicios, Tours, Horarios, Turismo Responsable) */
+  .place-content-grid {
+    gap: 16px;
+  }
+
+  .content-primary-column,
+  .content-sidebar-column {
+    gap: 16px;
+  }
+
+  .card-panel {
+    border-radius: var(--radius-md);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .panel-header {
+    padding: 1rem 0.75rem 0.75rem;
+    gap: 10px;
+  }
+
+  .panel-icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+  }
+
+  .panel-icon-wrap svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .panel-title {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .panel-subtitle {
+    font-size: 0.76rem;
+  }
+
+  .panel-body,
+  .place-tours-panel .panel-body {
+    padding: 1rem 0.75rem;
+  }
+
+  /* 1. Descripción */
+  .place-full-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .place-attributes-strip {
+    padding-top: 14px;
+    gap: 6px;
+  }
+
+  .attribute-pill {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* 2. Servicios e Instalaciones */
+  .service-badge-item {
+    padding: 10px 10px;
+    gap: 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .service-icon-box {
+    width: 32px;
+    height: 32px;
+  }
+
+  .service-icon-box svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .service-name-text {
+    font-size: 0.84rem;
+  }
+
+  /* 3. Tours */
+  .place-tours-filter {
+    padding: 10px 10px;
+    margin-bottom: 16px;
+  }
+
+  .place-filter-label {
+    font-size: 0.76rem;
+  }
+
+  .place-date-input {
+    flex: none;
+    height: auto;
+    min-height: unset;
+    max-height: 44px;
+    font-size: 0.84rem;
+    padding: 8px 10px;
+  }
+
+  .btn-clear-date {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  .place-empty-text {
+    font-size: 0.9rem;
+  }
+
+  .place-tours-grid .tour-card-media {
+    height: 150px;
+  }
+
+  .place-tours-grid .tour-card-body {
+    padding: 12px;
+  }
+
+  .place-tours-grid .tour-card-title {
+    font-size: 1rem;
+  }
+
+  .place-tours-grid .tour-card-description {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+
+  .place-tours-grid .tour-card-meta {
+    padding-top: 10px;
+  }
+
+  .place-tours-grid .price-amount {
+    font-size: 1.05rem;
+  }
+
+  .place-tours-grid .tour-card-footer {
+    padding: 8px 12px;
+  }
+
+  /* 4. Horarios de Atención */
+  .schedule-status-banner {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    margin-bottom: 14px;
+  }
+
+  .schedule-details-list {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .schedule-item-card {
+    padding: 10px 10px;
+    gap: 10px;
+  }
+
+  .schedule-item-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .schedule-item-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .schedule-item-label {
+    font-size: 0.72rem;
+  }
+
+  .schedule-item-value {
+    font-size: 0.92rem;
+  }
+
+  .schedule-note-box {
+    padding: 10px 10px;
+  }
+
+  .schedule-note-text {
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  /* 5. Turismo Responsable */
+  .guidelines-list {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .guidelines-list li {
+    font-size: 0.84rem;
+    padding-left: 18px;
+  }
+
+  .btn-secondary-explore {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+
+  .btn-secondary-explore svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Error Card */
+  .error-card {
+    padding: 24px 12px;
+  }
+
+  .error-icon-box {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 14px;
+  }
+
+  .error-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .error-title {
+    font-size: 1.25rem;
+  }
+
+  .error-message {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .btn-primary-return {
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+
+  /* Footer */
+  .app-footer {
+    padding: 20px 8px;
+  }
+
+  .footer-copy {
+    font-size: 0.78rem;
+  }
+
+  .footer-tagline {
+    font-size: 0.74rem;
+  }
+}
