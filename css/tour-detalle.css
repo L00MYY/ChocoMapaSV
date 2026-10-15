@@ -932,6 +932,7 @@ img {
 }
 
 @media (max-width: 380px) {
+
   .place-item-card,
   .tour-place-item {
     gap: 0.5rem;
@@ -955,4 +956,4 @@ img {
     min-width: 24px;
     font-size: 0.75rem;
   }
-}
+}
