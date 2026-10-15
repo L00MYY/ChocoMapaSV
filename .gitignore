@@ -15,4 +15,5 @@ node_modules/
 
 # Generado en build — no subir
 js/config.js
+js/models/config.js
 dist/
