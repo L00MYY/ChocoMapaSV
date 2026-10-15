@@ -581,19 +581,7 @@ main,
     }
 }
 
-/* Footer Institucional */
-.tours-footer {
-    padding: 28px var(--gutter);
-    background: #091520;
-    border-top: 1px solid rgba(209, 227, 230, 0.12);
-    text-align: center;
-    color: #7E97A6;
-    font-size: 0.88rem;
-}
-
-.tours-footer p {
-    margin: 4px 0;
-}
+/* Nota: Los estilos del footer institucional han sido centralizados en css/footer.css */
 
 /* Responsive */
 @media (max-width: 768px) {

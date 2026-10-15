@@ -1,0 +1,93 @@
+/* ==========================================================================
+   css/footer.css
+   Componente Footer Institucional Estandarizado - Ministerio de Turismo (MITUR)
+   Fuente de verdad: detalle-lugar.html
+   ========================================================================== */
+
+.app-footer,
+.app-footer *,
+.app-footer *::before,
+.app-footer *::after {
+  box-sizing: border-box;
+}
+
+.app-footer {
+  margin-top: auto;
+  background-color: #0a1926;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px var(--gutter, 24px);
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column !important;
+  gap: 6px;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center !important;
+}
+
+.footer-copy {
+  color: var(--alice-blue, #E8F1F2);
+  font-family: var(--font-family, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.8;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.footer-tagline {
+  color: var(--blue-bell, #1B98E0);
+  font-family: var(--font-family, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Responsividad: Tablets y Pantallas Medianas (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-footer {
+    padding: 22px var(--gutter, 16px);
+  }
+}
+
+/* ==========================================================================
+   Responsividad: Pantallas Ultra-Compactas (<= 360px y hasta 280px)
+   ========================================================================== */
+@media (max-width: 360px) {
+  .app-footer {
+    padding: 20px 8px;
+  }
+
+  .footer-copy {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .footer-tagline {
+    font-size: 0.74rem;
+    line-height: 1.35;
+    letter-spacing: 0.3px;
+  }
+}
