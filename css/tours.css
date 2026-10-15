@@ -582,18 +582,25 @@ main,
 }
 
 /* Footer Institucional */
-.tours-footer {
-    padding: 28px var(--gutter);
-    background: #091520;
-    border-top: 1px solid rgba(209, 227, 230, 0.12);
+.tours-footer,
+.home-pie {
+    padding: 20px 24px 28px;
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
-    color: #7E97A6;
-    font-size: 0.88rem;
+    color: rgba(232, 241, 242, 0.75);
+    font-size: 0.85rem;
+    margin-top: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.tours-footer p {
-    margin: 4px 0;
+.tours-footer p,
+.home-pie p {
+    margin: 0;
+    line-height: 1.5;
 }
+
 
 /* Responsive */
 @media (max-width: 768px) {

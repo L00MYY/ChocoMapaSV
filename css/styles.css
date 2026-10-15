@@ -895,3 +895,38 @@ main,
     top: 68px;
   }
 }
+
+/* ==========================================================================
+   Footer Institucional Estandarizado (home-pie) - MITUR SV
+   ========================================================================== */
+.home-pie {
+  padding: 20px 24px 28px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--cerulean);
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.home-pie p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Adaptación para vistas con fondo oscuro institucional */
+.page-layout .home-pie,
+.app-layout .home-pie,
+body.mapa-body .home-pie,
+body.page-tours .home-pie,
+body.page-tour-detail .home-pie {
+  color: rgba(232, 241, 242, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* En la vista de mapa interactivo, diseño compacto */
+body.mapa-body .home-pie {
+  padding: 12px 24px 14px;
+}
