@@ -581,25 +581,7 @@ main,
     }
 }
 
-/* Footer Institucional */
-.tours-footer,
-.home-pie {
-    padding: 20px 24px 28px;
-    background: transparent;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    text-align: center;
-    color: rgba(232, 241, 242, 0.75);
-    font-size: 0.85rem;
-    margin-top: auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.tours-footer p,
-.home-pie p {
-    margin: 0;
-    line-height: 1.5;
-}
+/* Nota: Los estilos del footer institucional han sido centralizados en css/footer.css */
 
 
 /* Responsive */
@@ -782,4 +764,4 @@ main,
         min-width: 80px;
         max-width: 80px;
     }
-}
+}
