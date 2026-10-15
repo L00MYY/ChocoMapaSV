@@ -14,6 +14,7 @@ const HEADERS = {
  * permitiendo pruebas completas e interacción inmediata. En cuanto existan registros en Supabase,
  * estos tienen prioridad absoluta.
  */
+
 export const TOURS_DEMO = [
     {
         id: 'a1000000-0000-0000-0000-000000000001',
@@ -354,7 +355,7 @@ export async function obtenerToursPorLugar(placeId) {
     }
 
     // Fallback a los tours de demostración que incluyen este lugar
-    return TOURS_DEMO.filter(t => 
+    return TOURS_DEMO.filter(t =>
         t.is_active && t.tour_places && t.tour_places.some(tp => tp.place_id === placeId)
     );
 }
@@ -445,3 +446,51 @@ export async function actualizarCuposTour(tourId, nuevosCupos) {
         console.warn('No se pudieron actualizar los cupos en la base de datos:', error);
     }
 }
+
+/**
+ * Formatea un número decimal como moneda estadounidense USD (ej. $28.00)
+ * @param {number|string} valor 
+ * @returns {string}
+ */
+export function formatearMonedaUSD(valor) {
+    const num = Number(valor);
+    if (isNaN(num)) return '$0.00';
+    return `$${num.toFixed(2)}`;
+}
+
+/**
+ * Formatea una fecha YYYY-MM-DD en texto legible en español
+ * @param {string} fechaStr 
+ * @returns {string}
+ */
+export function formatearFechaLarga(fechaStr) {
+    if (!fechaStr) return '';
+    try {
+        const partes = String(fechaStr).split('T')[0].split('-');
+        if (partes.length === 3) {
+            const anio = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            const dia = parseInt(partes[2], 10);
+            const fecha = new Date(anio, mes, dia);
+            return fecha.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        const fecha = new Date(fechaStr);
+        if (!isNaN(fecha.getTime())) {
+            return fecha.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+    } catch (e) {
+        console.warn('Error al formatear fecha:', e);
+    }
+    return String(fechaStr);
+}
+

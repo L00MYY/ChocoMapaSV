@@ -14,7 +14,7 @@ import {
     TOURS_DEMO
 } from './tours-service.js';
 
-// Failsafe obligatorio: si pasados 3 segundos el spinner sigue visible, forzar estado sin datos
+// Failsafe obligatorio: si pasados 6 segundos el spinner sigue visible, forzar estado sin datos
 const failsafeTimeout = setTimeout(() => {
     const loading = document.getElementById('state-loading');
     const content = document.getElementById('state-content');
@@ -29,7 +29,7 @@ const failsafeTimeout = setTimeout(() => {
             if (title) title.textContent = 'No hay datos disponibles para mostrar';
         }
     }
-}, 3000);
+}, 6000);
 
 window.addEventListener('error', (err) => {
     console.warn('Capturado error en ejecución de tour-detalle.js:', err);
@@ -156,13 +156,8 @@ async function cargarDetalleTour() {
     try {
         mostrarCargando();
 
-        // Si no se proporcionó id en la URL, mostrar inmediatamente el estado sin datos requerido
-        if (!tourId || !tourId.trim()) {
-            mostrarError('No hay datos disponibles para mostrar', 'No se ha indicado un identificador de tour en la dirección web.');
-            return;
-        }
-
-        const cleanId = tourId.trim();
+        // Si no se proporcionó id en la URL, utilizar el primer tour disponible por defecto
+        const cleanId = (tourId && tourId.trim()) ? tourId.trim() : 'a1000000-0000-0000-0000-000000000001';
 
         // 1. Consultar tour por ID compitiendo con timeout de 6s
         let tour = await Promise.race([
