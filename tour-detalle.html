@@ -1,43 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Información completa, itinerario, fechas y reservación de cupos para tours turísticos oficiales en El Salvador - MITUR.">
+    <meta name="description"
+        content="Información completa, itinerario, fechas y reservación de cupos para tours turísticos oficiales en El Salvador - MITUR.">
     <title>Detalle del Tour | Ministerio de Turismo SV</title>
 
     <!-- Fuentes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Estilos globales y específicos del detalle de tour -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tour-detalle.css">
 </head>
-<body>
+
+<body class="page-tour-detail">
     <div class="page-layout">
         <!-- 1. Header / Navbar Institucional -->
-        <header class="navbar app-header" style="width: 100%;">
+        <header class="navbar app-header">
             <div class="header-container">
-                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
-                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
-                         class="app-logo" 
-                         alt="Ministerio de Turismo de El Salvador" 
-                         decoding="async" 
-                         fetchpriority="high">
+                <a href="index.html" class="app-logo-container"
+                    aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png"
+                        class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async"
+                        fetchpriority="high">
                     <span class="header-title">Ministerio de Turismo</span>
                 </a>
                 <nav class="header-navigation" aria-label="Navegación principal">
                     <a href="index.html" class="nav-link" id="nav-inicio">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                         <span>Inicio</span>
                     </a>
                     <a href="mapa.html" class="nav-link" id="nav-mapa">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                             <line x1="8" y1="2" x2="8" y2="18"></line>
                             <line x1="16" y1="6" x2="16" y2="22"></line>
@@ -45,7 +51,8 @@
                         <span>Mapa</span>
                     </a>
                     <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
                             <rect x="14" y="14" width="7" height="7"></rect>
@@ -54,7 +61,8 @@
                         <span>Lugares turísticos</span>
                     </a>
                     <a href="tours.html" class="nav-link active" id="nav-tours" aria-current="page">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"></circle>
                             <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                         </svg>
@@ -67,13 +75,14 @@
         <!-- 2. Contenido Principal -->
         <main class="tour-detail-main" id="main-content">
             <!-- Barra de Retorno -->
-            <div class="breadcrumb-bar" style="position: relative; z-index: 20;">
-                <a href="tours.html" class="btn-return" id="btn-return" aria-label="Volver al catálogo de tours" style="position: relative; z-index: 20; pointer-events: auto;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <div class="breadcrumb-bar">
+                <a href="tours.html" class="btn-return" id="btn-return" aria-label="Volver al catálogo de tours">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
-                    <span>← Volver a tours</span>
+                    <span>Volver a tours</span>
                 </a>
             </div>
 
@@ -87,7 +96,8 @@
             <section class="state-container state-error hidden" id="state-error" role="alert">
                 <div class="error-card">
                     <div class="error-icon-box" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36"
+                            height="36" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="12" y1="8" x2="12" y2="12"></line>
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -99,7 +109,7 @@
                 </div>
             </section>
 
-            <!-- Contenido Completo del Tour (CP-018 y CP-019) -->
+            <!-- Contenido Completo del Tour -->
             <article class="tour-detail-article hidden" id="state-content">
                 <!-- Encabezado del Tour -->
                 <header class="tour-header">
@@ -110,7 +120,8 @@
                     </div>
                     <h1 class="tour-title" id="tour-title">Nombre del Tour</h1>
                     <div class="tour-guide-bar">
-                        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            aria-hidden="true">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
@@ -118,7 +129,7 @@
                     </div>
                 </header>
 
-                <!-- Galería Multimedia (CP-018) -->
+                <!-- Galería Multimedia -->
                 <section class="tour-gallery-section" aria-label="Galería fotográfica del tour">
                     <div class="main-image-wrapper">
                         <img id="tour-hero-image" class="tour-hero-image" src="" alt="Fotografía principal del tour">
@@ -136,7 +147,8 @@
                         <section class="card-panel description-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <line x1="12" y1="16" x2="12" y2="12"></line>
                                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -151,11 +163,12 @@
                             </div>
                         </section>
 
-                        <!-- Lugares Turísticos que Incluye (CP-018 - Ordenados por visit_order) -->
+                        <!-- Lugares Turísticos que Incluye -->
                         <section class="card-panel places-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <rect x="3" y="3" width="7" height="7"></rect>
                                         <rect x="14" y="3" width="7" height="7"></rect>
                                         <rect x="14" y="14" width="7" height="7"></rect>
@@ -174,11 +187,12 @@
                             </div>
                         </section>
 
-                        <!-- Fechas de Salida y Horarios (CP-018) -->
+                        <!-- Fechas de Salida y Horarios -->
                         <section class="card-panel schedule-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                         <line x1="16" y1="2" x2="16" y2="6"></line>
                                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -192,7 +206,8 @@
                             </div>
                             <div class="panel-body">
                                 <div class="departure-time-box">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="20" height="20" aria-hidden="true">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
@@ -211,12 +226,12 @@
 
                     <!-- Columna Derecha: Tarjeta de Precio y Formulario de Reserva -->
                     <aside class="tour-sidebar-column">
-                        <!-- Tarjeta de Precio y Acción Principal (CP-019) -->
+                        <!-- Tarjeta de Precio y Acción Principal -->
                         <div class="card-panel booking-card" id="booking-card">
                             <div class="pricing-display" id="pricing-display">
                                 <span class="pricing-label">Precio por persona</span>
                                 <div class="pricing-row" id="pricing-row">
-                                    <!-- Renderizado de precio según has_offer -->
+                                    <!-- Renderizado de precio -->
                                 </div>
                             </div>
 
@@ -227,63 +242,48 @@
                                 </span>
                             </div>
 
-                            <!-- Botón de Acción Principal (CP-018 y CP-020 con texto exacto "Reservar cupo") -->
                             <button type="button" class="btn-primary-action" id="btn-open-reserve">
                                 Reservar cupo
                             </button>
                         </div>
 
-                        <!-- Formulario de Reserva (CP-020, CP-021, CP-022, CP-023) -->
-                        <div class="card-panel reservation-card hidden" id="reservation-card" aria-labelledby="form-heading">
+                        <!-- Formulario de Reserva -->
+                        <div class="card-panel reservation-card hidden" id="reservation-card"
+                            aria-labelledby="form-heading">
                             <div class="reservation-card-header">
                                 <h3 class="reservation-form-title" id="form-heading">Reserva tu cupo</h3>
-                                <p class="reservation-form-subtitle">Completa tus datos para confirmar tu lugar oficial.</p>
+                                <p class="reservation-form-subtitle">Completa tus datos para confirmar tu lugar oficial.
+                                </p>
                             </div>
 
                             <form id="reservation-form" class="reservation-form" novalidate>
-                                <!-- 1. Nombre Completo -->
                                 <div class="form-group">
                                     <label for="tourist_name" class="form-label">
                                         Nombre completo <span class="req">*</span>
                                     </label>
-                                    <input type="text" 
-                                           id="tourist_name" 
-                                           name="tourist_name" 
-                                           class="form-input" 
-                                           placeholder="Ej. Ana María López"
-                                           required>
+                                    <input type="text" id="tourist_name" name="tourist_name" class="form-input"
+                                        placeholder="Ej. Ana María López" required>
                                     <span class="field-error" id="error-name"></span>
                                 </div>
 
-                                <!-- 2. Correo Electrónico -->
                                 <div class="form-group">
                                     <label for="tourist_email" class="form-label">
                                         Correo electrónico <span class="req">*</span>
                                     </label>
-                                    <input type="email" 
-                                           id="tourist_email" 
-                                           name="tourist_email" 
-                                           class="form-input" 
-                                           placeholder="ejemplo@correo.com"
-                                           required>
+                                    <input type="email" id="tourist_email" name="tourist_email" class="form-input"
+                                        placeholder="ejemplo@correo.com" required>
                                     <span class="field-error" id="error-email"></span>
                                 </div>
 
-                                <!-- 3. Teléfono (solo números) -->
                                 <div class="form-group">
                                     <label for="tourist_phone" class="form-label">
                                         Teléfono de contacto <span class="req">*</span>
                                     </label>
-                                    <input type="tel" 
-                                           id="tourist_phone" 
-                                           name="tourist_phone" 
-                                           class="form-input" 
-                                           placeholder="Ej. 70001234 (solo números)"
-                                           required>
+                                    <input type="tel" id="tourist_phone" name="tourist_phone" class="form-input"
+                                        placeholder="Ej. 70001234 (solo números)" required>
                                     <span class="field-error" id="error-phone"></span>
                                 </div>
 
-                                <!-- 4. Fecha del Tour -->
                                 <div class="form-group">
                                     <label for="tour_date" class="form-label">
                                         Fecha del tour <span class="req">*</span>
@@ -294,41 +294,34 @@
                                     <span class="field-error" id="error-date"></span>
                                 </div>
 
-                                <!-- 5. Cantidad de Cupos -->
                                 <div class="form-group">
                                     <label for="spots_reserved" class="form-label">
                                         Cantidad de cupos <span class="req">*</span>
                                     </label>
-                                    <input type="number" 
-                                           id="spots_reserved" 
-                                           name="spots_reserved" 
-                                           class="form-input" 
-                                           min="1" 
-                                           value="1" 
-                                           required>
+                                    <input type="number" id="spots_reserved" name="spots_reserved" class="form-input"
+                                        min="1" value="1" required>
                                     <span class="field-error" id="error-spots"></span>
                                 </div>
 
-                                <!-- Botón de Confirmación con Texto Exacto (CP-020) -->
                                 <button type="submit" class="btn-confirm-reserve" id="btn-confirm-reserve">
                                     Confirmar reserva
                                 </button>
                             </form>
                         </div>
 
-                        <!-- Confirmación de Reserva Exitosa (CP-021) -->
+                        <!-- Confirmación de Reserva Exitosa -->
                         <div class="card-panel success-card hidden" id="reservation-success-card" role="alert">
                             <div class="success-icon-wrap" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="36" height="36" stroke-linecap="round" stroke-linejoin="round">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="36"
+                                    height="36" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
                             </div>
-                            <!-- Mensaje Exacto Requerido (CP-021) -->
                             <h3 class="success-title">Tu reserva se realizó con éxito</h3>
-                            <p class="success-subtitle">Hemos registrado tu reservación en el sistema oficial de MITUR.</p>
+                            <p class="success-subtitle">Hemos registrado tu reservación en el sistema oficial de MITUR.
+                            </p>
 
-                            <!-- Resumen Obligatorio de la Reserva (CP-021) -->
                             <div class="reservation-summary-box">
                                 <h4 class="summary-box-title">Resumen de la reserva</h4>
                                 <dl class="summary-dl">
@@ -365,9 +358,8 @@
         </footer>
     </div>
 
-    <!-- Failsafe nativo e independiente en HTML para que NUNCA se quede en carga infinita -->
     <script>
-        (function() {
+        (function () {
             function activarFailsafe() {
                 var loading = document.getElementById('state-loading');
                 var content = document.getElementById('state-content');
@@ -383,19 +375,15 @@
                     }
                 }
             }
-
-            // Timeout de seguridad: Si tras 3 segundos el spinner sigue visible, forzar estado sin datos
-            window.__tourDetailTimer = setTimeout(activarFailsafe, 3000);
-
-            // Capturar errores no controlados
-            window.addEventListener('error', function(err) {
+            window.__tourDetailTimer = setTimeout(activarFailsafe, 6000);
+            window.addEventListener('error', function (err) {
                 console.warn('Failsafe activado por error en script:', err);
                 activarFailsafe();
             });
         })();
     </script>
 
-    <!-- Script del Detalle del Tour -->
     <script type="module" src="js/tour-detalle.js"></script>
 </body>
+
 </html>
