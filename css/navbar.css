@@ -1,0 +1,288 @@
+/* ==========================================================================
+   css/navbar.css
+   Componente Header / Navbar Institucional Estandarizado (MITUR SV)
+   Estructura HTML, dimensiones y comportamiento CSS 100% idénticos en todas las páginas:
+   - index.html
+   - mapa.html
+   - lugares-turisticos.html
+   - tours.html
+   - detalle-lugar.html
+   - tour-detalle.html
+   ========================================================================== */
+
+:root {
+  --nav-bg: #0b2239;
+  --nav-border-bottom: #0077b6;
+  --nav-text: #E8F1F2;
+  --nav-text-hover: #FFFFFF;
+  --nav-link-bg: rgba(232, 241, 242, 0.08);
+  --nav-link-border: rgba(232, 241, 242, 0.18);
+  --nav-link-hover-bg: rgba(232, 241, 242, 0.18);
+  --nav-link-hover-border: rgba(232, 241, 242, 0.35);
+  --nav-active-bg: #0096eb;
+  --nav-active-glow: rgba(0, 150, 235, 0.45);
+}
+
+/* 1. Contenedor Principal del Header: Fijo a 70px en escritorio */
+header.navbar,
+header.app-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 70px !important;
+  min-height: 70px !important;
+  max-height: 70px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 2rem !important;
+  background-color: var(--nav-bg) !important;
+  border-bottom: 2px solid var(--nav-border-bottom) !important;
+  box-shadow: 0 4px 18px rgba(11, 34, 57, 0.35) !important;
+  box-sizing: border-box !important;
+  z-index: 1000 !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+
+/* 2. Contenedor Interior */
+header.navbar .header-container,
+header.app-header .header-container {
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 0 !important;
+  flex-wrap: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+/* 3. Logo y Branding Institucional */
+.app-logo-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  text-decoration: none !important;
+  flex-shrink: 0 !important;
+  transition: opacity 0.2s ease !important;
+  user-select: none !important;
+}
+
+.app-logo-container:hover {
+  opacity: 0.92 !important;
+}
+
+.app-logo {
+  display: block !important;
+  height: 44px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: 0 !important;
+  transition: transform 0.2s ease !important;
+}
+
+.app-logo-container:hover .app-logo {
+  transform: scale(1.02) !important;
+}
+
+.header-title,
+.app-header h1 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.4px !important;
+  color: var(--nav-text) !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+/* 4. Contenedor de Navegación */
+.header-navigation {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 5. Botones Normales (Links y Volver) */
+.header-navigation .nav-link,
+.header-navigation .btn-return,
+.header-navigation .btn-return-map {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 16px !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: var(--nav-text) !important;
+  text-decoration: none !important;
+  background: var(--nav-link-bg) !important;
+  border: 1px solid var(--nav-link-border) !important;
+  border-radius: 20px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  line-height: 1 !important;
+}
+
+.header-navigation .nav-link:hover,
+.header-navigation .btn-return:hover,
+.header-navigation .btn-return-map:hover {
+  background: var(--nav-link-hover-bg) !important;
+  border-color: var(--nav-link-hover-border) !important;
+  color: var(--nav-text-hover) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 6. Botón Activo */
+.header-navigation .nav-link.active,
+.header-navigation .nav-link[aria-current="page"] {
+  background: var(--nav-active-bg) !important;
+  border-color: var(--nav-active-bg) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 10px var(--nav-active-glow) !important;
+}
+
+.header-navigation .nav-link.active:hover,
+.header-navigation .nav-link[aria-current="page"]:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px var(--nav-active-glow) !important;
+}
+
+/* 7. Iconos */
+.header-navigation .nav-icon,
+.header-navigation .icon-return {
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  transition: transform 0.2s ease !important;
+}
+
+.header-navigation .btn-return:hover .icon-return,
+.header-navigation .btn-return-map:hover .icon-return {
+  transform: translateX(-2px) !important;
+}
+
+/* ==========================================================================
+   Comportamiento Responsivo Unificado (@media max-width: 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  header.navbar,
+  header.app-header {
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 1rem !important;
+  }
+
+  header.navbar .header-container,
+  header.app-header .header-container {
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+  }
+
+  .app-logo {
+    height: 36px !important;
+    width: auto !important;
+  }
+
+  /* Ocultar texto del logo institucional para garantizar una sola fila */
+  .header-title,
+  .app-header h1 {
+    display: none !important;
+  }
+
+  .header-navigation {
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end !important;
+  }
+
+  /* Ocultar texto dentro de los enlaces/botones para mostrar solo iconos */
+  .header-navigation .nav-link span,
+  .header-navigation .btn-return span,
+  .header-navigation .btn-return-map span {
+    display: none !important;
+  }
+
+  /* Botones circulares compactos de 38x38px */
+  .header-navigation .nav-link,
+  .header-navigation .btn-return,
+  .header-navigation .btn-return-map {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+
+  .header-navigation .nav-icon,
+  .header-navigation .icon-return {
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Pantallas extra pequeñas (@media max-width: 380px) */
+@media (max-width: 380px) {
+  header.navbar,
+  header.app-header {
+    padding: 0 0.5rem !important;
+  }
+
+  header.navbar .header-container,
+  header.app-header .header-container {
+    gap: 4px !important;
+  }
+
+  .app-logo {
+    height: 32px !important;
+  }
+
+  .header-navigation {
+    gap: 4px !important;
+  }
+
+  .header-navigation .nav-link,
+  .header-navigation .btn-return,
+  .header-navigation .btn-return-map {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  .header-navigation .nav-icon,
+  .header-navigation .icon-return {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}

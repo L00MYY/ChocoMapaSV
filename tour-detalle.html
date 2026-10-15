@@ -14,11 +14,12 @@
     <!-- Estilos globales y específicos del detalle de tour -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tour-detalle.css">
+    <link rel="stylesheet" href="css/navbar.css">
 </head>
 <body>
     <div class="page-layout">
         <!-- 1. Header / Navbar Institucional -->
-        <header class="navbar app-header" style="width: 100%;">
+        <header class="navbar app-header">
             <div class="header-container">
                 <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
                     <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
@@ -60,22 +61,19 @@
                         </svg>
                         <span>Tours</span>
                     </a>
+                    <a href="tours.html" class="nav-link btn-return" id="btn-return" aria-label="Volver al catálogo de tours">
+                        <svg class="nav-icon icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>Volver</span>
+                    </a>
                 </nav>
             </div>
         </header>
 
         <!-- 2. Contenido Principal -->
         <main class="tour-detail-main" id="main-content">
-            <!-- Barra de Retorno -->
-            <div class="breadcrumb-bar" style="position: relative; z-index: 20;">
-                <a href="tours.html" class="btn-return" id="btn-return" aria-label="Volver al catálogo de tours" style="position: relative; z-index: 20; pointer-events: auto;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                    <span>← Volver a tours</span>
-                </a>
-            </div>
 
             <!-- Estado de Carga -->
             <section class="state-container state-loading" id="state-loading" aria-live="polite">
