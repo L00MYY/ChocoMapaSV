@@ -1,4 +1,4 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '.././config.js';
 import { obtenerToursPorLugar } from './ToursModel.js';
 
 export const LugarDetalleModel = {
