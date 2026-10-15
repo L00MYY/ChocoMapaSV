@@ -1,0 +1,654 @@
+/* ==========================================================================
+   css/tour-detalle.css
+   ========================================================================== */
+
+:root {
+  --deep-space-blue: #13293D;
+  --baltic-blue: #006494;
+  --cerulean: #247BA0;
+  --blue-bell: #1B98E0;
+  --alice-blue: #E8F1F2;
+  --surface: #FFFFFF;
+  --border-color: #D1E3E6;
+  --border-light: rgba(19, 41, 61, 0.08);
+
+  --text-primary: #13293D;
+  --text-secondary: #4A6572;
+  --text-muted: #7E97A6;
+  --text-light: #E8F1F2;
+
+  --color-error: #E74C3C;
+  --color-success: #27AE60;
+
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --gutter: 24px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(19, 41, 61, 0.06);
+  --shadow-md: 0 8px 24px -4px rgba(19, 41, 61, 0.10);
+  --shadow-lg: 0 16px 36px -6px rgba(19, 41, 61, 0.18);
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* --- Contenedor Principal --- */
+.tour-detail-main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px var(--gutter) 60px;
+  box-sizing: border-box;
+}
+
+/* --- Botón Volver --- */
+.breadcrumb-bar {
+  margin-bottom: 20px;
+}
+
+.btn-return {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(232, 241, 242, 0.08);
+  color: var(--alice-blue);
+  border: 1px solid rgba(232, 241, 242, 0.2);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-return:hover {
+  background: rgba(232, 241, 242, 0.18);
+  color: #FFFFFF;
+  border-color: rgba(232, 241, 242, 0.4);
+  transform: translateX(-3px);
+}
+
+/* --- Estados de Carga y Error --- */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.state-loading .spinner-pulse {
+  width: 52px;
+  height: 52px;
+  border: 4px solid rgba(232, 241, 242, 0.15);
+  border-top-color: var(--blue-bell);
+  border-radius: 50%;
+  animation: spin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  margin-bottom: 18px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.state-text {
+  color: var(--alice-blue);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.error-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 44px 32px;
+  max-width: 500px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.error-icon-box {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #FDEDEC;
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 22px;
+}
+
+.btn-primary-return {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 24px;
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.btn-primary-return:hover {
+  background: var(--blue-bell);
+}
+
+/* --- Encabezado del Tour --- */
+.tour-header {
+  margin-bottom: 24px;
+}
+
+.tour-meta-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.badge-dept {
+  background: rgba(27, 152, 224, 0.15);
+  border: 1px solid rgba(27, 152, 224, 0.35);
+  color: var(--blue-bell);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+}
+
+.badge-discount {
+  background: #E74C3C;
+  color: #FFFFFF;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.badge-spots-status {
+  background: rgba(39, 174, 96, 0.15);
+  border: 1px solid rgba(39, 174, 96, 0.35);
+  color: #2ECC71;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.tour-title {
+  color: var(--alice-blue);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+
+.tour-guide-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #A9C2D1;
+  font-size: 0.98rem;
+}
+
+.guide-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--blue-bell);
+}
+
+.tour-guide-bar strong {
+  color: var(--alice-blue);
+}
+
+/* --- Galería Multimedia --- */
+.tour-gallery-section {
+  margin-bottom: 32px;
+}
+
+.main-image-wrapper {
+  width: 100%;
+  height: clamp(260px, 45vw, 440px);
+  background-color: #0b1a26;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid rgba(209, 227, 230, 0.2);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 14px;
+}
+
+.tour-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnails-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.gallery-thumb {
+  width: 84px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+  background: #0b1a26;
+}
+
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-thumb.active {
+  border-color: var(--blue-bell);
+  box-shadow: 0 0 0 2px rgba(27, 152, 224, 0.4);
+}
+
+/* --- Cuadrícula de Contenido de 2 Columnas --- */
+.tour-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.tour-primary-column {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+}
+
+.tour-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 24px;
+}
+
+/* Tarjetas y Paneles */
+.card-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.panel-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--alice-blue);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.panel-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+}
+
+.panel-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+  margin: 0;
+}
+
+.panel-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.panel-body {
+  padding: 22px 24px;
+}
+
+.tour-full-description {
+  color: var(--text-secondary);
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+/* --- Lista de Lugares --- */
+.tour-places-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tour-place-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--alice-blue);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.place-order-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.place-item-thumb {
+  width: 70px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.place-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.place-item-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--deep-space-blue);
+}
+
+.place-item-dept {
+  font-size: 0.8rem;
+  color: var(--cerulean);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* --- Horarios y Fechas --- */
+.departure-time-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: var(--alice-blue);
+  border-radius: var(--radius-pill);
+  color: var(--baltic-blue);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.dates-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+}
+
+/* --- Tarjeta Lateral de Reservas y Precios --- */
+.booking-card,
+.reservation-card,
+.success-card {
+  padding: 24px;
+}
+
+.pricing-label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.pricing-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.price-regular-only,
+.price-final-highlight {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--baltic-blue);
+}
+
+.spots-indicator-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--alice-blue);
+  border-radius: var(--radius-sm);
+  margin: 16px 0 20px;
+}
+
+.spots-icon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #27AE60;
+}
+
+.btn-primary-action,
+.btn-confirm-reserve {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary-action {
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+}
+
+.btn-primary-action:hover {
+  background: var(--blue-bell);
+}
+
+.btn-confirm-reserve {
+  background: #27AE60;
+  color: #FFFFFF;
+  margin-top: 10px;
+}
+
+.btn-confirm-reserve:hover {
+  background: #2ECC71;
+}
+
+/* --- Formulario de Reserva --- */
+.reservation-card {
+  border: 2px solid var(--blue-bell);
+}
+
+.reservation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--deep-space-blue);
+}
+
+.field-error {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 16px;
+}
+
+/* --- Confirmación --- */
+.success-card {
+  text-align: center;
+  border: 2px solid #27AE60;
+}
+
+.success-icon-wrap {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #E8F8F5;
+  color: #27AE60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #196F3D;
+  margin-bottom: 6px;
+}
+
+.reservation-summary-box {
+  background: var(--alice-blue);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: left;
+  margin: 18px 0;
+}
+
+.summary-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.btn-continue-exploring {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+}
+
+/* Adaptación Responsive para Móviles y Tablets */
+@media (max-width: 900px) {
+  .tour-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-sidebar-column {
+    position: static;
+  }
+}

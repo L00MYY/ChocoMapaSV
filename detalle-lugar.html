@@ -13,24 +13,32 @@
     
     <!-- Hojas de estilo -->
     <link rel="stylesheet" href="css/detalle-lugar.css">
+    <link rel="stylesheet" href="css/navbar.css">
 </head>
 <body>
     <div class="page-layout">
         <!-- 1. Header / Navbar Institucional -->
-        <header class="app-header">
+        <header class="navbar app-header">
             <div class="header-container">
-                <a href="mapa.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
                     <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
                          alt="Ministerio de Turismo de El Salvador" 
                          class="app-logo" 
                          decoding="async" 
                          fetchpriority="high">
-                    <h1 class="header-title">Ministerio de Turismo</h1>
+                    <span class="header-title">Ministerio de Turismo</span>
                 </a>
 
                 <!-- Navegación Principal y Retorno Dinámico -->
                 <nav class="header-navigation" aria-label="Navegación principal">
-                    <a href="mapa.html" class="nav-link" id="nav-mapa">
+                    <a href="index.html" class="nav-link" id="nav-inicio" aria-label="Inicio">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link" id="nav-mapa" aria-label="Mapa">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                             <line x1="8" y1="2" x2="8" y2="18"></line>
@@ -38,7 +46,7 @@
                         </svg>
                         <span>Mapa</span>
                     </a>
-                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares" aria-label="Lugares turísticos">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
@@ -47,8 +55,15 @@
                         </svg>
                         <span>Lugares turísticos</span>
                     </a>
-                    <a href="mapa.html" class="btn-return-map" id="btn-return-map" aria-label="Volver a la página anterior">
-                        <svg class="icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <a href="tours.html" class="nav-link" id="nav-tours" aria-label="Tours">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Tours</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link btn-return btn-return-map" id="btn-return-map" aria-label="Volver a la página anterior">
+                        <svg class="nav-icon icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
@@ -186,6 +201,42 @@
                             <div class="panel-body">
                                 <div class="services-badges-grid" id="services-badges-grid">
                                     <!-- Badges de servicios renderizados por JS de forma segura -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Sección de Tours para este Sitio Turístico (CP-013 y CP-014) -->
+                        <section class="card-panel place-tours-panel" id="place-tours-panel" aria-labelledby="place-tours-heading">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                    </svg>
+                                </div>
+                                <div class="panel-heading-texts">
+                                    <h2 class="panel-title" id="place-tours-heading">Tours</h2>
+                                    <p class="panel-subtitle">Paquetes guiados oficiales que incluyen este destino</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <!-- ÚNICO filtro permitido: Fecha (CP-014) -->
+                                <div class="place-tours-filter">
+                                    <label for="place-tour-date" class="place-filter-label">Filtrar por fecha de salida:</label>
+                                    <div class="date-filter-row">
+                                        <input type="date" id="place-tour-date" class="place-date-input" aria-label="Filtrar tours por fecha de salida">
+                                        <button type="button" id="btn-clear-place-date" class="btn-clear-date hidden" aria-label="Limpiar filtro de fecha">Limpiar fecha</button>
+                                    </div>
+                                </div>
+
+                                <!-- Mensaje de estado sin resultados por fecha (CP-014 texto exacto) -->
+                                <div id="place-tours-empty" class="place-tours-empty hidden" role="status">
+                                    <p class="place-empty-text" id="place-empty-text">No hay tours disponibles para la fecha seleccionada</p>
+                                </div>
+
+                                <!-- Grid de tarjetas de tours del lugar (CP-013) -->
+                                <div id="place-tours-grid" class="place-tours-grid">
+                                    <!-- Tarjetas de tours inyectadas dinámicamente -->
                                 </div>
                             </div>
                         </section>

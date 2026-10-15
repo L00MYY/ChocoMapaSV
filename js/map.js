@@ -29,6 +29,7 @@ export const map = new mapboxgl.Map({
 
 // El zoom mínimo es el que encuadra el país: no se puede alejar más que eso
 map.on('load', () => {
+    map.resize();
     fijarZoomMinimo();
 
     // Máscara: cubre todos los países excepto El Salvador usando el tileset
@@ -58,8 +59,12 @@ map.on('load', () => {
     });
 });
 
-// Si cambia el tamaño de la ventana, recalcula el zoom mínimo
+// Si cambia el tamaño de la ventana o se termina de cargar el DOM completo, recalcula
 map.on('resize', fijarZoomMinimo);
+window.addEventListener('load', () => {
+    map.resize();
+    fijarZoomMinimo();
+});
 
 function fijarZoomMinimo() {
     const zoomEncuadre = map.cameraForBounds(limitesElSalvador, { padding: 10 })?.zoom;
