@@ -959,3 +959,25 @@ img {
     font-size: 0.75rem;
   }
 }
+
+/* ==========================================================================
+   Footer Institucional
+   ========================================================================== */
+.home-pie,
+.tours-footer {
+  margin-top: auto;
+  background-color: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 24px 28px;
+  text-align: center;
+  color: rgba(232, 241, 242, 0.75);
+  font-size: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.home-pie p,
+.tours-footer p {
+  margin: 0;
+  line-height: 1.5;
+}

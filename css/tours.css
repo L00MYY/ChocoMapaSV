@@ -583,6 +583,7 @@ main,
 
 /* Nota: Los estilos del footer institucional han sido centralizados en css/footer.css */
 
+
 /* Responsive */
 @media (max-width: 768px) {
     .tours-hero {
@@ -763,4 +764,4 @@ main,
         min-width: 80px;
         max-width: 80px;
     }
-}
+}
