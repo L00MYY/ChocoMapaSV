@@ -45,6 +45,38 @@
   display: none !important;
 }
 
+/* ==========================================================================
+   REGLA GLOBAL DE SEGURIDAD PARA IMÁGENES (tour-detalle.html)
+   ========================================================================== */
+img {
+  box-sizing: border-box;
+}
+
+.tour-detail-main img:not(.app-logo),
+.tour-detail-article img:not(.app-logo) {
+  max-width: 100%;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+
+/* Evitar desbordamiento horizontal en contenedores padre */
+.tour-gallery-section,
+.main-image-wrapper,
+.thumbnails-strip,
+.thumbnail-btn,
+.gallery-thumb,
+.card-panel,
+.places-panel,
+.tour-places-list,
+.place-item-card,
+.tour-place-item,
+.place-thumb-wrap,
+.place-info-wrap {
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* --- Contenedor Principal --- */
 .tour-detail-main {
   flex: 1;
@@ -244,53 +276,104 @@
 /* --- Galería Multimedia --- */
 .tour-gallery-section {
   margin-bottom: 32px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .main-image-wrapper {
   width: 100%;
-  height: clamp(260px, 45vw, 440px);
+  height: 380px;
+  max-height: 380px;
   background-color: #0b1a26;
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   overflow: hidden;
-  border: 2px solid rgba(209, 227, 230, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: var(--shadow-lg);
-  margin-bottom: 14px;
+  display: block;
+  box-sizing: border-box;
 }
 
 .tour-hero-image {
   width: 100%;
-  height: 100%;
+  height: 380px;
+  max-height: 380px;
   object-fit: cover;
-}
-
-.thumbnails-strip {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.gallery-thumb {
-  width: 84px;
-  height: 60px;
-  border-radius: var(--radius-sm);
+  border-radius: 16px;
   overflow: hidden;
-  border: 2px solid transparent;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: var(--transition);
-  background: #0b1a26;
+  display: block;
+  box-sizing: border-box;
+  transition: opacity 0.2s ease;
 }
 
+/* Grid responsivo para imágenes secundarias de la galería */
+.thumbnails-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.thumbnails-strip:empty {
+  display: none !important;
+}
+
+/* Botón y contenedor de cada miniatura secundaria */
+.thumbnail-btn,
+.gallery-thumb {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  border-radius: 12px;
+  background: transparent !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.thumbnail-btn:hover,
+.gallery-thumb:hover {
+  border-color: var(--blue-bell) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail-btn.active,
+.gallery-thumb.active {
+  border: 2px solid var(--blue-bell) !important;
+  box-shadow: 0 0 0 2px rgba(27, 152, 224, 0.45);
+}
+
+/* Imagen secundaria de la galería */
+.thumbnail-btn img,
 .gallery-thumb img {
   width: 100%;
-  height: 100%;
+  height: 110px;
+  max-height: 110px;
   object-fit: cover;
+  border-radius: 12px;
+  background: transparent;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: block;
+  box-sizing: border-box;
+  transition: transform 0.25s ease;
 }
 
-.gallery-thumb.active {
-  border-color: var(--blue-bell);
-  box-shadow: 0 0 0 2px rgba(27, 152, 224, 0.4);
+.thumbnail-btn:hover img,
+.gallery-thumb:hover img {
+  transform: scale(1.05);
 }
 
 /* --- Cuadrícula de Contenido de 2 Columnas --- */
@@ -373,62 +456,160 @@
   line-height: 1.7;
 }
 
-/* --- Lista de Lugares --- */
+/* --- Sección: Lugares Turísticos que Incluye (Itinerario) --- */
+.places-panel {
+  overflow: hidden;
+}
+
 .tour-places-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 0;
+  margin: 0;
 }
 
+/* Tarjeta limpia y compacta con Flexbox/Grid */
+.place-item-card,
 .tour-place-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  background: var(--alice-blue);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+.place-item-card:hover,
+.tour-place-item:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(19, 41, 61, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Número de orden (visit_order) como badge circular estilizado */
+.place-step-badge,
 .place-order-badge {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 50%;
-  background: var(--baltic-blue);
+  background: var(--baltic-blue, #006494);
   color: #FFFFFF;
-  font-size: 0.95rem;
-  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 100, 148, 0.25);
 }
 
-.place-item-thumb {
-  width: 70px;
-  height: 52px;
-  border-radius: var(--radius-sm);
+.place-step-badge .step-num {
+  line-height: 1;
+}
+
+/* Contenedor y miniatura de tamaño fijo y controlado */
+.place-thumb-wrap {
+  width: 110px;
+  height: 85px;
+  min-width: 110px;
+  max-width: 110px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #e2e8f0;
+  box-sizing: border-box;
+}
+
+.place-thumb-wrap img,
+.place-item-thumb,
+.place-item-card img {
+  width: 110px;
+  height: 85px;
+  min-width: 110px;
+  max-width: 110px;
   object-fit: cover;
-  flex-shrink: 0;
+  border-radius: 10px;
+  display: block;
+  box-sizing: border-box;
+  transition: transform 0.3s ease;
 }
 
+.place-item-card:hover .place-thumb-wrap img {
+  transform: scale(1.05);
+}
+
+/* Información del lugar turístico al lado de la miniatura */
+.place-info-wrap,
 .place-item-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
 }
 
+.place-title-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.place-name,
 .place-item-name {
   font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--deep-space-blue);
+  font-weight: 700;
+  color: var(--deep-space-blue, #13293D);
+  margin: 0;
+  line-height: 1.3;
 }
 
+.place-depto-tag,
 .place-item-dept {
-  font-size: 0.8rem;
-  color: var(--cerulean);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
   font-weight: 700;
+  color: var(--cerulean, #247BA0);
+  background: rgba(36, 123, 160, 0.1);
+  padding: 2px 8px;
+  border-radius: 9999px;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.place-desc {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.places-empty-notice {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary, #4A6572);
+  background: var(--alice-blue, #E8F1F2);
+  border-radius: var(--radius-md, 14px);
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 /* --- Horarios y Fechas --- */
@@ -652,3 +833,151 @@
     position: static;
   }
 }
+
+@media (max-width: 640px) {
+  .tour-detail-main {
+    padding: 16px 14px 44px;
+  }
+
+  /* Imagen principal del tour: height: 240px; max-height: 240px; */
+  .main-image-wrapper {
+    height: 240px;
+    max-height: 240px;
+    border-radius: 14px;
+  }
+
+  .tour-hero-image {
+    height: 240px;
+    max-height: 240px;
+    border-radius: 14px;
+  }
+
+  /* Miniaturas secundarias de la galería en móvil */
+  .thumbnails-strip {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .thumbnail-btn,
+  .gallery-thumb {
+    height: 80px;
+    border-radius: 10px;
+  }
+
+  .thumbnail-btn img,
+  .gallery-thumb img {
+    height: 80px;
+    max-height: 80px;
+    border-radius: 9px;
+  }
+
+  /* Tarjetas del Itinerario en Móvil: width: 80px; height: 80px; min-width: 80px; */
+  .place-item-card,
+  .tour-place-item {
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .place-step-badge,
+  .place-order-badge {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    font-size: 0.8rem;
+  }
+
+  .place-thumb-wrap {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    border-radius: 8px;
+  }
+
+  .place-thumb-wrap img,
+  .place-item-thumb,
+  .place-item-card img {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    border-radius: 8px;
+  }
+
+  .place-name,
+  .place-item-name {
+    font-size: 0.95rem;
+  }
+
+  .place-depto-tag,
+  .place-item-dept {
+    font-size: 0.7rem;
+    padding: 1px 6px;
+  }
+
+  .place-desc {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .panel-header {
+    padding: 16px 18px 12px;
+  }
+
+  .panel-body {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 380px) {
+
+  .place-item-card,
+  .tour-place-item {
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+
+  .place-thumb-wrap,
+  .place-thumb-wrap img,
+  .place-item-thumb,
+  .place-item-card img {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+
+  .place-step-badge,
+  .place-order-badge {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ==========================================================================
+   Footer Institucional
+   ========================================================================== */
+.home-pie,
+.tours-footer {
+  margin-top: auto;
+  background-color: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 24px 28px;
+  text-align: center;
+  color: rgba(232, 241, 242, 0.75);
+  font-size: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.home-pie p,
+.tours-footer p {
+  margin: 0;
+  line-height: 1.5;
+}

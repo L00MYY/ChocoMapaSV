@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tours.css">
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
     <div class="page-layout">
@@ -27,7 +28,6 @@
                          alt="Ministerio de Turismo de El Salvador" 
                          decoding="async" 
                          fetchpriority="high">
-                    <span class="header-title">Ministerio de Turismo</span>
                 </a>
                 <nav class="header-navigation" aria-label="Navegación principal">
                     <a href="index.html" class="nav-link" id="nav-inicio">
@@ -178,44 +178,22 @@
 
                 <!-- Grid de Tarjetas (CP-015 y CP-017) -->
                 <div class="tours-grid hidden" id="tours-grid">
-                    <!-- Tarjetas inyectadas dinámicamente por js/tours.js -->
+                    <!-- Tarjetas inyectadas dinámicamente por el controlador MVC -->
                 </div>
             </section>
         </main>
 
-        <!-- Footer Institucional -->
-        <footer class="tours-footer">
-            <p>Ministerio de Turismo de El Salvador (MITUR) — Plataforma Oficial de Tours y Reservas.</p>
-            <p>El Salvador • Tierra de Anfitriones</p>
+        <!-- Pie de página institucional -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
         </footer>
     </div>
 
-    <!-- Failsafe nativo e independiente en HTML para que NUNCA se quede en carga infinita -->
-    <script>
-        (function() {
-            function activarFailsafeTours() {
-                var loading = document.getElementById('state-loading');
-                var grid = document.getElementById('tours-grid');
-                var noResults = document.getElementById('state-no-results');
-                if (loading && (!grid || grid.classList.contains('hidden') || grid.children.length === 0)) {
-                    loading.classList.add('hidden');
-                    loading.style.display = 'none';
-                    if (noResults) {
-                        noResults.classList.remove('hidden');
-                        var msg = document.getElementById('no-results-message');
-                        if (msg) msg.textContent = 'No hay datos disponibles para mostrar';
-                    }
-                }
-            }
-            setTimeout(activarFailsafeTours, 3500);
-            window.addEventListener('error', function(err) {
-                console.warn('Failsafe tours activado por error:', err);
-                activarFailsafeTours();
-            });
-        })();
-    </script>
-
-    <!-- Script de Tours -->
-    <script type="module" src="js/tours.js"></script>
+    <script type="module" src="js/controllers/ToursController.js"></script>
 </body>
 </html>

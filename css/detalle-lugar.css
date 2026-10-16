@@ -1326,46 +1326,8 @@ main,
 }
 
 /* ==========================================================================
-   Footer Institucional
+   Footer Institucional (Centralizado en css/footer.css)
    ========================================================================== */
-.app-footer {
-  margin-top: auto;
-  background-color: #0a1926;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 24px var(--gutter);
-  text-align: center;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.footer-copy {
-  color: var(--alice-blue);
-  font-size: 0.88rem;
-  opacity: 0.8;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.footer-tagline {
-  color: var(--blue-bell);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
 
 /* ==========================================================================
    Responsividad: Tablets y Pantallas Medianas (<= 768px)
@@ -1949,16 +1911,5 @@ main,
     width: 100%;
   }
 
-  /* Footer */
-  .app-footer {
-    padding: 20px 8px;
-  }
-
-  .footer-copy {
-    font-size: 0.78rem;
-  }
-
-  .footer-tagline {
-    font-size: 0.74rem;
-  }
+  /* Footer centralizado en css/footer.css */
 }

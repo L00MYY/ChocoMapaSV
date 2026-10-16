@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/index-style.css">
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 
 <body>
@@ -26,7 +27,6 @@
             <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
                 <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png"
                     class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async" fetchpriority="high">
-                <span class="header-title">Ministerio de Turismo</span>
             </a>
             <nav class="header-navigation" aria-label="Navegación principal">
                 <a href="index.html" class="nav-link active" id="nav-inicio" aria-current="page">
@@ -113,11 +113,17 @@
         </section>
     </main>
 
-    <footer class="home-pie">
-        <p>Ministerio de Turismo · Gobierno de El Salvador</p>
+    <!-- Pie de página institucional -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p class="footer-copy">
+                &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+            </p>
+            <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+        </div>
     </footer>
 
-    <script type="module" src="js/index.js"></script>
+    <script type="module" src="js/controllers/InicioController.js"></script>
 </body>
 
 </html>
