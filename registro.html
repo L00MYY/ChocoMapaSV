@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Página oficial de registro de turistas para reserva de cupos en tours y actividades de El Salvador. Verificado por el Ministerio de Turismo (MITUR).">
+    <title>Registro de Turistas | ChocoMapaSV — Ministerio de Turismo</title>
+
+    <!-- Tipografías Oficiales de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Estilos de la Pantalla Exclusiva de Registro -->
+    <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+
+</head>
+
+<body class="registro-body">
+
+    <!-- 1. Header / Navbar Institucional -->
+    <header class="navbar app-header">
+        <div class="header-container">
+            <!-- Branding Ministerio de Turismo -->
+            <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png"
+                    alt="Ministerio de Turismo de El Salvador" class="app-logo" decoding="async" fetchpriority="high">
+            </a>
+
+            <!-- Navegación Principal -->
+            <nav class="header-navigation" aria-label="Navegación principal">
+                <a href="index.html" class="nav-link" id="nav-inicio">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Inicio</span>
+                </a>
+                <a href="mapa.html" class="nav-link" id="nav-mapa">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Mapa</span>
+                </a>
+                <a href="lugares-turisticos.html" class="nav-link active" id="nav-lugares" aria-current="page">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Lugares turísticos</span>
+                </a>
+                <a href="tours.html" class="nav-link" id="nav-tours">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                    </svg>
+                    <span>Tours</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ====================================================================
+         2. Contenido Principal: Dos Columnas (Información y Formulario)
+         ==================================================================== -->
+    <main class="registro-main" role="main">
+        <div class="registro-grid">
+
+            <!-- Columna Izquierda: Información, Beneficios y Reglas de Negocio -->
+            <section class="info-column" aria-labelledby="registro-info-title">
+
+                <h1 class="info-hero-title" id="registro-info-title">
+                    Crea tu cuenta para <span class="highlight-gold">asegurar tu cupo</span> en los mejores tours
+                </h1>
+
+                <p class="info-lead">
+                    El registro de usuario es el requisito indispensable para acceder al sistema de reservas y cupos
+                    oficiales en El Salvador.
+                </p>
+
+
+                <!-- Lista de Beneficios del Registro -->
+                <ul class="benefits-list" aria-label="Beneficios al registrarte">
+                    <li class="benefit-item">
+                        <div class="benefit-icon-box" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="benefit-content">
+                            <span class="benefit-name">Reserva anticipada garantizada</span>
+                            <span class="benefit-desc">Aparta tus fechas en talleres de chocolate artesanal, recorridos
+                                de fincas y senderismo cultural.</span>
+                        </div>
+                    </li>
+
+                    <li class="benefit-item">
+                        <div class="benefit-icon-box" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <div class="benefit-content">
+                            <span class="benefit-name">Operadores verificados por MITUR</span>
+                            <span class="benefit-desc">Seguridad, precios autorizados y atención turística con
+                                estándares nacionales.</span>
+                        </div>
+                    </li>
+
+                    <li class="benefit-item">
+                        <div class="benefit-icon-box" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                        </div>
+                        <div class="benefit-content">
+                            <span class="benefit-name">Sesión inmediata y gestión simple</span>
+                            <span class="benefit-desc">Al crear tu cuenta quedas autenticado al instante para reservar
+                                tus lugares favoritos.</span>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Columna Derecha: Tarjeta del Formulario Exclusivo de Registro -->
+            <section class="form-column" aria-labelledby="form-registro-title">
+                <div class="auth-card">
+
+                    <!-- Encabezado de la tarjeta -->
+                    <div class="form-header-group">
+                        <h2 class="form-card-title" id="form-registro-title">Registrarse</h2>
+                        <p class="form-card-subtitle">
+                            Ingresa tus datos personales para crear tu cuenta y habilitar la reserva de cupos.
+                        </p>
+                    </div>
+
+                    <div class="form-wrapper">
+
+                        <!-- ====================================================
+                             BANNER DE ÉXITO (Criterio de Aceptación)
+                             "Tu cuenta se creó con éxito y queda con su sesión iniciada"
+                             ==================================================== -->
+                        <div class="auth-alert auth-alert-success" id="alert-success" role="status" aria-live="polite">
+                            <svg class="auth-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <div class="auth-alert-content">
+                                <strong class="auth-alert-title">¡Tu cuenta se creó con éxito!</strong>
+                                <span class="alert-desc">Tu sesión ha sido iniciada automáticamente. Ahora puedes
+                                    seleccionar cualquier tour y reservar tus cupos inmediatamente.</span>
+                            </div>
+                        </div>
+
+                        <!-- ====================================================
+                             BANNER DE ERROR GLOBAL (Criterio de Aceptación)
+                             ==================================================== -->
+                        <div class="auth-alert auth-alert-error" id="alert-error" role="alert" aria-live="assertive">
+                            <svg class="auth-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <div class="auth-alert-content">
+                                <strong class="auth-alert-title" id="alert-error-title">No fue posible crear la
+                                    cuenta</strong>
+                                <span id="alert-error-desc">Por favor revisa los errores señalados en los campos del
+                                    formulario.</span>
+                            </div>
+                        </div>
+
+                        <!-- ====================================================
+                             FORMULARIO DE REGISTRO
+                             ==================================================== -->
+                        <form class="registration-form" id="form-registro" action="#" method="POST" autocomplete="on"
+                            novalidate>
+
+                            <!-- Campo 1: Nombre Completo -->
+                            <div class="form-group" id="group-nombre">
+                                <label for="reg-nombre" class="form-label">
+                                    <span>Nombre completo <span class="required-badge"
+                                            aria-label="Campo obligatorio">*</span></span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="reg-nombre" name="nombre_completo" class="form-control"
+                                        placeholder="Ej. Juan Carlos Ramos" required autocomplete="name"
+                                        aria-describedby="nombre-helper">
+                                    <svg class="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </div>
+                                <div class="field-error-message" role="alert">
+                                    <svg class="field-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Campo 2: Correo Electrónico -->
+                            <div class="form-group" id="group-email">
+                                <label for="reg-email" class="form-label">
+                                    <span>Correo electrónico <span class="required-badge"
+                                            aria-label="Campo obligatorio">*</span></span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="email" id="reg-email" name="correo_electronico" class="form-control"
+                                        placeholder="turista@ejemplo.com" required autocomplete="email"
+                                        aria-describedby="email-helper">
+                                    <svg class="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                        </path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="field-error-message" role="alert">
+                                    <span class="error-text">Este correo ya está registrado. Usa otro correo para tu
+                                        nueva cuenta.</span>
+                                </div>
+                            </div>
+
+                            <!-- Campo 3: Contraseña -->
+                            <div class="form-group" id="group-password">
+                                <label for="reg-password" class="form-label">
+                                    <span>Contraseña <span class="required-badge"
+                                            aria-label="Campo obligatorio">*</span></span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="reg-password" name="contrasena" class="form-control"
+                                        placeholder="Crea una contraseña segura" required minlength="8" maxlength="32"
+                                        autocomplete="new-password" aria-describedby="password-rules-container">
+                                    <svg class="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                    <!-- Botón para ver/ocultar contraseña -->
+                                    <button type="button" class="btn-toggle-password" data-target="reg-password"
+                                        aria-label="Ver u ocultar contraseña">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- ============================================
+                                     REGLAS CLARAS DEFINIDAS PARA LA CONTRASEÑA
+                                     Criterio explícito: "(DEFINIR LAS REGLAS CLARAS)"
+                                     Se actualizan dinámicamente con RegistroViews.js
+                                     ============================================ -->
+                                <div class="password-rules-card" id="password-rules-container"
+                                    aria-label="Reglas de contraseña">
+                                    <div class="password-rules-header">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        <span>Reglas obligatorias de la contraseña:</span>
+                                    </div>
+                                    <ul class="password-rules-list">
+                                        <li class="rule-item" data-rule="length">
+                                            <span class="rule-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </span>
+                                            <span>Mínimo 8 caracteres (máx. 32)</span>
+                                        </li>
+                                        <li class="rule-item" data-rule="uppercase">
+                                            <span class="rule-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </span>
+                                            <span>Al menos 1 mayúscula (A-Z)</span>
+                                        </li>
+                                        <li class="rule-item" data-rule="lowercase">
+                                            <span class="rule-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </span>
+                                            <span>Al menos 1 minúscula (a-z)</span>
+                                        </li>
+                                        <li class="rule-item" data-rule="number">
+                                            <span class="rule-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </span>
+                                            <span>Al menos 1 número (0-9)</span>
+                                        </li>
+                                        <li class="rule-item span-full" data-rule="special">
+                                            <span class="rule-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </span>
+                                            <span>Al menos 1 símbolo especial (! @ # $ % ^ &amp; * _ -)</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="field-error-message" role="alert">
+                                    <svg class="field-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span class="error-text">La contraseña no cumple con todas las reglas de seguridad
+                                        requeridas.</span>
+                                </div>
+                            </div>
+
+                            <!-- Campo 4: Confirmar Contraseña -->
+                            <div class="form-group" id="group-confirmPassword">
+                                <label for="reg-confirm-password" class="form-label">
+                                    <span>Confirmar contraseña <span class="required-badge"
+                                            aria-label="Campo obligatorio">*</span></span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="reg-confirm-password" name="confirmar_contrasena"
+                                        class="form-control" placeholder="Repite tu contraseña exactamente" required
+                                        minlength="8" maxlength="32" autocomplete="new-password"
+                                        aria-describedby="confirm-helper">
+                                    <svg class="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                    <!-- Botón para ver/ocultar contraseña -->
+                                    <button type="button" class="btn-toggle-password" data-target="reg-confirm-password"
+                                        aria-label="Ver u ocultar contraseña">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="field-helper" id="confirm-helper">
+                                    <svg class="field-helper-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                    <span>Debe coincidir exactamente con la contraseña ingresada arriba.</span>
+                                </div>
+                                <div class="field-error-message" role="alert">
+                                    <svg class="field-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span class="error-text">Las contraseñas no coinciden. Por favor verifícalas.</span>
+                                </div>
+                            </div>
+
+                            <!-- Términos y Condiciones -->
+                            <div class="form-group terms-group" id="group-terms">
+                                <label class="checkbox-label" for="reg-terms">
+                                    <input type="checkbox" id="reg-terms" name="acepta_terminos" class="custom-checkbox"
+                                        required>
+                                    <span class="checkbox-text">
+                                        Acepto los <strong>términos de servicio</strong> y la <strong>política de
+                                            privacidad</strong> para la reserva de tours verificados por MITUR.
+                                    </span>
+                                </label>
+                                <div class="field-error-message" role="alert">
+                                    <svg class="field-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span class="error-text">Debes aceptar los términos y la política de
+                                        privacidad.</span>
+                                </div>
+                            </div>
+
+                            <!-- Botón de Envío: "Crear cuenta" -->
+                            <button type="submit" class="btn-submit-account" id="btn-crear-cuenta">
+                                <span>Crear cuenta</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </button>
+
+                            <p class="form-footer-note">
+                                Todos los campos marcados con asterisco (*) son obligatorios para habilitar el sistema
+                                de reservas.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ====================================================================
+         3. Pie de Página Institucional Exclusivo (Sin enlaces externos)
+         ==================================================================== -->
+    <footer class="registro-footer" role="contentinfo">
+        <div class="footer-content">
+            <p class="footer-legal-copy">
+                &copy; Ministerio de Turismo de El Salvador (MITUR) — ChocoMapaSV. Todos los derechos reservados.
+            </p>
+            <p class="footer-tagline-text">
+                El Salvador • Tierra de Anfitriones y Cacao Ancestral
+            </p>
+        </div>
+    </footer>
+
+    <!-- Capa de Vista para interactividad y validaciones gráficas -->
+    <script type="module" src="js/views/RegistroViews.js"></script>
+</body>
+
+</html>
