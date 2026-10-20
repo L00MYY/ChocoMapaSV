@@ -1,11 +1,7 @@
-// js/supabase-config.js
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
 export async function obtenerLugaresTuristicos() {
     try {
-        // Consultamos la tabla places directamente para poder incluir
-        // la relación ratings(score) y la columna opening_days.
-        // Se mantiene el join con categories para obtener color y nombre de categoría.
         const params = new URLSearchParams({
             select: 'id,name,description,image_url,opening_days,latitude,longitude,department,region,is_active,categories(name,color),ratings(score)'
         });
@@ -27,8 +23,6 @@ export async function obtenerLugaresTuristicos() {
 
         const datos = await respuesta.json();
 
-        // Transformar al shape que consume map.js:
-        // { id, name, category, color, coords, description, image_url, opening_days, ratings }
         return datos.map(lugar => ({
             id: lugar.id,
             name: lugar.name,
@@ -40,9 +34,7 @@ export async function obtenerLugaresTuristicos() {
             is_active: lugar.is_active,
             category: lugar.categories?.name || 'Turismo',
             color: lugar.categories?.color || '#FF6B6B',
-            // Mapbox requiere [lng, lat]
             coords: [lugar.longitude, lugar.latitude],
-            // Arreglo de objetos { score } para calcular promedio en el frontend
             ratings: Array.isArray(lugar.ratings) ? lugar.ratings : []
         }));
 

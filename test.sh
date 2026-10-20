@@ -2,7 +2,7 @@
 echo "=== Iniciando suite de pruebas de integridad web ==="
 
 # 1. Comprobar que los archivos esenciales existan
-archivos=("index.html" "mapa.html" "css/styles.css" "js/app.js" "js/map.js")
+archivos=("index.html" "mapa.html" "css/styles.css" "js/controllers/MapaController.js" "js/views/MapaView.js")
 
 for archivo in "${archivos[@]}"; do
     if [ -f "$archivo" ]; then

@@ -79,7 +79,7 @@ header.app-header .header-container {
 
 .app-logo {
   display: block !important;
-  height: 44px !important;
+  height: 52px !important;   /* Antes: 44px — agrandado sin alterar el header (70px fijo) */
   width: auto !important;
   max-width: 100% !important;
   object-fit: contain !important;
@@ -204,7 +204,7 @@ header.app-header .header-container {
   }
 
   .app-logo {
-    height: 36px !important;
+    height: 42px !important;   /* Antes: 36px — proporcional al header móvil (58px) */
     width: auto !important;
   }
 

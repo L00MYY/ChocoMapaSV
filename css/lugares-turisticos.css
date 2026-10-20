@@ -79,6 +79,7 @@ main,
 .catalog-main {
   height: auto;
   overflow: visible;
+  flex: 1;
 }
 
 .hidden {
@@ -757,28 +758,7 @@ main,
   transform: translateY(-2px);
 }
 
-/* ==========================================================================
-   7. Footer Institucional
-   ========================================================================== */
-.home-pie,
-.app-footer {
-  background-color: transparent;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 20px 24px 28px;
-  text-align: center;
-  color: rgba(232, 241, 242, 0.75);
-  font-size: 0.85rem;
-  margin-top: auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.home-pie p,
-.app-footer p {
-  margin: 0;
-  line-height: 1.5;
-}
-
+/* Nota: Los estilos del footer institucional han sido centralizados en css/footer.css */
 
 /* ==========================================================================
    8. Adaptabilidad Móvil (Responsive)

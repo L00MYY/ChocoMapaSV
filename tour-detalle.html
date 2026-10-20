@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tour-detalle.css">
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 
 <body class="page-tour-detail">
@@ -31,7 +32,6 @@
                     <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png"
                         class="app-logo" alt="Ministerio de Turismo de El Salvador" decoding="async"
                         fetchpriority="high">
-                    <span class="header-title">Ministerio de Turismo</span>
                 </a>
                 <nav class="header-navigation" aria-label="Navegación principal">
                     <a href="index.html" class="nav-link" id="nav-inicio">
@@ -348,38 +348,18 @@
             </article>
         </main>
 
-        <!-- Footer Institucional -->
-        <footer class="home-pie">
-            <p>Ministerio de Turismo · Gobierno de El Salvador</p>
+        <!-- Pie de página institucional -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
         </footer>
     </div>
 
-    <script>
-        (function () {
-            function activarFailsafe() {
-                var loading = document.getElementById('state-loading');
-                var content = document.getElementById('state-content');
-                var error = document.getElementById('state-error');
-                if (loading && (!content || content.classList.contains('hidden') || content.style.display === 'none')) {
-                    loading.classList.add('hidden');
-                    loading.style.display = 'none';
-                    if (error) {
-                        error.classList.remove('hidden');
-                        error.style.display = 'flex';
-                        var title = error.querySelector('.error-title');
-                        if (title) title.textContent = 'No hay datos disponibles para mostrar';
-                    }
-                }
-            }
-            window.__tourDetailTimer = setTimeout(activarFailsafe, 6000);
-            window.addEventListener('error', function (err) {
-                console.warn('Failsafe activado por error en script:', err);
-                activarFailsafe();
-            });
-        })();
-    </script>
-
-    <script type="module" src="js/tour-detalle.js"></script>
+    <script type="module" src="js/controllers/TourDetalleController.js"></script>
 </body>
 
 </html>

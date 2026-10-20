@@ -252,18 +252,7 @@ main,
     border-color: var(--alice-blue);
 }
 
-/* --- PIE --- */
-.home-pie {
-    padding: 20px 24px 28px;
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--cerulean);
-    border-top: 1px solid var(--border-color);
-}
-
-.home-pie p {
-    margin: 0;
-}
+/* Nota: Los estilos del footer institucional han sido centralizados en css/footer.css */
 
 /* --- PANTALLAS GRANDES --- */
 @media (min-width: 760px) {
@@ -281,6 +270,7 @@ main,
     .home-hero {
         padding: 32px 0 24px;
     }
+
     .home-acciones .btn-primary,
     .home-acciones .btn-secondary {
         width: 100%;
