@@ -1,0 +1,983 @@
+/* ==========================================================================
+   css/registro.css
+   Pantalla Exclusiva de Registro de Turistas - ChocoMapaSV / MITUR
+   Diseño de Alta Fidelidad + Soporte para Comportamiento Gráfico (JS View)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Variables de diseño y Tokens de Color
+   -------------------------------------------------------------------------- */
+:root {
+  /* Paleta institucional y temática cacao/turismo */
+  --reg-navy-darkest: #0a1926;
+  --reg-navy-dark: #13293d;
+  --reg-navy-medium: #1b3a53;
+  --reg-blue-baltic: #006494;
+  --reg-blue-cerulean: #247ba0;
+  --reg-blue-bell: #1b98e0;
+  --reg-blue-soft: #e8f1f2;
+  --reg-amber-cacao: #c68b59;
+  --reg-amber-light: #f7dc6f;
+  --reg-white: #ffffff;
+  --reg-gray-50: #f8fafc;
+  --reg-gray-100: #f1f5f9;
+  --reg-gray-200: #e2e8f0;
+  --reg-gray-300: #cbd5e1;
+  --reg-gray-400: #94a3b8;
+  --reg-gray-600: #475569;
+  --reg-gray-700: #334155;
+  --reg-gray-800: #1e293b;
+
+  /* Estados de validación */
+  --reg-success-bg: #ecfdf5;
+  --reg-success-border: #6ee7b7;
+  --reg-success-text: #065f46;
+  --reg-success-icon: #10b981;
+
+  --reg-error-bg: #fef2f2;
+  --reg-error-border: #fca5a5;
+  --reg-error-text: #991b1b;
+  --reg-error-icon: #ef4444;
+
+  --reg-info-bg: #eff6ff;
+  --reg-info-border: #bfdbfe;
+  --reg-info-text: #1e40af;
+  --reg-info-icon: #3b82f6;
+
+  /* Tipografías y curvas */
+  --reg-font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --reg-font-display: 'Caacupe One', cursive, sans-serif;
+  --reg-radius-sm: 8px;
+  --reg-radius-md: 12px;
+  --reg-radius-lg: 20px;
+  --reg-radius-pill: 9999px;
+
+  /* Sombras */
+  --reg-shadow-sm: 0 2px 8px rgba(10, 25, 38, 0.06);
+  --reg-shadow-md: 0 10px 25px -5px rgba(10, 25, 38, 0.12), 0 8px 10px -6px rgba(10, 25, 38, 0.08);
+  --reg-shadow-card: 0 25px 50px -12px rgba(10, 25, 38, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  --reg-shadow-button: 0 10px 20px -3px rgba(0, 100, 148, 0.45);
+
+  --reg-transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   2. Reseteo y Base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body.registro-body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--reg-navy-darkest);
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(0, 100, 148, 0.35) 0px, transparent 55%),
+    radial-gradient(at 85% 20%, rgba(198, 139, 89, 0.22) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(36, 123, 160, 0.25) 0px, transparent 60%),
+    linear-gradient(180deg, #0e1e2d 0%, #0a1926 100%);
+  background-attachment: fixed;
+  color: var(--reg-gray-800);
+  font-family: var(--reg-font-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   3. Encabezado Institucional Exclusivo (Sin Enlaces a otras pantallas)
+   -------------------------------------------------------------------------- */
+.registro-header {
+  width: 100%;
+  padding: 1.25rem 2rem;
+  background: rgba(10, 25, 38, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 20;
+}
+
+.header-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo-img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--reg-blue-soft);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-title .brand-accent {
+  color: var(--reg-amber-light);
+}
+
+.brand-subtitle {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--reg-gray-400);
+  letter-spacing: 0.02em;
+}
+
+.header-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--reg-radius-pill);
+  background: rgba(27, 152, 224, 0.12);
+  border: 1px solid rgba(27, 152, 224, 0.25);
+  color: var(--reg-blue-bell);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.header-status-badge .badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--reg-blue-bell);
+  box-shadow: 0 0 10px var(--reg-blue-bell);
+}
+
+/* --------------------------------------------------------------------------
+   4. Contenedor Principal (Dos Columnas en Desktop)
+   -------------------------------------------------------------------------- */
+.registro-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.registro-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .registro-grid {
+    grid-template-columns: 1.05fr 1.2fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Columna Izquierda: Información de Negocio y Beneficios
+   -------------------------------------------------------------------------- */
+.info-column {
+  color: var(--reg-blue-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--reg-radius-pill);
+  background: rgba(198, 139, 89, 0.15);
+  border: 1px solid rgba(198, 139, 89, 0.35);
+  color: var(--reg-amber-light);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-hero-title {
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--reg-white);
+}
+
+.info-hero-title .highlight-gold {
+  background: linear-gradient(135deg, #f7dc6f 0%, #e59866 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-lead {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* Tarjeta aclaratoria: Qué NO es */
+.business-clarification-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid var(--reg-amber-cacao);
+  border-radius: var(--reg-radius-md);
+  padding: 1.25rem 1.4rem;
+  backdrop-filter: blur(8px);
+}
+
+.clarification-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.clarification-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--reg-amber-light);
+  flex-shrink: 0;
+}
+
+.clarification-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--reg-white);
+  letter-spacing: -0.01em;
+}
+
+.clarification-body {
+  font-size: 0.88rem;
+  color: var(--reg-gray-300);
+  line-height: 1.55;
+}
+
+.clarification-body strong {
+  color: var(--reg-amber-light);
+  font-weight: 600;
+}
+
+/* Lista de beneficios */
+.benefits-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.benefit-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--reg-radius-md);
+  background: rgba(0, 100, 148, 0.35);
+  border: 1px solid rgba(27, 152, 224, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--reg-blue-bell);
+}
+
+.benefit-icon-box svg {
+  width: 22px;
+  height: 22px;
+}
+
+.benefit-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.benefit-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--reg-white);
+}
+
+.benefit-desc {
+  font-size: 0.86rem;
+  color: var(--reg-gray-400);
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   6. Columna Derecha: Tarjeta del Formulario
+   -------------------------------------------------------------------------- */
+.form-column {
+  width: 100%;
+}
+
+.auth-card {
+  background: var(--reg-white);
+  border-radius: var(--reg-radius-lg);
+  box-shadow: var(--reg-shadow-card);
+  padding: 2.25rem 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+@media (min-width: 640px) {
+  .auth-card {
+    padding: 2.75rem 2.5rem;
+  }
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--reg-blue-baltic) 0%, var(--reg-amber-cacao) 50%, var(--reg-blue-bell) 100%);
+}
+
+.form-header-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.form-step-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--reg-blue-baltic);
+  background: var(--reg-blue-soft);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--reg-radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-card-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--reg-navy-darkest);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+
+.form-card-subtitle {
+  font-size: 0.92rem;
+  color: var(--reg-gray-600);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   7. Banners de Alerta Interactivos (Controlados dinámicamente por la Vista)
+   -------------------------------------------------------------------------- */
+.auth-alert {
+  display: none;
+  border-radius: var(--reg-radius-md);
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  animation: fadeInAlert 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.auth-alert.show {
+  display: flex !important;
+}
+
+@keyframes fadeInAlert {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-alert-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+
+.auth-alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.auth-alert-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.auth-alert-success {
+  background-color: var(--reg-success-bg);
+  border: 1px solid var(--reg-success-border);
+  color: var(--reg-success-text);
+  align-items: flex-start;
+}
+
+.auth-alert-success .auth-alert-icon {
+  color: var(--reg-success-icon);
+}
+
+.auth-alert-error {
+  background-color: var(--reg-error-bg);
+  border: 1px solid var(--reg-error-border);
+  color: var(--reg-error-text);
+  align-items: flex-start;
+}
+
+.auth-alert-error .auth-alert-icon {
+  color: var(--reg-error-icon);
+}
+
+/* --------------------------------------------------------------------------
+   8. Estructura de Campos del Formulario
+   -------------------------------------------------------------------------- */
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.form-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--reg-gray-800);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.required-badge {
+  color: var(--reg-error-icon);
+  font-weight: 700;
+  margin-left: 0.2rem;
+}
+
+.label-extra {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--reg-gray-400);
+}
+
+/* Contenedor de Input con Iconos */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 1rem;
+  width: 20px;
+  height: 20px;
+  color: var(--reg-gray-400);
+  pointer-events: none;
+  transition: var(--reg-transition);
+}
+
+/* Botón de Alternancia de Contraseña (Eye) */
+.btn-toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--reg-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--reg-gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--reg-transition);
+  padding: 0;
+  z-index: 5;
+}
+
+.btn-toggle-password:hover {
+  color: var(--reg-navy-darkest);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.btn-toggle-password.active {
+  color: var(--reg-blue-baltic);
+}
+
+.btn-toggle-password svg {
+  width: 20px;
+  height: 20px;
+}
+
+.form-control {
+  width: 100%;
+  height: 50px;
+  padding: 0.75rem 1rem 0.75rem 2.85rem;
+  font-family: var(--reg-font-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--reg-gray-800);
+  background-color: var(--reg-gray-50);
+  border: 1.5px solid var(--reg-gray-200);
+  border-radius: var(--reg-radius-md);
+  outline: none;
+  transition: var(--reg-transition);
+}
+
+.input-wrapper:has(.btn-toggle-password) .form-control {
+  padding-right: 3.25rem;
+}
+
+.form-control::placeholder {
+  color: var(--reg-gray-400);
+  font-weight: 400;
+}
+
+.form-control:focus {
+  background-color: var(--reg-white);
+  border-color: var(--reg-blue-baltic);
+  box-shadow: 0 0 0 4px rgba(0, 100, 148, 0.15);
+}
+
+.input-wrapper:focus-within .input-icon-left {
+  color: var(--reg-blue-baltic);
+}
+
+/* Estado Válido en tiempo real */
+.form-control.is-valid {
+  border-color: #10b981;
+  background-color: #fafffd;
+}
+
+/* Estado Inválido en tiempo real */
+.form-control.is-invalid,
+.form-group.has-error .form-control {
+  border-color: var(--reg-error-icon) !important;
+  background-color: #fff8f8 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.form-group.has-error .input-icon-left {
+  color: var(--reg-error-icon);
+}
+
+/* Textos de ayuda institucionales */
+.field-helper {
+  font-size: 0.78rem;
+  color: var(--reg-gray-600);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  line-height: 1.45;
+  margin-top: 0.15rem;
+}
+
+.field-helper-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--reg-blue-cerulean);
+  margin-top: 1px;
+}
+
+/* Mensajes de error por campo */
+.field-error-message {
+  display: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--reg-error-text);
+  background: var(--reg-error-bg);
+  border: 1px solid var(--reg-error-border);
+  border-radius: var(--reg-radius-sm);
+  padding: 0.4rem 0.65rem;
+  margin-top: 0.3rem;
+  align-items: center;
+  gap: 0.4rem;
+  animation: fadeInAlert 0.22s ease-out;
+}
+
+.field-error-message.show,
+.form-group.has-error .field-error-message {
+  display: flex !important;
+}
+
+.field-error-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--reg-error-icon);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   9. Reglas de Contraseña Dinámicas
+   -------------------------------------------------------------------------- */
+.password-rules-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--reg-radius-md);
+  padding: 0.9rem 1rem;
+  margin-top: 0.4rem;
+  transition: var(--reg-transition);
+}
+
+.password-rules-header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--reg-navy-darkest);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.password-rules-header svg {
+  width: 16px;
+  height: 16px;
+  color: var(--reg-amber-cacao);
+}
+
+.password-rules-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+}
+
+@media (min-width: 480px) {
+  .password-rules-list {
+    grid-template-columns: 1fr 1fr;
+  }
+  .password-rules-list li.span-full {
+    grid-column: span 2;
+  }
+}
+
+.rule-item {
+  font-size: 0.75rem;
+  color: var(--reg-gray-600);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: var(--reg-transition);
+}
+
+.rule-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--reg-gray-200);
+  color: var(--reg-gray-600);
+  transition: var(--reg-transition);
+}
+
+.rule-icon svg {
+  width: 9px;
+  height: 9px;
+}
+
+/* Regla Cumplida (Verde) */
+.rule-item.rule-met {
+  color: #065f46;
+  font-weight: 600;
+}
+
+.rule-item.rule-met .rule-icon {
+  background: #ecfdf5;
+  color: #10b981;
+  border: 1px solid #a7f3d0;
+}
+
+/* Regla No Cumplida (Alerta suave) */
+.rule-item.rule-unmet {
+  color: var(--reg-gray-700);
+}
+
+/* --------------------------------------------------------------------------
+   10. Términos y Checkbox
+   -------------------------------------------------------------------------- */
+.terms-group {
+  margin-top: 0.25rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--reg-gray-300);
+  border-radius: 6px;
+  background-color: var(--reg-gray-50);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: grid;
+  place-content: center;
+  transition: var(--reg-transition);
+}
+
+.custom-checkbox::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--reg-white);
+  transform-origin: center;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.custom-checkbox:checked {
+  background-color: var(--reg-blue-baltic);
+  border-color: var(--reg-blue-baltic);
+}
+
+.custom-checkbox:checked::before {
+  transform: scale(1);
+}
+
+.custom-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 100, 148, 0.2);
+}
+
+.checkbox-text {
+  font-size: 0.82rem;
+  color: var(--reg-gray-600);
+  line-height: 1.45;
+}
+
+.checkbox-text strong {
+  color: var(--reg-navy-darkest);
+}
+
+/* --------------------------------------------------------------------------
+   11. Botón de Creación de Cuenta ("Crear cuenta")
+   -------------------------------------------------------------------------- */
+.btn-submit-account {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: var(--reg-radius-pill);
+  background: linear-gradient(135deg, var(--reg-blue-baltic) 0%, #0879b0 100%);
+  color: var(--reg-white);
+  font-family: var(--reg-font-primary);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  box-shadow: var(--reg-shadow-button);
+  transition: var(--reg-transition);
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.btn-submit-account::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: 0.5s;
+}
+
+.btn-submit-account:hover {
+  background: linear-gradient(135deg, #0271a6 0%, var(--reg-blue-bell) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -4px rgba(0, 100, 148, 0.55);
+}
+
+.btn-submit-account:hover::after {
+  left: 130%;
+}
+
+.btn-submit-account:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px -2px rgba(0, 100, 148, 0.4);
+}
+
+.btn-submit-account:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-submit-account svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.btn-submit-account:hover svg {
+  transform: translateX(3px);
+}
+
+/* Animación de carga para el botón */
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spinButton 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spinButton {
+  to { transform: rotate(360deg); }
+}
+
+.form-footer-note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--reg-gray-400);
+  margin-top: 1rem;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   12. Pie de Página Institucional Exclusivo (Sin Enlaces a otras pantallas)
+   -------------------------------------------------------------------------- */
+.registro-footer {
+  margin-top: auto;
+  width: 100%;
+  padding: 1.5rem 1.5rem;
+  background-color: var(--reg-navy-darkest);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.footer-legal-copy {
+  color: var(--reg-blue-soft);
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+.footer-tagline-text {
+  color: var(--reg-amber-light);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   13. Adaptabilidad Responsiva
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .registro-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .header-status-badge {
+    display: none;
+  }
+
+  .registro-main {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: var(--reg-radius-md);
+  }
+
+  .form-card-title {
+    font-size: 1.5rem;
+  }
+}
