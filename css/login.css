@@ -1,0 +1,337 @@
+/* ==========================================================================
+   css/login.css
+   Estilos de la pantalla de Inicio de Sesión (Login)
+   ChocoMapaSV - Ministerio de Turismo de El Salvador (MITUR)
+   ========================================================================== */
+
+/* 1. Layout general de la vista */
+body.page-login {
+  background-color: var(--deep-space-blue, #13293D);
+  color: var(--alice-blue, #E8F1F2);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 2. Área principal centrada con fondo dinámico institucional */
+.login-main {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  background: radial-gradient(circle at 50% 25%, rgba(36, 123, 160, 0.28) 0%, rgba(19, 41, 61, 0.95) 65%, #08141f 100%);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* 3. Contenedor de la Tarjeta */
+.login-container {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  animation: cardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card {
+  background: rgba(19, 41, 61, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(232, 241, 242, 0.14);
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: 0 20px 48px -12px rgba(8, 20, 31, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+/* 4. Encabezado de la Tarjeta */
+.login-card-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-icon-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(27, 152, 224, 0.25) 0%, rgba(0, 100, 148, 0.35) 100%);
+  border: 1px solid rgba(27, 152, 224, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue-bell, #1B98E0);
+  margin: 0 auto 16px auto;
+  box-shadow: 0 0 24px rgba(27, 152, 224, 0.2);
+}
+
+.login-title {
+  font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  font-size: 0.92rem;
+  color: rgba(232, 241, 242, 0.75);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 5. Alerta de Error Segura */
+.login-alert-error {
+  background-color: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+  animation: alertFadeIn 0.2s ease-in-out;
+}
+
+.login-alert-error.hidden {
+  display: none !important;
+}
+
+@keyframes alertFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 6. Formulario y Campos */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--alice-blue, #E8F1F2);
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: rgba(232, 241, 242, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  background-color: rgba(11, 26, 39, 0.8);
+  border: 1px solid rgba(232, 241, 242, 0.22);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.form-input::placeholder {
+  color: rgba(232, 241, 242, 0.35);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--blue-bell, #1B98E0);
+  background-color: rgba(11, 26, 39, 0.95);
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.28);
+}
+
+.form-input.is-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+}
+
+.form-input-password {
+  padding-right: 46px;
+}
+
+/* 7. Botón para Alternar Contraseña */
+.btn-toggle-password {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(232, 241, 242, 0.5);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s ease;
+  z-index: 2;
+}
+
+.btn-toggle-password:hover {
+  color: #FFFFFF;
+}
+
+.btn-toggle-password.active {
+  color: var(--blue-bell, #1B98E0);
+}
+
+/* 8. Botón Submit ("Ingresar") */
+.form-actions {
+  margin-top: 6px;
+}
+
+.btn-submit-login {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, var(--blue-bell, #1B98E0) 0%, var(--baltic-blue, #006494) 100%);
+  border: none;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(27, 152, 224, 0.32);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-submit-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27, 152, 224, 0.45);
+  filter: brightness(1.06);
+}
+
+.btn-submit-login:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-submit-login:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-submit-login.is-loading {
+  cursor: wait;
+  position: relative;
+}
+
+/* 9. Pie de la Tarjeta con Enlace Estático */
+.login-card-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(232, 241, 242, 0.1);
+  text-align: center;
+}
+
+.register-prompt {
+  color: rgba(232, 241, 242, 0.72);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.register-link {
+  color: var(--blue-bell, #1B98E0);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.18s ease;
+  margin-left: 4px;
+}
+
+.register-link:hover {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Responsividad: Pantallas Medianas y Móviles
+   ========================================================================== */
+@media (max-width: 480px) {
+  .login-main {
+    padding: 32px 14px;
+  }
+
+  .login-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.86rem;
+  }
+
+  .form-input {
+    height: 46px;
+    font-size: 0.92rem;
+  }
+
+  .btn-submit-login {
+    height: 48px;
+    font-size: 0.95rem;
+  }
+}
