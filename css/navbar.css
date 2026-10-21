@@ -185,6 +185,220 @@ header.app-header .header-container {
 }
 
 /* ==========================================================================
+   8. Control de Autenticación y Perfil de Usuario (Login / Avatar / Dropdown)
+   ========================================================================== */
+
+/* Contenedor principal de autenticación en navbar */
+.nav-auth {
+  display: inline-flex !important;
+  align-items: center !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+}
+
+/* Estado No Autenticado: Botón Iniciar Sesión con estilo visual diferenciado */
+.header-navigation .nav-link.nav-btn-login {
+  background: linear-gradient(135deg, rgba(0, 119, 182, 0.22) 0%, rgba(0, 150, 235, 0.16) 100%) !important;
+  border: 1.5px solid #0096eb !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(0, 150, 235, 0.22) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+}
+
+.header-navigation .nav-link.nav-btn-login:hover {
+  background: linear-gradient(135deg, #0077b6 0%, #0096eb 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(0, 150, 235, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Estado Autenticado: Contenedor del Avatar y Dropdown */
+.nav-user-dropdown-container {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* Botón circular de usuario (Avatar) */
+.nav-user-avatar-btn {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #0d3b66 0%, #0077b6 100%) !important;
+  border: 2px solid rgba(0, 150, 235, 0.6) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(11, 34, 57, 0.4) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  outline: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+
+.nav-user-avatar-btn:hover,
+.nav-user-avatar-btn:focus-visible,
+.nav-user-avatar-btn[aria-expanded="true"] {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 14px rgba(0, 150, 235, 0.55) !important;
+  transform: translateY(-1px) !important;
+}
+
+.nav-user-avatar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.nav-user-avatar-text {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+/* Dropdown Menu de Perfil */
+.nav-user-dropdown {
+  position: absolute !important;
+  top: calc(100% + 10px) !important;
+  right: 0 !important;
+  min-width: 230px !important;
+  max-width: 280px !important;
+  background-color: #081a2c !important;
+  border: 1px solid rgba(0, 150, 235, 0.35) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 14px 35px rgba(3, 10, 18, 0.65), 0 2px 10px rgba(0, 150, 235, 0.15) !important;
+  padding: 8px !important;
+  z-index: 1050 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  animation: navDropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+@keyframes navDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nav-dropdown-header {
+  padding: 8px 10px 10px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  border-bottom: 1px solid rgba(232, 241, 242, 0.1) !important;
+  margin-bottom: 6px !important;
+}
+
+.nav-dropdown-label {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  color: #90e0ef !important;
+}
+
+.nav-user-email {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #E8F1F2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 240px !important;
+}
+
+.nav-dropdown-menu {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.nav-dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 9px 12px !important;
+  border-radius: 8px !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  color: var(--nav-text) !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  transition: all 0.15s ease !important;
+}
+
+.nav-dropdown-item:hover,
+.nav-dropdown-item:focus-visible {
+  background: rgba(232, 241, 242, 0.1) !important;
+  color: #FFFFFF !important;
+  outline: none !important;
+}
+
+.nav-dropdown-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  color: currentColor !important;
+  display: block !important;
+}
+
+.nav-dropdown-divider {
+  height: 1px !important;
+  background: rgba(232, 241, 242, 0.1) !important;
+  margin: 4px 0 !important;
+  list-style: none !important;
+  border: none !important;
+}
+
+.nav-dropdown-item-danger {
+  color: #fca5a5 !important;
+}
+
+.nav-dropdown-item-danger:hover,
+.nav-dropdown-item-danger:focus-visible {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #fecaca !important;
+}
+
+/* Reglas de Ocultación Segura */
+.nav-auth .hidden,
+.nav-user-dropdown-container.hidden,
+.nav-user-dropdown.hidden,
+#nav-btn-login.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
    Comportamiento Responsivo Unificado (@media max-width: 768px)
    ========================================================================== */
 @media (max-width: 768px) {
@@ -249,6 +463,39 @@ header.app-header .header-container {
     height: 18px !important;
     margin: 0 !important;
   }
+
+  /* Ajuste responsivo de autenticación y dropdown */
+  .nav-auth {
+    gap: 6px !important;
+  }
+
+  .header-navigation .nav-link.nav-btn-login span {
+    display: none !important;
+  }
+
+  .header-navigation .nav-link.nav-btn-login {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+
+  .nav-user-dropdown {
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    max-width: calc(100vw - 24px) !important;
+    min-width: 210px !important;
+  }
+
+  .nav-user-email {
+    max-width: 180px !important;
+  }
 }
 
 /* Pantallas extra pequeñas (@media max-width: 380px) */
@@ -285,4 +532,18 @@ header.app-header .header-container {
     width: 16px !important;
     height: 16px !important;
   }
+
+  .header-navigation .nav-link.nav-btn-login,
+  .nav-user-avatar-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  .nav-user-dropdown {
+    right: -4px !important;
+    max-width: calc(100vw - 16px) !important;
+  }
 }
+

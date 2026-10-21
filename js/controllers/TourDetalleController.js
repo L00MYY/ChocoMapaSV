@@ -4,6 +4,7 @@ import {
     crearReservaTour,
     obtenerTourPorId
 } from '../models/ToursModel.js';
+import { AuthModel } from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';
 
 let tourActual = null;
@@ -18,7 +19,13 @@ export const TourDetalleController = {
                 window.history.back();
             }
         });
-        btnOpenReserve?.addEventListener('click', () => {
+        btnOpenReserve?.addEventListener('click', async () => {
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion) {
+                window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+                return;
+            }
+
             if (!tourActual || Number(tourActual.available_spots) <= 0) return;
             TourDetalleView.elements.reservationCard?.classList.remove('hidden');
             TourDetalleView.elements.reservationSuccessCard?.classList.add('hidden');
