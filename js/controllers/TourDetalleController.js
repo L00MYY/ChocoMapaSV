@@ -11,6 +11,8 @@ let tourActual = null;
 let failsafeTimeout;
 
 export const TourDetalleController = {
+    unsubscribeAuth: null,
+
     init() {
         const { btnReturn, btnOpenReserve, reservationForm } = TourDetalleView.elements;
         btnReturn?.addEventListener('click', event => {
@@ -21,24 +23,35 @@ export const TourDetalleController = {
         });
         btnOpenReserve?.addEventListener('click', async () => {
             const sesion = await AuthModel.obtenerSesionActual();
-            if (!sesion) {
+            if (!sesion || !sesion.user) {
                 window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
                 return;
             }
 
             if (!tourActual || Number(tourActual.available_spots) <= 0) return;
-            TourDetalleView.elements.reservationCard?.classList.remove('hidden');
-            TourDetalleView.elements.reservationSuccessCard?.classList.add('hidden');
-            TourDetalleView.elements.reservationCard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setTimeout(() => TourDetalleView.elements.inputName?.focus(), 300);
+            TourDetalleView.mostrarFormularioReserva();
         });
         reservationForm?.addEventListener('submit', event => {
             event.preventDefault();
             this.procesarReserva();
         });
+        this.inicializarSuscripcionAuth();
         this.inicializarLimpiezaErrores();
         this.inicializarFailsafe();
         this.cargarTour();
+    },
+
+    inicializarSuscripcionAuth() {
+        if (this.unsubscribeAuth) {
+            this.unsubscribeAuth();
+        }
+
+        this.unsubscribeAuth = AuthModel.onCambioEstadoAuth((evento, sesion) => {
+            if (evento === 'SIGNED_OUT' || !sesion || !sesion.user) {
+                TourDetalleView.ocultarFormularioReserva();
+                TourDetalleView.limpiarFormularioReserva();
+            }
+        });
     },
 
     inicializarLimpiezaErrores() {
@@ -102,6 +115,16 @@ export const TourDetalleController = {
 
     async procesarReserva() {
         if (!tourActual) return;
+
+        // Doble validación: Verificar sesión activa antes de construir el payload o llamar al modelo
+        const sesion = await AuthModel.obtenerSesionActual();
+        if (!sesion || !sesion.user) {
+            TourDetalleView.ocultarFormularioReserva();
+            TourDetalleView.mostrarError("Debes iniciar sesión para completar una reserva.");
+            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return;
+        }
+
         const e = TourDetalleView.elements;
         const values = TourDetalleView.obtenerDatosReserva();
         TourDetalleView.limpiarErrores();
@@ -126,6 +149,7 @@ export const TourDetalleController = {
 
         const reserva = {
             tour_id: tourActual.id,
+            tourist_id: sesion.user.id,
             tourist_name: values.nombre,
             tourist_email: values.email,
             tourist_phone: values.telefono,
@@ -147,7 +171,7 @@ export const TourDetalleController = {
             TourDetalleView.mostrarConfirmacion(tourActual, reserva);
         } catch (error) {
             console.error('Error al guardar la reserva:', error);
-            window.alert('Ocurrió un error al procesar tu reserva con el servidor. Por favor intenta nuevamente.');
+            TourDetalleView.mostrarError('Ocurrió un error al procesar tu reserva con el servidor. Por favor intenta nuevamente.');
         } finally {
             if (button) {
                 button.disabled = false;

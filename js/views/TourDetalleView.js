@@ -301,6 +301,38 @@ export const TourDetalleView = {
         return input;
     },
 
+    mostrarFormularioReserva() {
+        const e = this.elements;
+        e.reservationSuccessCard?.classList.add('hidden');
+        e.reservationCard?.classList.remove('hidden');
+        e.reservationCard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => e.inputName?.focus(), 300);
+    },
+
+    ocultarFormularioReserva() {
+        const e = this.elements;
+        e.reservationCard?.classList.add('hidden');
+        if (e.btnOpenReserve) {
+            e.btnOpenReserve.classList.remove('hidden');
+            e.btnOpenReserve.style.display = '';
+            const cantidad = Number(e.availableSpots?.textContent) || 0;
+            e.btnOpenReserve.disabled = cantidad <= 0;
+            e.btnOpenReserve.textContent = cantidad <= 0 ? 'Cupos agotados' : 'Reservar cupo';
+        }
+    },
+
+    limpiarFormularioReserva() {
+        const e = this.elements;
+        e.reservationForm?.reset();
+        this.limpiarErrores();
+    },
+
+    mostrarError(mensaje) {
+        if (typeof window !== 'undefined' && window.alert) {
+            window.alert(mensaje || 'Ocurrió un error inesperado.');
+        }
+    },
+
     mostrarConfirmacion(tour, reserva) {
         const e = this.elements;
         if (e.summaryTourName) e.summaryTourName.textContent = tour.name || 'Tour Oficial MITUR';
