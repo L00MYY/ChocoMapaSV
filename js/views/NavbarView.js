@@ -19,7 +19,8 @@ export const NavbarView = {
             dropdownMenu: document.getElementById('nav-user-dropdown'),
             userEmail: document.getElementById('nav-user-email'),
             btnLogout: document.getElementById('nav-btn-logout'),
-            linkHistorial: document.getElementById('nav-link-historial')
+            linkHistorial: document.getElementById('nav-link-historial'),
+            navMisTours: document.getElementById('nav-mis-tours')
         };
     },
 
@@ -42,17 +43,58 @@ export const NavbarView = {
 
     /**
      * Obtiene la URL de inicio de sesión, agregando el parámetro de retorno
-     * si la página actual es tour-detalle.html
+     * si la página actual es tour-detalle.html o mis-tours.html
      * @returns {string}
      */
     obtenerUrlLogin() {
-        const esTourDetalle = window.location.pathname.includes('tour-detalle.html');
-        if (!esTourDetalle) {
+        const path = window.location.pathname;
+        const esPaginaRetorno = path.includes('tour-detalle.html') || path.includes('mis-tours.html');
+        if (!esPaginaRetorno) {
             return 'login.html';
         }
-        const archivoActual = window.location.pathname.split('/').pop() || 'tour-detalle.html';
+        const archivoActual = path.split('/').pop() || 'index.html';
         const rutaRelativa = `${archivoActual}${window.location.search}${window.location.hash}`;
         return `login.html?redirect=${encodeURIComponent(rutaRelativa)}`;
+    },
+
+    /**
+     * Renderiza o conmuta la visibilidad del enlace "Mis tours" según la sesión
+     * @param {boolean} autenticado 
+     */
+    renderizarEnlaceMisTours(autenticado) {
+        const { linkHistorial, navMisTours } = this.elements;
+
+        // 1. Enlace en Dropdown de perfil
+        if (linkHistorial) {
+            if (autenticado) {
+                linkHistorial.href = 'mis-tours.html';
+                const label = linkHistorial.querySelector('span');
+                if (label) label.textContent = 'Mis tours';
+                linkHistorial.classList.remove('hidden');
+                const parentLi = linkHistorial.closest('li');
+                if (parentLi) {
+                    parentLi.classList.remove('hidden');
+                    parentLi.style.display = '';
+                }
+            } else {
+                linkHistorial.classList.add('hidden');
+                const parentLi = linkHistorial.closest('li');
+                if (parentLi) {
+                    parentLi.classList.add('hidden');
+                    parentLi.style.display = 'none';
+                }
+            }
+        }
+
+        // 2. Enlace en barra de navegación principal (si existe en el DOM)
+        if (navMisTours) {
+            if (autenticado) {
+                navMisTours.href = 'mis-tours.html';
+                navMisTours.classList.remove('hidden');
+            } else {
+                navMisTours.classList.add('hidden');
+            }
+        }
     },
 
     /**
@@ -61,6 +103,7 @@ export const NavbarView = {
      * - Muestra botón circular de perfil
      * - Renderiza la inicial del usuario o icono por defecto
      * - Configura correo en el dropdown
+     * - Renderiza el enlace "Mis tours" con href mis-tours.html
      * @param {Object} sesion 
      */
     mostrarEstadoAutenticado(sesion) {
@@ -98,12 +141,16 @@ export const NavbarView = {
             btnUser.setAttribute('title', `Cuenta de ${email}`);
             btnUser.setAttribute('aria-label', `Menú de usuario para ${email}`);
         }
+
+        // Renderizar enlace "Mis tours"
+        this.renderizarEnlaceMisTours(true);
     },
 
     /**
      * Muestra la interfaz para el estado NO AUTENTICADO:
      * - Muestra botón "Iniciar sesión" con redirección configurada
      * - Oculta el contenedor de usuario
+     * - Oculta la opción "Mis tours"
      * - Cierra el dropdown si estaba abierto
      */
     mostrarEstadoNoAutenticado() {
@@ -112,6 +159,9 @@ export const NavbarView = {
         if (userContainer) {
             userContainer.classList.add('hidden');
         }
+
+        // Ocultar opción "Mis tours"
+        this.renderizarEnlaceMisTours(false);
 
         if (btnLogin) {
             btnLogin.classList.remove('hidden');

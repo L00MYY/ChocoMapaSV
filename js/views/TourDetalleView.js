@@ -69,7 +69,13 @@ export const TourDetalleView = {
         summaryTourName: document.getElementById('summary-tour-name'),
         summaryTourDate: document.getElementById('summary-tour-date'),
         summarySpots: document.getElementById('summary-spots'),
-        summaryTouristName: document.getElementById('summary-tourist-name')
+        summaryTouristName: document.getElementById('summary-tourist-name'),
+        historialCard: document.getElementById('historial-reservation-card'),
+        historialStatusBadge: document.getElementById('historial-status-badge'),
+        historialSpotsCount: document.getElementById('historial-spots-count'),
+        historialTourDate: document.getElementById('historial-tour-date'),
+        btnVolverMisTours: document.getElementById('btn-volver-mis-tours'),
+        bookingCard: document.getElementById('booking-card')
     },
 
     mostrarEstado(estado, titulo, mensaje) {
@@ -351,5 +357,101 @@ export const TourDetalleView = {
         const numeric = Number.parseInt(h, 10);
         if (Number.isNaN(numeric)) return hora;
         return `${numeric % 12 || 12}:${minutes || '00'} ${numeric >= 12 ? 'PM' : 'AM'}`;
+    },
+
+    /**
+     * Renderiza la vista en modo historial:
+     * - Muestra el bloque informativo con el estado ("Pendiente de confirmar", "Confirmado" o "Pasado")
+     *   y los cupos reservados (Criterio 3).
+     * - Configura el botón o enlace con el texto exacto: "Volver a mis tours" (Criterio 3).
+     * - Oculta el formulario o botón de "Reservar cupo" (Criterio 4).
+     * 
+     * @param {Object} reserva - { status, spots_reserved, tour_date }
+     * @param {Object} [tour] - Objeto del tour
+     */
+    renderizarModoHistorial(reserva, tour) {
+        const e = this.elements;
+        const card = e.historialCard || document.getElementById('historial-reservation-card');
+        const badge = e.historialStatusBadge || document.getElementById('historial-status-badge');
+        const spots = e.historialSpotsCount || document.getElementById('historial-spots-count');
+        const dateEl = e.historialTourDate || document.getElementById('historial-tour-date');
+        const btnVolver = e.btnVolverMisTours || document.getElementById('btn-volver-mis-tours');
+        const btnReturn = e.btnReturn || document.getElementById('btn-return');
+
+        if (card) {
+            card.classList.remove('hidden');
+        }
+
+        if (badge && reserva) {
+            const estado = reserva.status || 'Confirmado';
+            badge.textContent = estado;
+            badge.classList.remove('status-confirmado', 'status-pendiente', 'status-pasado');
+            if (estado === 'Confirmado') {
+                badge.classList.add('status-confirmado');
+            } else if (estado === 'Pasado') {
+                badge.classList.add('status-pasado');
+            } else {
+                badge.classList.add('status-pendiente');
+            }
+        }
+
+        if (spots && reserva) {
+            const cantidad = reserva.spots_reserved || 1;
+            spots.textContent = `${cantidad} ${cantidad === 1 ? 'cupo' : 'cupos'}`;
+        }
+
+        if (dateEl && reserva?.tour_date) {
+            dateEl.textContent = formatearFechaLarga(reserva.tour_date) || reserva.tour_date;
+        }
+
+        // Criterio 3: Enlace exacto hacia mis-tours.html
+        if (btnVolver) {
+            btnVolver.href = 'mis-tours.html';
+        }
+
+        // Adaptar botón superior de retorno si viene explícitamente desde historial
+        const params = new URLSearchParams(window.location.search);
+        const fromHistorial = params.get('from') === 'historial';
+        if (btnReturn && fromHistorial) {
+            btnReturn.href = 'mis-tours.html';
+            const spanText = btnReturn.querySelector('span');
+            if (spanText) {
+                spanText.textContent = 'Volver a mis tours';
+            }
+        }
+
+        // Criterio 4: Ocultar o deshabilitar botón y formulario de reserva
+        if (e.btnOpenReserve) {
+            e.btnOpenReserve.classList.add('hidden');
+            e.btnOpenReserve.style.display = 'none';
+        }
+
+        if (e.reservationCard) {
+            e.reservationCard.classList.add('hidden');
+            e.reservationCard.style.display = 'none';
+        }
+
+        if (e.reservationSuccessCard) {
+            e.reservationSuccessCard.classList.add('hidden');
+        }
+    },
+
+    /**
+     * Criterio 4: Si el tour ya pasó, no permitir reservar cupos (deshabilitar o esconder acción)
+     */
+    deshabilitarReservaPorTourPasado() {
+        const e = this.elements;
+        if (e.btnOpenReserve) {
+            e.btnOpenReserve.disabled = true;
+            e.btnOpenReserve.classList.add('disabled');
+            e.btnOpenReserve.textContent = 'Tour no disponible para reserva';
+        }
+        if (e.spotsBadge) {
+            e.spotsBadge.textContent = 'Tour pasado';
+            e.spotsBadge.classList.add('sold-out');
+        }
+        if (e.reservationCard) {
+            e.reservationCard.classList.add('hidden');
+        }
     }
 };
