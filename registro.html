@@ -164,7 +164,7 @@
                              BANNER DE ÉXITO (Criterio de Aceptación)
                              "Tu cuenta se creó con éxito y queda con su sesión iniciada"
                              ==================================================== -->
-                        <div class="auth-alert auth-alert-success" id="alert-success" role="status" aria-live="polite">
+                        <div class="auth-alert auth-alert-success hidden" id="alert-success" role="status" aria-live="polite">
                             <svg class="auth-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -180,7 +180,7 @@
                         <!-- ====================================================
                              BANNER DE ERROR GLOBAL (Criterio de Aceptación)
                              ==================================================== -->
-                        <div class="auth-alert auth-alert-error" id="alert-error" role="alert" aria-live="assertive">
+                        <div class="auth-alert auth-alert-error hidden" id="alert-error" role="alert" aria-live="assertive">
                             <svg class="auth-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -464,8 +464,8 @@
         </div>
     </footer>
 
-    <!-- Capa de Vista para interactividad y validaciones gráficas -->
-    <script type="module" src="js/views/RegistroViews.js"></script>
+    <!-- Controlador MVC de Registro -->
+    <script type="module" src="js/controllers/RegistroController.js"></script>
 </body>
 
 </html>

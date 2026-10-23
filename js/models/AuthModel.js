@@ -238,15 +238,108 @@ export function onCambioEstadoAuth(callback) {
 }
 
 /**
+ * Registra un nuevo usuario con correo electrónico, contraseña y nombre completo.
+ * Si la confirmación de correo está desactivada en Supabase, inicia sesión automáticamente.
+ * 
+ * @param {string} nombreCompleto - Nombre completo del usuario
+ * @param {string} email - Correo del usuario
+ * @param {string} password - Contraseña del usuario
+ * @returns {Promise<{ sesion: Object|null, requiereConfirmacion: boolean, user: Object }>}
+ * @throws {Error} Error tipificado si el registro falla o hay error de red
+ */
+export async function registrarUsuario(nombreCompleto, email, password) {
+    if (!nombreCompleto || !email || !password) {
+        const error = new Error('Todos los campos son obligatorios');
+        error.code = 'missing_fields';
+        throw error;
+    }
+
+    const cleanNombre = String(nombreCompleto).trim();
+    const cleanEmail = String(email).trim();
+    const url = `${SUPABASE_URL}/auth/v1/signup`;
+
+    let respuesta;
+    try {
+        respuesta = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: cleanEmail,
+                password: String(password),
+                data: {
+                    full_name: cleanNombre
+                }
+            })
+        });
+    } catch (networkError) {
+        console.error('Error de red al conectar con Supabase Auth (signup):', networkError);
+        const err = new Error('No se pudo establecer conexión con el servidor. Verifica tu conexión a internet.');
+        err.code = 'network_error';
+        err.cause = networkError;
+        throw err;
+    }
+
+    const data = await respuesta.json().catch(() => ({}));
+
+    if (!respuesta.ok) {
+        const mensajeError = data.error_description || data.msg || data.message || 'Error al registrar el usuario';
+        const err = new Error(mensajeError);
+        err.status = respuesta.status;
+        err.code = data.error_code || data.code || 'signup_failed';
+        throw err;
+    }
+
+    // Si la respuesta incluye access_token y user (Confirm email OFF)
+    if (data.access_token && data.user) {
+        const ahoraSegundos = Math.floor(Date.now() / 1000);
+        const expiresAt = data.expires_at || (ahoraSegundos + (data.expires_in || 3600));
+
+        const sesion = {
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            token_type: data.token_type || 'bearer',
+            expires_at: expiresAt,
+            expires_in: data.expires_in || 3600,
+            user: data.user
+        };
+
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sesion));
+        } catch (storageError) {
+            console.warn('No se pudo guardar la sesión en localStorage:', storageError);
+        }
+
+        notificarCambio('SIGNED_IN', sesion);
+        return {
+            sesion,
+            requiereConfirmacion: false,
+            user: data.user
+        };
+    }
+
+    // Si confirm email está activado, Supabase devuelve user pero no access_token ni sesión inmediata
+    return {
+        sesion: null,
+        requiereConfirmacion: true,
+        user: data.user || data
+    };
+}
+
+/**
  * Objeto AuthModel agrupando la API del modelo de autenticación
  */
 export const AuthModel = {
     iniciarSesion,
+    registrarUsuario,
     obtenerSesionActual,
     cerrarSesion,
     onCambioEstadoAuth,
     // Compatibilidad y alias estándar
     signInWithPassword: ({ email, password }) => iniciarSesion(email, password),
+    signUp: ({ nombre, email, password }) => registrarUsuario(nombre, email, password),
     signOut: cerrarSesion,
     getSession: obtenerSesionActual
 };
