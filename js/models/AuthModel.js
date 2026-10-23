@@ -238,94 +238,73 @@ export function onCambioEstadoAuth(callback) {
 }
 
 /**
- * Registra un nuevo usuario con correo electrónico, contraseña y nombre completo.
- * Si la confirmación de correo está desactivada en Supabase, inicia sesión automáticamente.
+ * Registra un nuevo usuario en Supabase Auth mediante petición directa a /auth/v1/signup.
  * 
- * @param {string} nombreCompleto - Nombre completo del usuario
+ * @param {string} fullName - Nombre completo del usuario
  * @param {string} email - Correo del usuario
  * @param {string} password - Contraseña del usuario
- * @returns {Promise<{ sesion: Object|null, requiereConfirmacion: boolean, user: Object }>}
- * @throws {Error} Error tipificado si el registro falla o hay error de red
+ * @returns {Promise<Object>} Datos devueltos por Supabase
+ * @throws {Error} Error tipificado si el registro falla o el correo ya existe
  */
-export async function registrarUsuario(nombreCompleto, email, password) {
-    if (!nombreCompleto || !email || !password) {
-        const error = new Error('Todos los campos son obligatorios');
-        error.code = 'missing_fields';
-        throw error;
-    }
+export async function registrarUsuario(fullName, email, password) {
+  const url = `${SUPABASE_URL}/auth/v1/signup`;
+  const respuesta = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: String(email).trim(),
+      password: String(password),
+      data: {
+        full_name: String(fullName).trim()
+      }
+    })
+  });
 
-    const cleanNombre = String(nombreCompleto).trim();
-    const cleanEmail = String(email).trim();
-    const url = `${SUPABASE_URL}/auth/v1/signup`;
+  const data = await respuesta.json().catch(() => ({}));
 
-    let respuesta;
-    try {
-        respuesta = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: cleanEmail,
-                password: String(password),
-                data: {
-                    full_name: cleanNombre
-                }
-            })
-        });
-    } catch (networkError) {
-        console.error('Error de red al conectar con Supabase Auth (signup):', networkError);
-        const err = new Error('No se pudo establecer conexión con el servidor. Verifica tu conexión a internet.');
-        err.code = 'network_error';
-        err.cause = networkError;
-        throw err;
-    }
+  if (!respuesta.ok) {
+    const mensaje = data.msg || data.error_description || data.message || 'Error al registrar la cuenta';
+    const err = new Error(mensaje);
+    err.status = respuesta.status;
+    err.code = data.error_code || data.code || (/already registered/i.test(mensaje) ? 'user_already_exists' : 'signup_failed');
+    throw err;
+  }
 
-    const data = await respuesta.json().catch(() => ({}));
+  // Asegurar que data.user esté disponible tanto si Supabase lo devuelve anidado o en la raíz
+  if (!data.user && (data.id || data.email)) {
+    data.user = { ...data };
+  }
 
-    if (!respuesta.ok) {
-        const mensajeError = data.error_description || data.msg || data.message || 'Error al registrar el usuario';
-        const err = new Error(mensajeError);
-        err.status = respuesta.status;
-        err.code = data.error_code || data.code || 'signup_failed';
-        throw err;
-    }
+  // Si la respuesta incluye sesión / token activo, almacenar la sesión localmente
+  const accessToken = data.access_token || data.session?.access_token;
+  const refreshToken = data.refresh_token || data.session?.refresh_token;
+  if (accessToken && data.user) {
+    const ahoraSegundos = Math.floor(Date.now() / 1000);
+    const expiresAt = data.expires_at || (ahoraSegundos + (data.expires_in || 3600));
 
-    // Si la respuesta incluye access_token y user (Confirm email OFF)
-    if (data.access_token && data.user) {
-        const ahoraSegundos = Math.floor(Date.now() / 1000);
-        const expiresAt = data.expires_at || (ahoraSegundos + (data.expires_in || 3600));
-
-        const sesion = {
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
-            token_type: data.token_type || 'bearer',
-            expires_at: expiresAt,
-            expires_in: data.expires_in || 3600,
-            user: data.user
-        };
-
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(sesion));
-        } catch (storageError) {
-            console.warn('No se pudo guardar la sesión en localStorage:', storageError);
-        }
-
-        notificarCambio('SIGNED_IN', sesion);
-        return {
-            sesion,
-            requiereConfirmacion: false,
-            user: data.user
-        };
-    }
-
-    // Si confirm email está activado, Supabase devuelve user pero no access_token ni sesión inmediata
-    return {
-        sesion: null,
-        requiereConfirmacion: true,
-        user: data.user || data
+    const sesion = {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      token_type: data.token_type || data.session?.token_type || 'bearer',
+      expires_at: expiresAt,
+      expires_in: data.expires_in || 3600,
+      user: data.user
     };
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sesion));
+    } catch (storageError) {
+      console.warn('No se pudo guardar la sesión en localStorage:', storageError);
+    }
+
+    notificarCambio('SIGNED_IN', sesion);
+    data.sesion = sesion;
+  }
+
+  return data;
 }
 
 /**

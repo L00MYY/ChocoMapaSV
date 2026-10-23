@@ -170,23 +170,26 @@ export const RegistroController = {
         RegistroView.mostrarCargando(true);
 
         try {
-            const resultado = await AuthModel.registrarUsuario(datos.nombre, datos.email, datos.password);
+            const data = await AuthModel.registrarUsuario(datos.nombre, datos.email, datos.password);
 
-            if (resultado.sesion) {
-                // Confirm email OFF: sesión iniciada automáticamente
-                RegistroView.mostrarExito(
-                    'Tu sesión ha sido iniciada automáticamente. Serás redirigido en un momento...',
-                    '¡Tu cuenta se creó con éxito!'
-                );
-                setTimeout(() => {
-                    this.redirigirUsuario();
-                }, 1500);
-            } else if (resultado.requiereConfirmacion) {
-                // Confirm email ON: cuenta creada, requiere confirmar correo
-                RegistroView.mostrarExito(
-                    'Hemos enviado un enlace de confirmación a tu correo electrónico. Por favor verifica tu bandeja para activar tu cuenta antes de iniciar sesión.',
-                    '¡Cuenta registrada! Revisa tu correo'
-                );
+            // Solo si la respuesta de Supabase es exitosa (data.user existe)
+            if (data && data.user) {
+                if (data.access_token || data.sesion) {
+                    RegistroView.mostrarExito(
+                        'Tu sesión ha sido iniciada automáticamente. Serás redirigido en un momento...',
+                        '¡Tu cuenta se creó con éxito!'
+                    );
+                    setTimeout(() => {
+                        this.redirigirUsuario();
+                    }, 1500);
+                } else {
+                    RegistroView.mostrarExito(
+                        'Hemos enviado un enlace de confirmación a tu correo electrónico. Por favor verifica tu bandeja para activar tu cuenta antes de iniciar sesión.',
+                        '¡Tu cuenta se creó con éxito!'
+                    );
+                }
+            } else {
+                throw new Error('No se recibió la confirmación del usuario registrado');
             }
         } catch (error) {
             console.error('Error durante el registro de usuario:', error);
@@ -202,12 +205,9 @@ export const RegistroController = {
             ) {
                 RegistroView.mostrarErrorCampo(
                     'inputEmail',
-                    'Este correo ya está registrado. Usa otro correo para tu nueva cuenta.'
+                    'Este correo ya está registrado.'
                 );
-                RegistroView.mostrarErrorGlobal(
-                    'Este correo ya está registrado',
-                    'Ya existe una cuenta asociada a esta dirección. Puedes iniciar sesión o utilizar otro correo.'
-                );
+                RegistroView.mostrarError('Este correo ya está registrado');
             } else if (
                 codigo === 'weak_password' ||
                 /password/i.test(mensaje)
@@ -216,15 +216,9 @@ export const RegistroController = {
                     'inputPassword',
                     'La contraseña no cumple con los requisitos mínimos de seguridad.'
                 );
-                RegistroView.mostrarErrorGlobal(
-                    'Contraseña no válida',
-                    mensaje || 'Por favor ingresa una contraseña que cumpla con los requisitos.'
-                );
+                RegistroView.mostrarError(mensaje || 'La contraseña no cumple con los requisitos mínimos de seguridad.');
             } else {
-                RegistroView.mostrarErrorGlobal(
-                    'No fue posible crear la cuenta',
-                    mensaje || 'Ocurrió un error inesperado al procesar el registro. Intenta de nuevo.'
-                );
+                RegistroView.mostrarError(mensaje || 'Error al registrar la cuenta');
             }
         } finally {
             RegistroView.mostrarCargando(false);

@@ -172,22 +172,27 @@ export const NavbarView = {
     },
 
     /**
-     * Alterna la visibilidad del dropdown de usuario
+     * Alterna la visibilidad del dropdown de usuario (soporta .active, .open y .hidden)
      * @param {boolean} [forzar] - Opcional para forzar apertura o cierre
      */
     alternarDropdown(forzar) {
         const { dropdownMenu, btnUser } = this.elements;
         if (!dropdownMenu || !btnUser) return;
 
+        const estaAbierto = !dropdownMenu.classList.contains('hidden') &&
+            (dropdownMenu.classList.contains('active') || dropdownMenu.classList.contains('open'));
+
         const abrir = typeof forzar === 'boolean'
             ? forzar
-            : dropdownMenu.classList.contains('hidden');
+            : !estaAbierto;
 
         if (abrir) {
             dropdownMenu.classList.remove('hidden');
+            dropdownMenu.classList.add('active', 'open');
             btnUser.setAttribute('aria-expanded', 'true');
         } else {
             dropdownMenu.classList.add('hidden');
+            dropdownMenu.classList.remove('active', 'open');
             btnUser.setAttribute('aria-expanded', 'false');
         }
     },
@@ -199,6 +204,7 @@ export const NavbarView = {
         const { dropdownMenu, btnUser } = this.elements;
         if (dropdownMenu) {
             dropdownMenu.classList.add('hidden');
+            dropdownMenu.classList.remove('active', 'open');
         }
         if (btnUser) {
             btnUser.setAttribute('aria-expanded', 'false');
@@ -211,7 +217,9 @@ export const NavbarView = {
      */
     isDropdownAbierto() {
         const { dropdownMenu } = this.elements;
-        return Boolean(dropdownMenu && !dropdownMenu.classList.contains('hidden'));
+        if (!dropdownMenu) return false;
+        return !dropdownMenu.classList.contains('hidden') &&
+            (dropdownMenu.classList.contains('active') || dropdownMenu.classList.contains('open'));
     }
 };
 

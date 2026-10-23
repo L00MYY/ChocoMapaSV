@@ -220,16 +220,22 @@ header.app-header .header-container {
   display: inline-flex !important;
   align-items: center !important;
   flex-shrink: 0 !important;
+  z-index: 1000 !important;
 }
 
 /* Botón circular de usuario (Avatar) */
-.nav-user-avatar-btn {
-  width: 38px !important;
-  height: 38px !important;
-  min-width: 38px !important;
-  max-width: 38px !important;
+.nav-user-avatar-btn,
+.nav-profile-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  flex-shrink: 0 !important; /* Evita que flexbox lo aplaste */
   border-radius: 50% !important;
-  display: inline-flex !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   background: linear-gradient(135deg, #0d3b66 0%, #0077b6 100%) !important;
@@ -253,11 +259,16 @@ header.app-header .header-container {
 }
 
 .nav-user-avatar {
-  display: inline-flex !important;
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   width: 100% !important;
   height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  flex-shrink: 0 !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
 }
 
 .nav-user-avatar-text {
@@ -390,12 +401,17 @@ header.app-header .header-container {
   color: #fecaca !important;
 }
 
-/* Reglas de Ocultación Segura */
+/* Reglas de Ocultación Segura y Apertura de Dropdown */
 .nav-auth .hidden,
 .nav-user-dropdown-container.hidden,
 .nav-user-dropdown.hidden,
 #nav-btn-login.hidden {
   display: none !important;
+}
+
+.nav-user-dropdown.active,
+.nav-user-dropdown.open {
+  display: block !important;
 }
 
 /* ==========================================================================
@@ -408,6 +424,8 @@ header.app-header .header-container {
     min-height: 58px !important;
     max-height: 58px !important;
     padding: 0 1rem !important;
+    overflow: visible !important;
+    z-index: 1000 !important;
   }
 
   header.navbar .header-container,
@@ -415,6 +433,7 @@ header.app-header .header-container {
     gap: 8px !important;
     flex-wrap: nowrap !important;
     justify-content: space-between !important;
+    overflow: visible !important;
   }
 
   .app-logo {
@@ -433,11 +452,11 @@ header.app-header .header-container {
     flex-wrap: nowrap !important;
     justify-content: flex-end !important;
     align-items: center !important;
-    overflow-x: auto !important;
+    overflow: visible !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     -webkit-overflow-scrolling: touch !important;
-    max-width: calc(100% - 100px) !important;
+    max-width: calc(100% - 90px) !important;
   }
 
   .header-navigation::-webkit-scrollbar {
@@ -480,6 +499,8 @@ header.app-header .header-container {
   .nav-auth {
     gap: 6px !important;
     flex-shrink: 0 !important;
+    position: relative !important;
+    overflow: visible !important;
   }
 
   .header-navigation .nav-link.nav-btn-login span {
@@ -501,19 +522,35 @@ header.app-header .header-container {
     flex-shrink: 0 !important;
   }
 
-  .nav-user-avatar-btn {
+  .nav-user-dropdown-container {
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+  }
+
+  .nav-user-avatar-btn,
+  .nav-profile-btn {
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
     min-height: 44px !important;
     max-width: 44px !important;
+    max-height: 44px !important;
+    flex-shrink: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .nav-user-dropdown {
+    position: absolute !important;
     top: calc(100% + 8px) !important;
-    right: 0 !important;
+    right: 12px !important;
     max-width: calc(100vw - 24px) !important;
     min-width: 220px !important;
+    z-index: 1050 !important;
   }
 
   .nav-user-email {
