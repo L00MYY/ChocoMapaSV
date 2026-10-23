@@ -69,12 +69,26 @@ export const NavbarController = {
             await this.manejarCerrarSesion();
         });
 
-        // 6. Clic en "Iniciar sesión": Asegurar parámetro de retorno si estamos en tour-detalle.html
+        // 6. Clic en "Iniciar sesión": Asegurar parámetro de retorno si estamos en tour-detalle.html o mis-tours.html
         btnLogin?.addEventListener('click', (event) => {
             const urlDestino = NavbarView.obtenerUrlLogin();
             if (urlDestino !== 'login.html') {
                 event.preventDefault();
                 window.location.href = urlDestino;
+            }
+        });
+
+        // 7. Clic en enlace "Mis tours" en dropdown: cerrar menú
+        NavbarView.elements.linkHistorial?.addEventListener('click', () => {
+            NavbarView.cerrarDropdown();
+        });
+
+        // 8. Clic en enlace "Mis tours" en navegación principal: guardia si no hay sesión
+        NavbarView.elements.navMisTours?.addEventListener('click', async (event) => {
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion || !sesion.user) {
+                event.preventDefault();
+                window.location.href = 'login.html?redirect=mis-tours.html';
             }
         });
     },

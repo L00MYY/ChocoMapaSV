@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Historial oficial de tours reservados y pasados de tu cuenta en ChocoMapaSV - Ministerio de Turismo de El Salvador (MITUR).">
+    <title>Mis Tours | ChocoMapaSV - Ministerio de Turismo SV</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Estilos Oficiales e Institucionales -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/mis-tours.css">
+</head>
+<body>
+    <div class="page-layout">
+        <!-- 1. Header / Navbar Institucional Estandarizado -->
+        <header class="navbar app-header">
+            <div class="header-container">
+                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
+                         class="app-logo" 
+                         alt="Ministerio de Turismo de El Salvador" 
+                         decoding="async" 
+                         fetchpriority="high">
+                </a>
+                <nav class="header-navigation" aria-label="Navegación principal">
+                    <a href="index.html" class="nav-link" id="nav-inicio">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link" id="nav-mapa">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Mapa</span>
+                    </a>
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Lugares turísticos</span>
+                    </a>
+                    <a href="tours.html" class="nav-link" id="nav-tours">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Tours</span>
+                    </a>
+
+                    <!-- Enlace directo Mis tours para usuario autenticado -->
+                    <a href="mis-tours.html" class="nav-link active hidden" id="nav-mis-tours" aria-current="page">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Mis tours</span>
+                    </a>
+
+                    <!-- Control de Autenticación / Perfil Institucional -->
+                    <div class="nav-auth" id="nav-auth">
+                        <!-- Estado No Autenticado -->
+                        <a href="login.html" class="nav-link nav-btn-login" id="nav-btn-login" role="button" aria-label="Iniciar sesión">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" y1="12" x2="3" y2="12"></line>
+                            </svg>
+                            <span>Iniciar sesión</span>
+                        </a>
+
+                        <!-- Estado Autenticado: Avatar y Dropdown -->
+                        <div class="nav-user-dropdown-container hidden" id="nav-user-container">
+                            <button type="button" class="nav-user-avatar-btn" id="nav-user-btn" aria-expanded="false" aria-haspopup="true" aria-controls="nav-user-dropdown" aria-label="Menú de perfil de usuario">
+                                <span class="nav-user-avatar" id="nav-user-avatar" aria-hidden="true">
+                                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <div class="nav-user-dropdown hidden" id="nav-user-dropdown" role="menu" aria-labelledby="nav-user-btn">
+                                <div class="nav-dropdown-header">
+                                    <span class="nav-dropdown-label">Cuenta activa</span>
+                                    <span class="nav-user-email" id="nav-user-email">usuario@correo.com</span>
+                                </div>
+                                <ul class="nav-dropdown-menu" role="none">
+                                    <li role="none">
+                                        <a href="mis-tours.html" class="nav-dropdown-item" id="nav-link-historial" role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            <span>Mis tours</span>
+                                        </a>
+                                    </li>
+                                    <li role="none" class="nav-dropdown-divider"></li>
+                                    <li role="none">
+                                        <button type="button" class="nav-dropdown-item nav-dropdown-item--logout" id="nav-btn-logout" role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                            </svg>
+                                            <span>Cerrar sesión</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 2. Contenedor Principal requerido: <main id="mis-tours-container"> -->
+        <main id="mis-tours-container" class="mis-tours-main">
+            <!-- Hero Header -->
+            <section class="mis-tours-hero">
+                <div class="mis-tours-hero-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Historial de Reservaciones</span>
+                </div>
+                <h1 class="mis-tours-title">Mis Tours</h1>
+                <p class="mis-tours-subtitle">Consulta y gestiona tus reservas de tours oficiales guiados por MITUR.</p>
+            </section>
+
+            <!-- Contenedor dinámico de estados y tarjetas -->
+            <div id="mis-tours-content" class="mis-tours-content-area">
+                <!-- Se inyecta dinámicamente por MisToursView: loading, error, vacío o cuadrícula -->
+            </div>
+        </main>
+
+        <!-- 3. Footer Institucional Estandarizado -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Módulos MVC -->
+    <script type="module" src="js/controllers/NavbarController.js"></script>
+    <script type="module" src="js/controllers/MisToursController.js"></script>
+</body>
+</html>
