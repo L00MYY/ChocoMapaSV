@@ -432,6 +432,16 @@ header.app-header .header-container {
     gap: 6px !important;
     flex-wrap: nowrap !important;
     justify-content: flex-end !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: calc(100% - 100px) !important;
+  }
+
+  .header-navigation::-webkit-scrollbar {
+    display: none !important;
   }
 
   /* Ocultar texto dentro de los enlaces/botones para mostrar solo iconos */
@@ -441,32 +451,35 @@ header.app-header .header-container {
     display: none !important;
   }
 
-  /* Botones circulares compactos de 38x38px */
+  /* Botones circulares ergonómicos con área táctil mínima de 44px (WCAG 2.1) */
   .header-navigation .nav-link,
   .header-navigation .btn-return,
   .header-navigation .btn-return-map {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
     padding: 0 !important;
     border-radius: 50% !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0 !important;
+    flex-shrink: 0 !important;
   }
 
   .header-navigation .nav-icon,
   .header-navigation .icon-return {
-    width: 18px !important;
-    height: 18px !important;
+    width: 20px !important;
+    height: 20px !important;
     margin: 0 !important;
   }
 
   /* Ajuste responsivo de autenticación y dropdown */
   .nav-auth {
     gap: 6px !important;
+    flex-shrink: 0 !important;
   }
 
   .header-navigation .nav-link.nav-btn-login span {
@@ -474,23 +487,33 @@ header.app-header .header-container {
   }
 
   .header-navigation .nav-link.nav-btn-login {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
     padding: 0 !important;
     border-radius: 50% !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .nav-user-avatar-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
   }
 
   .nav-user-dropdown {
     top: calc(100% + 8px) !important;
     right: 0 !important;
     max-width: calc(100vw - 24px) !important;
-    min-width: 210px !important;
+    min-width: 220px !important;
   }
 
   .nav-user-email {
@@ -512,6 +535,7 @@ header.app-header .header-container {
 
   .app-logo {
     height: 32px !important;
+    max-width: 90px !important;
   }
 
   .header-navigation {
@@ -520,25 +544,20 @@ header.app-header .header-container {
 
   .header-navigation .nav-link,
   .header-navigation .btn-return,
-  .header-navigation .btn-return-map {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
+  .header-navigation .btn-return-map,
+  .header-navigation .nav-link.nav-btn-login,
+  .nav-user-avatar-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
   }
 
   .header-navigation .nav-icon,
   .header-navigation .icon-return {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  .header-navigation .nav-link.nav-btn-login,
-  .nav-user-avatar-btn {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
+    width: 18px !important;
+    height: 18px !important;
   }
 
   .nav-user-dropdown {
