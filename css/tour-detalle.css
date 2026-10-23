@@ -980,4 +980,142 @@ img {
 .tours-footer p {
   margin: 0;
   line-height: 1.5;
-}
+}
+
+/* ==========================================================================
+   Bloque Especial de Reserva desde Historial (CP / Criterio 3)
+   ========================================================================== */
+.historial-reservation-card {
+  background: var(--surface, #FFFFFF);
+  border: 1.5px solid rgba(0, 100, 148, 0.25);
+  border-radius: var(--radius-md, 14px);
+  padding: 22px;
+  box-shadow: var(--shadow-md, 0 8px 24px -4px rgba(19, 41, 61, 0.10));
+  margin-bottom: 24px;
+}
+
+.historial-reserva-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-light, rgba(19, 41, 61, 0.08));
+  margin-bottom: 16px;
+}
+
+.historial-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 100, 148, 0.1);
+  color: var(--baltic-blue, #006494);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.historial-heading-text {
+  flex: 1;
+}
+
+.historial-reserva-title {
+  margin: 0 0 2px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--deep-space-blue, #13293D);
+}
+
+.historial-reserva-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #7E97A6);
+}
+
+.historial-reserva-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.historial-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.historial-label {
+  color: var(--text-secondary, #4A6572);
+  font-weight: 500;
+}
+
+.historial-value {
+  color: var(--deep-space-blue, #13293D);
+  font-weight: 700;
+  text-align: right;
+}
+
+.badge-reserva-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.badge-reserva-status.status-confirmado {
+  background: rgba(39, 174, 96, 0.15);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.35);
+}
+
+.badge-reserva-status.status-pendiente {
+  background: rgba(243, 156, 18, 0.15);
+  color: #d35400;
+  border: 1px solid rgba(243, 156, 18, 0.35);
+}
+
+.badge-reserva-status.status-pasado {
+  background: rgba(108, 122, 137, 0.15);
+  color: #576574;
+  border: 1px solid rgba(108, 122, 137, 0.3);
+}
+
+.historial-reserva-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Botón con texto exacto: "Volver a mis tours" */
+.btn-volver-mis-tours {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--baltic-blue, #006494) 0%, var(--cerulean, #247BA0) 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-sm, 8px);
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 100, 148, 0.3);
+  transition: var(--transition, all 0.22s ease);
+  box-sizing: border-box;
+}
+
+.btn-volver-mis-tours:hover {
+  background: linear-gradient(135deg, #0077b6 0%, var(--blue-bell, #1B98E0) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 152, 224, 0.45);
+}
+

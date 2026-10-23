@@ -1,3 +1,5 @@
+import { formatearMonedaUSD } from '../models/ToursModel.js';
+
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const TOUR_IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
@@ -151,6 +153,7 @@ export const LugarDetalleView = {
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             card.setAttribute('aria-label', `Ver información completa de ${tour.name || 'tour oficial'}`);
+            card.dataset.id = tour.id;
             card.addEventListener('click', () => onSelectTour(tour.id));
             card.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -159,23 +162,107 @@ export const LugarDetalleView = {
                 }
             });
 
+            // 1. Contenedor Multimedia
+            const media = document.createElement('div');
+            media.className = 'tour-card-media';
+
             const image = document.createElement('img');
             image.className = 'tour-card-image';
             image.alt = `Fotografía de ${tour.name || 'Tour oficial'}`;
             image.loading = 'lazy';
-            image.src = tour.image_url || TOUR_IMAGEN_FALLBACK;
+            image.decoding = 'async';
+            image.src = tour.image_url?.trim() || TOUR_IMAGEN_FALLBACK;
             image.onerror = () => { image.src = TOUR_IMAGEN_FALLBACK; };
-            card.appendChild(image);
+            media.appendChild(image);
+
+            const conOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
+            if (conOferta) {
+                const badge = document.createElement('span');
+                badge.className = 'tour-card-discount-badge';
+                badge.textContent = `-${tour.discount_percentage}% Descuento`;
+                media.appendChild(badge);
+            }
+            card.appendChild(media);
+
+            // 2. Cuerpo de la tarjeta
+            const body = document.createElement('div');
+            body.className = 'tour-card-body';
 
             const title = document.createElement('h3');
             title.className = 'tour-card-title';
             title.textContent = tour.name || 'Tour turístico';
-            card.appendChild(title);
+            body.appendChild(title);
 
             const description = document.createElement('p');
             description.className = 'tour-card-description';
             description.textContent = tour.short_description || 'Sin descripción disponible para este tour.';
-            card.appendChild(description);
+            body.appendChild(description);
+
+            // 3. Metadatos de guía y precios
+            const meta = document.createElement('div');
+            meta.className = 'tour-card-meta';
+
+            const guide = document.createElement('span');
+            guide.className = 'tour-card-guide';
+            guide.textContent = `Guía: ${tour.guide_name || 'Guía Oficial MITUR'}`;
+            meta.appendChild(guide);
+
+            const pricing = document.createElement('div');
+            pricing.className = 'tour-card-pricing';
+
+            if (conOferta) {
+                const original = document.createElement('span');
+                original.className = 'price-original';
+                original.textContent = formatearMonedaUSD(tour.price);
+                pricing.appendChild(original);
+
+                const discounted = document.createElement('strong');
+                discounted.className = 'price-amount price-discounted';
+                const finalPrice = tour.final_price ?? (Number(tour.price) * (1 - Number(tour.discount_percentage) / 100));
+                discounted.textContent = formatearMonedaUSD(finalPrice);
+                pricing.appendChild(discounted);
+            } else {
+                const regular = document.createElement('strong');
+                regular.className = 'price-amount';
+                regular.textContent = formatearMonedaUSD(tour.price ?? 0);
+                pricing.appendChild(regular);
+            }
+
+            meta.appendChild(pricing);
+            body.appendChild(meta);
+            card.appendChild(body);
+
+            // 4. Pie de tarjeta con acción y flecha
+            const footer = document.createElement('div');
+            footer.className = 'tour-card-footer';
+
+            const action = document.createElement('span');
+            action.className = 'tour-card-action';
+            action.textContent = 'Ver tour completo';
+            footer.appendChild(action);
+
+            const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrowSvg.setAttribute('viewBox', '0 0 24 24');
+            arrowSvg.setAttribute('fill', 'none');
+            arrowSvg.setAttribute('stroke', 'currentColor');
+            arrowSvg.setAttribute('stroke-width', '2');
+            arrowSvg.setAttribute('width', '16');
+            arrowSvg.setAttribute('height', '16');
+            arrowSvg.setAttribute('aria-hidden', 'true');
+            arrowSvg.classList.add('tour-card-arrow');
+            const arrowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            arrowLine.setAttribute('x1', '5');
+            arrowLine.setAttribute('y1', '12');
+            arrowLine.setAttribute('x2', '19');
+            arrowLine.setAttribute('y2', '12');
+            const arrowPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            arrowPoly.setAttribute('points', '12 5 19 12 12 19');
+            arrowSvg.appendChild(arrowLine);
+            arrowSvg.appendChild(arrowPoly);
+            footer.appendChild(arrowSvg);
+
+            card.appendChild(footer);
+
             fragment.appendChild(card);
         });
         toursGrid.appendChild(fragment);

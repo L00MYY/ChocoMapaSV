@@ -1,94 +1,194 @@
+
 const fs = require('fs');
 const path = require('path');
 
+// ==================================================
+// CONFIGURACIÓN DEL PROYECTO
+// ==================================================
+
 const rootDir = path.join(__dirname, '..');
+const distDir = path.join(rootDir, 'dist');
 
-// 1. Obtener variables de entorno (con fallback a js/config.js existente para desarrollo local)
-let mapboxToken = process.env.MAPBOX_TOKEN || '';
-let supabaseUrl = process.env.SUPABASE_URL || '';
-let supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
+// Variables de entorno configuradas en Vercel
+const mapboxToken = process.env.MAPBOX_TOKEN || '';
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
-const localConfigPath = path.join(rootDir, 'js', 'config.js');
+// ==================================================
+// 1. VALIDAR VARIABLES DE ENTORNO
+// ==================================================
 
-if ((!mapboxToken || !supabaseUrl || !supabaseAnonKey) && fs.existsSync(localConfigPath)) {
-  try {
-    const existingContent = fs.readFileSync(localConfigPath, 'utf8');
-    const tokenMatch = existingContent.match(/MAPBOX_TOKEN\s*=\s*['"`](.*?)['"`]/);
-    const urlMatch = existingContent.match(/SUPABASE_URL\s*=\s*['"`](.*?)['"`]/);
-    const keyMatch = existingContent.match(/SUPABASE_ANON_KEY\s*=\s*['"`](.*?)['"`]/);
+const missingVariables = [];
 
-    if (!mapboxToken && tokenMatch && tokenMatch[1]) mapboxToken = tokenMatch[1];
-    if (!supabaseUrl && urlMatch && urlMatch[1]) supabaseUrl = urlMatch[1];
-    if (!supabaseAnonKey && keyMatch && keyMatch[1]) supabaseAnonKey = keyMatch[1];
-  } catch (err) {
-    console.warn('⚠️ No se pudo leer el archivo local js/config.js existente:', err.message);
-  }
+if (!mapboxToken) {
+    missingVariables.push('MAPBOX_TOKEN');
 }
 
-console.log('--- VERIFICANDO VARIABLES DE ENTORNO ---');
-console.log(`MAPBOX_TOKEN: ${mapboxToken ? '✅ Presente (' + mapboxToken.length + ' chars)' : '❌ VACÍO'}`);
-console.log(`SUPABASE_URL: ${supabaseUrl ? '✅ Presente' : '❌ VACÍO'}`);
-console.log(`SUPABASE_ANON_KEY: ${supabaseAnonKey ? '✅ Presente (' + supabaseAnonKey.length + ' chars)' : '❌ VACÍO'}`);
-console.log('----------------------------------------');
+if (!supabaseUrl) {
+    missingVariables.push('SUPABASE_URL');
+}
 
-const fileContent = `// Archivo generado automáticamente en build — NO editar a mano
-export const MAPBOX_TOKEN = '${mapboxToken}';
-export const SUPABASE_URL = '${supabaseUrl}';
-export const SUPABASE_ANON_KEY = '${supabaseAnonKey}';
+if (!supabaseAnonKey) {
+    missingVariables.push('SUPABASE_ANON_KEY');
+}
+
+if (missingVariables.length > 0) {
+    console.error(
+        'ERROR: Faltan variables de entorno:',
+        missingVariables.join(', ')
+    );
+
+    console.error(
+        'Configúralas en Vercel y vuelve a ejecutar el despliegue.'
+    );
+
+    process.exit(1);
+}
+
+// No imprimir los valores de las claves en los logs
+console.log('Variables de entorno verificadas correctamente.');
+
+// ==================================================
+// 2. PREPARAR ARCHIVO DE CONFIGURACIÓN PÚBLICA
+// ==================================================
+
+// Estas variables son accesibles desde el navegador.
+// No incluyas aquí contraseñas ni claves privilegiadas.
+
+const fileContent = `// Archivo generado automáticamente durante el build.
+// No editar manualmente.
+
+export const MAPBOX_TOKEN = ${JSON.stringify(mapboxToken)};
+export const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
+export const SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
 `;
 
+// ==================================================
+// 3. CONSTRUIR LA CARPETA DIST
+// ==================================================
+
 try {
-  // 2. Asegurarse de que js/config.js local exista
-  const jsDir = path.join(rootDir, 'js');
-  if (!fs.existsSync(jsDir)) {
-    fs.mkdirSync(jsDir, { recursive: true });
-  }
-
-  if (mapboxToken || supabaseUrl || supabaseAnonKey || !fs.existsSync(localConfigPath)) {
-    fs.writeFileSync(localConfigPath, fileContent, 'utf8');
-    console.log('✅ js/config.js generado con variables de entorno (Local)');
-  } else {
-    console.log('ℹ️ js/config.js existente mantenido');
-  }
-
-  // 3. Limpiar y recrear el directorio de distribución (dist) para eliminar archivos obsoletos
-  const distDir = path.join(rootDir, 'dist');
-  if (fs.existsSync(distDir)) {
-    fs.rmSync(distDir, { recursive: true, force: true });
-  }
-  fs.mkdirSync(distDir, { recursive: true });
-  console.log('🧹 Directorio dist limpiado para nueva estructura');
-
-  // 4. Copiar archivos y carpetas estáticas al directorio dist según la nueva distribución MVC
-  const htmlFiles = fs.readdirSync(rootDir).filter(file => file.endsWith('.html'));
-  const itemsToCopy = ['css', 'img', 'js', ...htmlFiles];
-  const uniqueItems = [...new Set(itemsToCopy)];
-
-  uniqueItems.forEach(item => {
-    const srcPath = path.join(rootDir, item);
-    const destPath = path.join(distDir, item);
-    if (fs.existsSync(srcPath)) {
-      fs.cpSync(srcPath, destPath, { recursive: true });
+    // Eliminar la distribución anterior para evitar archivos obsoletos.
+    if (fs.existsSync(distDir)) {
+        fs.rmSync(distDir, {
+            recursive: true,
+            force: true
+        });
     }
-  });
-  console.log(`📦 Archivos y carpetas copiados a dist (${uniqueItems.join(', ')})`);
 
-  // 5. Escribir archivo de configuración en dist/js/config.js
-  const distConfigPath = path.join(distDir, 'js', 'config.js');
-  fs.writeFileSync(distConfigPath, fileContent, 'utf8');
-  console.log('✅ dist/js/config.js generado para Producción en Vercel');
+    fs.mkdirSync(distDir, {
+        recursive: true
+    });
 
-  // 6. Generar también dist/js/models/config.js para compatibilidad hacia atrás
-  const distModelsDir = path.join(distDir, 'js', 'models');
-  if (fs.existsSync(distModelsDir)) {
-    const distModelsConfigPath = path.join(distModelsDir, 'config.js');
-    fs.writeFileSync(distModelsConfigPath, fileContent, 'utf8');
-    console.log('✅ dist/js/models/config.js generado para compatibilidad');
-  }
+    console.log('Directorio dist preparado.');
 
-  console.log('🎉 Carpeta dist construida exitosamente con la nueva distribución!');
+    // ==================================================
+    // 4. COPIAR ARCHIVOS ESTÁTICOS
+    // ==================================================
+
+    const htmlFiles = fs.readdirSync(rootDir).filter(file => {
+        return file.endsWith('.html');
+    });
+
+    const itemsToCopy = [
+        'css',
+        'img',
+        'js',
+        ...htmlFiles
+    ];
+
+    for (const item of new Set(itemsToCopy)) {
+        const sourcePath = path.join(rootDir, item);
+        const destinationPath = path.join(distDir, item);
+
+        if (!fs.existsSync(sourcePath)) {
+            continue;
+        }
+
+        // No copiar archivos locales de configuración al directorio público.
+        if (item === 'js' && fs.statSync(sourcePath).isDirectory()) {
+            fs.cpSync(sourcePath, destinationPath, {
+                recursive: true,
+                filter: source => {
+                    const relativePath = path.relative(
+                        sourcePath,
+                        source
+                    );
+
+                    const normalizedPath = relativePath.replace(/\\/g, '/');
+
+                    // Excluir las copias de config.js.
+                    return !(
+                        normalizedPath === 'config.js' ||
+                        normalizedPath === 'models/config.js'
+                    );
+                }
+            });
+        } else {
+            fs.cpSync(sourcePath, destinationPath, {
+                recursive: true
+            });
+        }
+    }
+
+    console.log('Archivos estáticos copiados a dist.');
+
+    // ==================================================
+    // 5. GENERAR CONFIGURACIÓN PARA EL FRONTEND
+    // ==================================================
+
+    const distJsDir = path.join(distDir, 'js');
+
+    fs.mkdirSync(distJsDir, {
+        recursive: true
+    });
+
+    const distConfigPath = path.join(
+        distJsDir,
+        'config.js'
+    );
+
+    fs.writeFileSync(
+        distConfigPath,
+        fileContent,
+        'utf8'
+    );
+
+    console.log('Configuración pública generada en dist/js/config.js.');
+
+    // ==================================================
+    // 6. COMPATIBILIDAD CON js/models/config.js
+    // ==================================================
+
+    const distModelsDir = path.join(
+        distJsDir,
+        'models'
+    );
+
+    if (fs.existsSync(distModelsDir)) {
+        const legacyConfigPath = path.join(
+            distModelsDir,
+            'config.js'
+        );
+
+        fs.writeFileSync(
+            legacyConfigPath,
+            fileContent,
+            'utf8'
+        );
+
+        console.log(
+            'Configuración compatible generada en dist/js/models/config.js.'
+        );
+    }
+
+    // ==================================================
+    // 7. FINALIZAR
+    // ==================================================
+
+    console.log('Build completado correctamente.');
 
 } catch (error) {
-  console.error('❌ Error al generar archivos de configuración:', error);
-  process.exit(1);
+    console.error('Error durante la construcción:', error.message);
+    process.exit(1);
 }

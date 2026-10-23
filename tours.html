@@ -61,6 +61,60 @@
                         </svg>
                         <span>Tours</span>
                     </a>
+
+                    <!-- Control de Autenticación / Perfil Institucional -->
+                    <div class="nav-auth" id="nav-auth">
+                        <!-- Estado No Autenticado: Botón Iniciar Sesión -->
+                        <a href="login.html" class="nav-link nav-btn-login" id="nav-btn-login" role="button" aria-label="Iniciar sesión">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" y1="12" x2="3" y2="12"></line>
+                            </svg>
+                            <span>Iniciar sesión</span>
+                        </a>
+
+                        <!-- Estado Autenticado: Avatar y Dropdown de Usuario -->
+                        <div class="nav-user-dropdown-container hidden" id="nav-user-container">
+                            <button type="button" class="nav-user-avatar-btn" id="nav-user-btn" aria-expanded="false" aria-haspopup="true" aria-controls="nav-user-dropdown" aria-label="Menú de perfil de usuario">
+                                <span class="nav-user-avatar" id="nav-user-avatar" aria-hidden="true">
+                                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <div class="nav-user-dropdown hidden" id="nav-user-dropdown" role="menu" aria-labelledby="nav-user-btn">
+                                <div class="nav-dropdown-header">
+                                    <span class="nav-dropdown-label">Cuenta activa</span>
+                                    <span class="nav-user-email" id="nav-user-email">usuario@correo.com</span>
+                                </div>
+                                <ul class="nav-dropdown-menu" role="none">
+                                    <li role="none">
+                                        <a href="mis-tours.html" class="nav-dropdown-item" id="nav-link-historial" role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            <span>Mis tours</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-divider" role="separator" aria-hidden="true"></li>
+                                    <li role="none">
+                                        <button type="button" class="nav-dropdown-item nav-dropdown-item-danger" id="nav-btn-logout" role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                            </svg>
+                                            <span>Cerrar sesión</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </nav>
             </div>
         </header>
@@ -194,6 +248,7 @@
         </footer>
     </div>
 
+    <script type="module" src="js/controllers/NavbarController.js"></script>
     <script type="module" src="js/controllers/ToursController.js"></script>
 </body>
 </html>
