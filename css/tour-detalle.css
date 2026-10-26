@@ -780,7 +780,7 @@ img {
   word-break: normal;
 }
 
-.date-chip:hover {
+.date-chip:not(:disabled):not([disabled]):not(.disabled):not([aria-disabled="true"]):hover {
   border-color: var(--baltic-blue);
   color: var(--baltic-blue);
   background: var(--alice-blue);
@@ -801,6 +801,50 @@ img {
 .date-chip:focus-visible {
   outline: 2px solid var(--blue-bell);
   outline-offset: 2px;
+}
+
+/* Estado Deshabilitado e Inactivo para Fechas Pasadas */
+.date-chip:disabled,
+.date-chip[disabled],
+.date-chip.disabled,
+.date-chip[aria-disabled="true"],
+.date-chip.date-chip-disabled {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.date-chip:disabled svg,
+.date-chip[disabled] svg,
+.date-chip.disabled svg,
+.date-chip[aria-disabled="true"] svg,
+.date-chip.date-chip-disabled svg {
+  stroke: #94a3b8;
+}
+
+.date-chip:disabled:hover,
+.date-chip[disabled]:hover,
+.date-chip.disabled:hover,
+.date-chip[aria-disabled="true"]:hover,
+.date-chip.date-chip-disabled:hover {
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  background: #f1f5f9 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.date-chip:disabled:focus-visible,
+.date-chip[disabled]:focus-visible,
+.date-chip.disabled:focus-visible,
+.date-chip[aria-disabled="true"]:focus-visible,
+.date-chip.date-chip-disabled:focus-visible {
+  outline: none;
 }
 
 .no-dates-notice {
@@ -883,8 +927,24 @@ img {
   color: #FFFFFF;
 }
 
-.btn-primary-action:hover {
+.btn-primary-action:not(:disabled):not(.disabled):hover {
   background: var(--blue-bell);
+}
+
+.btn-primary-action:disabled,
+.btn-primary-action.disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+  box-shadow: none !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.form-select option:disabled {
+  color: #94a3b8;
+  background-color: #f8fafc;
 }
 
 .btn-confirm-reserve {

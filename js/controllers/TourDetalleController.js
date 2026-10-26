@@ -5,6 +5,7 @@ import {
     obtenerTourPorId,
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
+    obtenerFechaHoyLocal,
     TourDetalleModel
 } from '../models/TourDetalleModel.js';
 import { AuthModel } from '../models/AuthModel.js';
@@ -37,15 +38,27 @@ export const TourDetalleController = {
         // Escuchar el evento de cambio (change) en la selección de fecha y actualizar cupos dinámicamente
         const manejarCambioFecha = (selectedDateId) => {
             if (!tourActual || !selectedDateId) {
+                TourDetalleView.marcarFechaSeleccionada(null);
                 TourDetalleView.actualizarCupos(0);
                 return;
             }
             const fechaObj = (tourActual.tour_dates || []).find(d => String(d.id) === String(selectedDateId));
             if (fechaObj) {
+                const hoyStr = obtenerFechaHoyLocal();
+                const fechaStr = String(fechaObj.departure_date || '').split('T')[0];
+
+                // Impedir selección de fecha pasada o igual a la actual
+                if (fechaStr <= hoyStr) {
+                    TourDetalleView.marcarFechaSeleccionada(null);
+                    TourDetalleView.actualizarCupos(0);
+                    return;
+                }
+
                 const cupos = Number(fechaObj.available_spots) || 0;
                 TourDetalleView.marcarFechaSeleccionada(fechaObj.id);
                 TourDetalleView.actualizarCupos(cupos);
             } else {
+                TourDetalleView.marcarFechaSeleccionada(null);
                 TourDetalleView.actualizarCupos(0);
             }
         };
@@ -83,7 +96,7 @@ export const TourDetalleController = {
 
             const fechaActual = this.obtenerFechaSeleccionadaActual();
             const cuposDisponibles = fechaActual ? Number(fechaActual.available_spots || 0) : 0;
-            if (!tourActual || cuposDisponibles <= 0) return;
+            if (!tourActual || !fechaActual || cuposDisponibles <= 0) return;
             TourDetalleView.mostrarFormularioReserva();
         });
 
@@ -107,15 +120,15 @@ export const TourDetalleController = {
             return dateA - dateB;
         });
 
-        const hoyStr = new Date().toISOString().split('T')[0];
+        const hoyStr = obtenerFechaHoyLocal();
 
-        // Buscar la fecha más próxima futura o de hoy
+        // Buscar únicamente la primera fecha estrictamente futura (> hoyStr)
         const proximaFutura = fechasOrdenadas.find(f => {
             const fStr = String(f.departure_date || f).split('T')[0];
-            return fStr >= hoyStr;
+            return fStr > hoyStr;
         });
 
-        return proximaFutura || fechasOrdenadas[0];
+        return proximaFutura || null;
     },
 
     obtenerFechaSeleccionadaActual() {
@@ -123,9 +136,14 @@ export const TourDetalleController = {
         const e = TourDetalleView.elements;
         const radioChecked = document.querySelector('input[name="tour_date"]:checked, input[name="tour_date_id"]:checked');
         const selectedId = e.selectDate?.value || radioChecked?.value;
+        const hoyStr = obtenerFechaHoyLocal();
+
         if (selectedId) {
             const encontrada = tourActual.tour_dates.find(d => String(d.id) === String(selectedId));
-            if (encontrada) return encontrada;
+            if (encontrada) {
+                const fechaStr = String(encontrada.departure_date || '').split('T')[0];
+                if (fechaStr > hoyStr) return encontrada;
+            }
         }
         return this.obtenerFechaMasProxima(tourActual.tour_dates);
     },
@@ -209,13 +227,15 @@ export const TourDetalleController = {
             TourDetalleView.mostrarEstado('content');
             clearTimeout(failsafeTimeout);
 
-            // Requerimiento 3: La fecha más próxima determina por defecto cuántos cupos se muestran
+            // Requerimiento 3: La fecha más próxima futura determina por defecto cuántos cupos se muestran
             const fechaProxima = this.obtenerFechaMasProxima(tourActual.tour_dates);
             if (fechaProxima) {
                 TourDetalleView.marcarFechaSeleccionada(fechaProxima.id);
                 TourDetalleView.actualizarCupos(fechaProxima.available_spots);
             } else {
+                TourDetalleView.marcarFechaSeleccionada(null);
                 TourDetalleView.actualizarCupos(0);
+                TourDetalleView.deshabilitarReservaPorTourPasado();
             }
 
             // Criterio 3: Flujo especial desde historial
@@ -231,7 +251,7 @@ export const TourDetalleController = {
                         tour_id: tourActual.id,
                         tour_date_id: fechaProxima?.id || null,
                         spots_reserved: 1,
-                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || new Date().toISOString().split('T')[0],
+                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || obtenerFechaHoyLocal(),
                         status: 'Confirmado'
                     };
                 }
@@ -252,12 +272,12 @@ export const TourDetalleController = {
                 if (reservaExistente) {
                     TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
                 } else {
-                    // Criterio 4: Si el tour ya pasó, no permitir reservar cupos
-                    const hoyStr = new Date().toISOString().split('T')[0];
+                    // Criterio 4: Si el tour no cuenta con fechas futuras vigentes, deshabilitar reserva
+                    const hoyStr = obtenerFechaHoyLocal();
                     const fechas = tourActual.tour_dates || [];
                     const tieneFechasFuturas = fechas.some(d => {
                         const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return String(fechaStr).split('T')[0] >= hoyStr;
+                        return String(fechaStr).split('T')[0] > hoyStr;
                     });
                     if (fechas.length > 0 && !tieneFechasFuturas) {
                         TourDetalleView.deshabilitarReservaPorTourPasado();
@@ -275,7 +295,9 @@ export const TourDetalleController = {
                     TourDetalleView.marcarFechaSeleccionada(fechaProxima.id);
                     TourDetalleView.actualizarCupos(fechaProxima.available_spots);
                 } else {
+                    TourDetalleView.marcarFechaSeleccionada(null);
                     TourDetalleView.actualizarCupos(0);
+                    TourDetalleView.deshabilitarReservaPorTourPasado();
                 }
 
                 if (fromHistorial) {
@@ -284,7 +306,7 @@ export const TourDetalleController = {
                         tour_id: tourActual.id,
                         tour_date_id: fechaProxima?.id || null,
                         spots_reserved: 1,
-                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || new Date().toISOString().split('T')[0],
+                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || obtenerFechaHoyLocal(),
                         status: 'Confirmado'
                     }, tourActual);
                 } else {
@@ -297,6 +319,16 @@ export const TourDetalleController = {
                             }
                         }
                     } catch (_) {}
+
+                    const hoyStr = obtenerFechaHoyLocal();
+                    const fechas = tourActual.tour_dates || [];
+                    const tieneFechasFuturas = fechas.some(d => {
+                        const fechaStr = typeof d === 'string' ? d : d.departure_date;
+                        return String(fechaStr).split('T')[0] > hoyStr;
+                    });
+                    if (fechas.length > 0 && !tieneFechasFuturas) {
+                        TourDetalleView.deshabilitarReservaPorTourPasado();
+                    }
                 }
             } else {
                 TourDetalleView.mostrarEstado('error', 'No hay datos disponibles para mostrar', 'Ocurrió un problema de comunicación con el servidor o se agotó el tiempo de espera.');
@@ -334,6 +366,15 @@ export const TourDetalleController = {
         const fechaSeleccionada = (tourActual.tour_dates || []).find(d =>
             String(d.id) === String(values.tour_date_id) || String(d.departure_date) === String(values.fecha)
         );
+
+        const hoyStr = obtenerFechaHoyLocal();
+        const fechaStr = fechaSeleccionada
+            ? String(fechaSeleccionada.departure_date || '').split('T')[0]
+            : String(values.fecha || '').split('T')[0];
+
+        if (fechaSeleccionada && fechaStr <= hoyStr) {
+            errors.push(['selectDate', 'La fecha seleccionada ya no se encuentra disponible. Por favor elige una fecha futura.']);
+        }
 
         const cuposDisponiblesFecha = fechaSeleccionada
             ? Number(fechaSeleccionada.available_spots) || 0

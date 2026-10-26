@@ -3,6 +3,19 @@ import { formatearFechaLarga, formatearMonedaUSD } from '../models/ToursModel.js
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const LUGAR_FALLBACK = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80';
 
+/**
+ * Normaliza la fecha actual local a formato ISO YYYY-MM-DD
+ * para comparaciones seguras de fechas sin distorsión horaria.
+ * @returns {string} Fecha local en formato 'YYYY-MM-DD'
+ */
+function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
+
 function crearIconoCalendario() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
@@ -270,19 +283,28 @@ export const TourDetalleView = {
             return;
         }
 
+        const hoyStr = obtenerFechaHoyLocal();
+
         fechas.forEach((entry, index) => {
             const rawDate = typeof entry === 'string' ? entry : entry.departure_date;
             if (!rawDate) return;
             const dateId = entry.id || `date-${index}`;
             const spots = entry.available_spots !== undefined ? Number(entry.available_spots) : 0;
             const label = formatearFechaLarga(rawDate);
+            const fechaStr = String(rawDate).split('T')[0];
+            const esPasada = fechaStr <= hoyStr;
 
             // Opción en el selector con value = tour_dates.id
             const option = document.createElement('option');
             option.value = dateId;
             option.dataset.departureDate = rawDate;
             option.dataset.spots = String(spots);
-            option.textContent = `${label} (${rawDate})`;
+            if (esPasada) {
+                option.disabled = true;
+                option.textContent = `${label} (${rawDate}) - Fecha pasada`;
+            } else {
+                option.textContent = `${label} (${rawDate})`;
+            }
             e.selectDate?.appendChild(option);
 
             // Chip interactivo para selección visual rápida
@@ -292,19 +314,26 @@ export const TourDetalleView = {
             chip.dataset.dateId = dateId;
             chip.dataset.departureDate = rawDate;
             chip.dataset.spots = String(spots);
-            chip.setAttribute('aria-label', `${label}, ${spots} cupos disponibles`);
             chip.append(crearIconoCalendario());
             const chipText = document.createElement('span');
-            chipText.textContent = label;
+            chipText.textContent = esPasada ? `${label} (Pasada)` : label;
             chip.appendChild(chipText);
 
-            chip.addEventListener('click', () => {
-                this.marcarFechaSeleccionada(dateId);
-                if (e.selectDate) {
-                    e.selectDate.value = dateId;
-                    e.selectDate.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
+            if (esPasada) {
+                chip.disabled = true;
+                chip.setAttribute('aria-disabled', 'true');
+                chip.classList.add('disabled', 'date-chip-disabled');
+                chip.setAttribute('aria-label', `${label}, fecha no disponible por haber pasado`);
+            } else {
+                chip.setAttribute('aria-label', `${label}, ${spots} cupos disponibles`);
+                chip.addEventListener('click', () => {
+                    this.marcarFechaSeleccionada(dateId);
+                    if (e.selectDate) {
+                        e.selectDate.value = dateId;
+                        e.selectDate.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            }
 
             e.datesChips?.appendChild(chip);
         });
@@ -312,18 +341,31 @@ export const TourDetalleView = {
 
     marcarFechaSeleccionada(dateId) {
         const e = this.elements;
+        if (!dateId) {
+            if (e.selectDate) e.selectDate.value = '';
+            if (e.datesChips) {
+                e.datesChips.querySelectorAll('.date-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    chip.setAttribute('aria-pressed', 'false');
+                });
+            }
+            const radios = document.querySelectorAll('input[name="tour_date"], input[name="tour_date_id"]');
+            radios.forEach(r => { r.checked = false; });
+            return;
+        }
         if (e.selectDate && e.selectDate.value !== String(dateId)) {
             e.selectDate.value = String(dateId);
         }
         if (e.datesChips) {
             e.datesChips.querySelectorAll('.date-chip').forEach(chip => {
-                const isActive = chip.dataset.dateId === String(dateId);
+                const isMatching = chip.dataset.dateId === String(dateId);
+                const isActive = isMatching && !chip.disabled && !chip.classList.contains('disabled');
                 chip.classList.toggle('active', isActive);
                 chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
             });
         }
         const radio = document.querySelector(`input[name="tour_date"][value="${dateId}"], input[name="tour_date_id"][value="${dateId}"]`);
-        if (radio) {
+        if (radio && !radio.disabled) {
             radio.checked = true;
         }
     },
@@ -559,17 +601,20 @@ export const TourDetalleView = {
     },
 
     /**
-     * Criterio 4: Si el tour ya pasó, no permitir reservar cupos (deshabilitar o esconder acción)
+     * Criterio 4: Si el tour ya pasó o no tiene fechas futuras vigentes, no permitir reservar cupos
      */
     deshabilitarReservaPorTourPasado() {
         const e = this.elements;
+        if (e.availableSpots) {
+            e.availableSpots.textContent = '0';
+        }
         if (e.btnOpenReserve) {
             e.btnOpenReserve.disabled = true;
             e.btnOpenReserve.classList.add('disabled');
-            e.btnOpenReserve.textContent = 'Tour no disponible para reserva';
+            e.btnOpenReserve.textContent = 'Tour sin fechas vigentes';
         }
         if (e.spotsBadge) {
-            e.spotsBadge.textContent = 'Tour pasado';
+            e.spotsBadge.textContent = 'Sin fechas vigentes';
             e.spotsBadge.classList.add('sold-out');
         }
         if (e.reservationCard) {
@@ -634,29 +679,34 @@ export const TourDetalleView = {
 
         // 4. Actualizar cupos visibles según la fecha seleccionada
         let cupos = 0;
+        const hoyStr = obtenerFechaHoyLocal();
+
         if (e.selectDate && e.selectDate.value) {
-            const selectedOpt = Array.from(e.selectDate.options).find(o => o.value === e.selectDate.value);
+            const selectedOpt = Array.from(e.selectDate.options).find(o => o.value === e.selectDate.value && !o.disabled);
             if (selectedOpt && selectedOpt.dataset.spots !== undefined) {
                 cupos = Number(selectedOpt.dataset.spots) || 0;
+            } else {
+                this.marcarFechaSeleccionada(null);
             }
         } else if (tour && Array.isArray(tour.tour_dates) && tour.tour_dates.length > 0) {
-            const hoyStr = new Date().toISOString().split('T')[0];
             const fechasOrdenadas = [...tour.tour_dates].sort((a, b) => new Date(a.departure_date || a) - new Date(b.departure_date || b));
-            const proxima = fechasOrdenadas.find(f => String(f.departure_date || f).split('T')[0] >= hoyStr) || fechasOrdenadas[0];
+            const proxima = fechasOrdenadas.find(f => String(f.departure_date || f).split('T')[0] > hoyStr) || null;
             if (proxima) {
                 this.marcarFechaSeleccionada(proxima.id);
                 cupos = Number(proxima.available_spots) || 0;
+            } else {
+                this.marcarFechaSeleccionada(null);
+                cupos = 0;
             }
         }
 
         this.actualizarCupos(cupos);
 
-        // Si el tour ya pasó completamente, deshabilitar reserva
-        const hoyStr = new Date().toISOString().split('T')[0];
+        // Si el tour ya pasó completamente (no tiene fechas futuras vigentes), deshabilitar reserva
         const fechas = tour?.tour_dates || [];
         const tieneFechasFuturas = fechas.some(d => {
             const fechaStr = typeof d === 'string' ? d : d.departure_date;
-            return String(fechaStr).split('T')[0] >= hoyStr;
+            return String(fechaStr).split('T')[0] > hoyStr;
         });
         if (fechas.length > 0 && !tieneFechasFuturas) {
             this.deshabilitarReservaPorTourPasado();

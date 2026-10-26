@@ -29,6 +29,19 @@ export {
     formatearMonedaUSD
 };
 
+/**
+ * Retorna la fecha actual en la zona local del usuario en formato estándar YYYY-MM-DD,
+ * evitando discrepancias de huso horario derivadas de toISOString().
+ * @returns {string} Fecha en formato 'YYYY-MM-DD'
+ */
+export function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
+
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -49,12 +62,7 @@ export function calcularEstadoVisual(status, tourDate) {
         return status === 'Confirmado' ? 'Confirmado' : 'Pendiente de confirmar';
     }
 
-    const hoy = new Date();
-    const anio = hoy.getFullYear();
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoy.getDate()).padStart(2, '0');
-    const hoyStr = `${anio}-${mes}-${dia}`;
-
+    const hoyStr = obtenerFechaHoyLocal();
     const fechaTourLimpia = String(tourDate).split('T')[0];
 
     // Regla: Si tour_date < CURRENT_DATE y el status es 'Confirmado' -> 'Pasado'
