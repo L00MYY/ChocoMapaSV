@@ -10,8 +10,10 @@ import { AuthModel } from './AuthModel.js';
 import {
     TOURS_DEMO,
     obtenerTourPorId,
+    obtenerPorId,
     crearReservaTour,
     actualizarCuposTour,
+    actualizarCuposFecha,
     formatearFechaLarga,
     formatearMonedaUSD
 } from './ToursModel.js';
@@ -19,8 +21,10 @@ import {
 export {
     TOURS_DEMO,
     obtenerTourPorId,
+    obtenerPorId,
     crearReservaTour,
     actualizarCuposTour,
+    actualizarCuposFecha,
     formatearFechaLarga,
     formatearMonedaUSD
 };
@@ -70,7 +74,7 @@ export function calcularEstadoVisual(status, tourDate) {
 }
 
 /**
- * Consulta los datos específicos de una reserva en Supabase (status, spots_reserved, tour_date)
+ * Consulta los datos específicos de una reserva en Supabase (status, spots_reserved, tour_date, tour_date_id)
  * y clasifica su estado visual.
  * 
  * @param {string} reservaId - UUID de la reservación
@@ -86,7 +90,7 @@ export async function obtenerReservaPorId(reservaId) {
             'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
         };
 
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}&select=id,tour_id,tourist_id,spots_reserved,tour_date,status,created_at,tours(*)`;
+        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}&select=id,tour_id,tour_date_id,tourist_id,spots_reserved,tour_date,status,created_at,tours(*,tour_dates(id,departure_date,available_spots))`;
 
         const res = await fetch(url, {
             method: 'GET',
@@ -100,6 +104,7 @@ export async function obtenerReservaPorId(reservaId) {
                 return {
                     id: item.id,
                     tour_id: item.tour_id,
+                    tour_date_id: item.tour_date_id || null,
                     tourist_id: item.tourist_id,
                     spots_reserved: Number(item.spots_reserved) || 1,
                     tour_date: item.tour_date,
@@ -141,7 +146,7 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
         };
 
         const params = new URLSearchParams({
-            select: 'id,tour_id,tourist_id,spots_reserved,tour_date,status,created_at,tours(*)',
+            select: 'id,tour_id,tour_date_id,tourist_id,spots_reserved,tour_date,status,created_at,tours(*,tour_dates(id,departure_date,available_spots))',
             tourist_id: `eq.${touristId}`,
             tour_id: `eq.${tourId}`,
             order: 'created_at.desc',
@@ -156,19 +161,23 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
 
         if (res.ok) {
             const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-                const item = data[0];
-                return {
-                    id: item.id,
-                    tour_id: item.tour_id,
-                    tourist_id: item.tourist_id,
-                    spots_reserved: Number(item.spots_reserved) || 1,
-                    tour_date: item.tour_date,
-                    status: calcularEstadoVisual(item.status, item.tour_date),
-                    status_original: item.status,
-                    created_at: item.created_at,
-                    tours: item.tours || null
-                };
+            if (Array.isArray(data)) {
+                if (data.length > 0) {
+                    const item = data[0];
+                    return {
+                        id: item.id,
+                        tour_id: item.tour_id,
+                        tour_date_id: item.tour_date_id || null,
+                        tourist_id: item.tourist_id,
+                        spots_reserved: Number(item.spots_reserved) || 1,
+                        tour_date: item.tour_date,
+                        status: calcularEstadoVisual(item.status, item.tour_date),
+                        status_original: item.status,
+                        created_at: item.created_at,
+                        tours: item.tours || null
+                    };
+                }
+                return null;
             }
         }
     } catch (error) {
@@ -185,6 +194,7 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
                 return {
                     id: localData.id || 'reserva-local',
                     tour_id: tourId,
+                    tour_date_id: localData.tour_date_id || null,
                     tourist_id: touristId,
                     spots_reserved: Number(localData.spots_reserved) || 1,
                     tour_date: localData.tour_date || new Date().toISOString().split('T')[0],
@@ -200,11 +210,13 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
 }
 
 export const TourDetalleModel = {
+    obtenerPorId,
     obtenerTourPorId,
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
     crearReservaTour,
     actualizarCuposTour,
+    actualizarCuposFecha,
     calcularEstadoVisual,
     formatearFechaLarga,
     formatearMonedaUSD,
