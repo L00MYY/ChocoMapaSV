@@ -12,8 +12,10 @@ const distDir = path.join(rootDir, 'dist');
 // Variables de entorno configuradas en Vercel
 const mapboxToken = process.env.MAPBOX_TOKEN || '';
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
-
+const supabaseAnonKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    '';
 // ==================================================
 // 1. VALIDAR VARIABLES DE ENTORNO
 // ==================================================
@@ -54,6 +56,7 @@ console.log('Variables de entorno verificadas correctamente.');
 
 // Estas variables son accesibles desde el navegador.
 // No incluyas aquí contraseñas ni claves privilegiadas.
+
 
 const fileContent = `// Archivo generado automáticamente durante el build.
 // No editar manualmente.
