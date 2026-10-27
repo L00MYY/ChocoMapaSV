@@ -4,7 +4,7 @@
  * Orquestador entre la vista (LoginView) y el modelo (AuthModel).
  */
 
-import { AuthModel } from '../models/AuthModel.js';
+import { AuthModel, validarEmail } from '../models/AuthModel.js';
 import { LoginView } from '../views/LoginView.js';
 
 export const LoginController = {
@@ -77,6 +77,13 @@ export const LoginController = {
             LoginView.mostrarError('Todos los campos son obligatorios');
             if (!email) LoginView.marcarCampoInvalido('emailInput', true);
             else if (!password) LoginView.marcarCampoInvalido('passwordInput', true);
+            return;
+        }
+
+        // Validación de formato de correo con función del modelo
+        if (!validarEmail(email)) {
+            LoginView.mostrarError('Ingresa un correo electrónico con formato válido');
+            LoginView.marcarCampoInvalido('emailInput', true);
             return;
         }
 

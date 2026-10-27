@@ -386,10 +386,7 @@ export const RegistroViews = {
     // 9. Comportamiento Gráfico del Formulario al Intentar Enviar
     // -------------------------------------------------------------------------
     setupFormSubmitBehavior() {
-        this.elements.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.ejecutarValidacionVisual();
-        });
+        // En arquitectura MVC, el listener de submit lo gestiona RegistroController
     },
 
     ejecutarValidacionVisual() {
@@ -483,23 +480,8 @@ export const RegistroViews = {
             return false;
         }
 
-        // Si todos los datos son válidos en la vista (Demostración de éxito)
+        // En arquitectura MVC, el envío y persistencia es responsabilidad exclusiva de RegistroController
         this.ocultarErrorGlobal();
-        this.activarCargando(true);
-
-        setTimeout(() => {
-            this.activarCargando(false);
-            this.mostrarExito(
-                'Tu sesión ha sido iniciada automáticamente. Ya puedes seleccionar cualquier tour y reservar tus cupos inmediatamente.'
-            );
-            // Deshabilitar campos temporalmente para reflejar cuenta creada
-            if (this.elements.form) {
-                this.elements.form.querySelectorAll('input, button').forEach(el => {
-                    el.disabled = true;
-                });
-            }
-        }, 650);
-
         return true;
     },
 

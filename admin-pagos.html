@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel administrativo oficial de validación y control de pagos de tours para el Ministerio de Turismo de El Salvador (MITUR).">
+    <title>Panel de Validación de Pagos | ChocoMapaSV - MITUR</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/admin-pagos.css">
+</head>
+<body class="page-admin">
+    <div class="page-layout">
+        <header class="navbar app-header">
+            <div class="header-container">
+                <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
+                    <img src="https://www.mitur.gob.sv/wp-content/uploads/2024/02/MITUR-Blanco-transparente.png" 
+                         class="app-logo" 
+                         alt="Ministerio de Turismo de El Salvador" 
+                         decoding="async" 
+                         fetchpriority="high">
+                </a>
+                <nav class="header-navigation" aria-label="Navegación principal">
+                    <a href="index.html" class="nav-link" id="nav-inicio">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="mapa.html" class="nav-link" id="nav-mapa">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Mapa</span>
+                    </a>
+                    <a href="lugares-turisticos.html" class="nav-link" id="nav-lugares">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Lugares turísticos</span>
+                    </a>
+                    <a href="tours.html" class="nav-link" id="nav-tours">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Tours</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="admin-main" id="admin-main-content">
+            <div id="vista-denegada" class="acceso-denegado hidden">
+                <div class="denegado-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="48" height="48" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h1 class="denegado-title">Acceso Denegado</h1>
+                <p class="denegado-text">Este panel de validación está estrictamente restringido al personal administrativo autorizado del Ministerio de Turismo de El Salvador.</p>
+                <a href="index.html" class="btn-regresar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>Regresar al inicio</span>
+                </a>
+            </div>
+
+            <div id="vista-admin">
+                <div class="admin-header">
+                    <div class="admin-title-wrap">
+                        <div class="admin-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                            <span>Panel Administrativo MITUR</span>
+                        </div>
+                        <h1 class="admin-title">Validación de Pagos por Transferencia</h1>
+                        <p class="admin-subtitle">Revisión y acreditación de comprobantes de pago de reservaciones en validación.</p>
+                    </div>
+
+                    <div class="admin-stats">
+                        <div class="stat-chip">
+                            <span class="stat-chip-number" id="stat-pendientes">0</span>
+                            <span class="stat-chip-label">En validación</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Turista</th>
+                                    <th>Teléfono</th>
+                                    <th>Tour</th>
+                                    <th>Fecha</th>
+                                    <th>Cupos</th>
+                                    <th>Monto</th>
+                                    <th>Comprobante</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-reservas-body">
+                                <tr>
+                                    <td colspan="9">
+                                        <div class="empty-state">
+                                            <p class="empty-text">Cargando reservaciones pendientes...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-container">
+                <p class="footer-copy">
+                    &copy; Ministerio de Turismo de El Salvador (MITUR) — Todos los derechos reservados.
+                </p>
+                <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="modal-comprobante" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-comprobante-titulo">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-comprobante-titulo">Visor de Comprobante</h3>
+                <button type="button" class="modal-close" id="btn-cerrar-modal-comprobante" aria-label="Cerrar visor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-comprobante-body">
+            </div>
+            <div class="modal-footer">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-ver-comprobante" id="btn-abrir-pestana-comprobante">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Abrir en pestaña segura</span>
+                </a>
+                <button type="button" class="btn-action" id="btn-cerrar-comprobante-footer">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-rechazo" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-rechazo-titulo">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-rechazo-titulo">Rechazar Comprobante de Pago</h3>
+                <button type="button" class="modal-close" id="btn-cerrar-modal-rechazo" aria-label="Cerrar modal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin: 0; color: #475569; font-size: 0.95rem;">Ingresa el motivo del rechazo. Este registro quedará documentado en la base de datos oficial:</p>
+                <textarea id="textarea-motivo-rechazo" class="textarea-motivo" placeholder="Ej. El monto transferido no coincide con el total de cupos reservados..."></textarea>
+                <p id="error-motivo-rechazo" class="textarea-error hidden">Debes especificar un motivo para el rechazo.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action btn-ver-comprobante" id="btn-cancelar-rechazo">Cancelar</button>
+                <button type="button" class="btn-action btn-rechazar" id="btn-confirmar-rechazo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Confirmar Rechazo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/controllers/NavbarController.js"></script>
+    <script type="module" src="js/controllers/AdminPagosController.js"></script>
+</body>
+</html>

@@ -7,22 +7,27 @@ on:
     branches: [ main ]
 
 jobs:
-  # Trabajo 1: Pruebas de integridad
-  build:
+  # Trabajo 1: Verificación de sintaxis y pruebas unitarias
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar el codigo del repositorio
+      - name: Descargar el código del repositorio
         uses: actions/checkout@v4
 
-      - name: Verificar permisos de ejecucion
-        run: chmod +x test.sh
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Ejecutar pruebas de integridad
-        run: ./test.sh
+      - name: Validar sintaxis
+        run: npm run check:syntax
+
+      - name: Ejecutar pruebas unitarias
+        run: npm test
 
   # Trabajo 2: Despliegue automático a Vercel
   deploy:
-    needs: build
+    needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:

@@ -22,21 +22,23 @@ const ICONS = {
 
 export const RegistroView = {
     /**
-     * Referencias a los elementos del DOM cacheadas por getElementById
+     * Referencias a los elementos del DOM dinámicas por getElementById
      */
-    elements: {
-        form: document.getElementById('form-registro'),
-        inputNombre: document.getElementById('reg-nombre'),
-        inputEmail: document.getElementById('reg-email'),
-        inputPassword: document.getElementById('reg-password'),
-        inputConfirm: document.getElementById('reg-confirm-password'),
-        inputTerms: document.getElementById('reg-terms'),
-        submitBtn: document.getElementById('btn-crear-cuenta'),
-        alertSuccess: document.getElementById('alert-success'),
-        alertError: document.getElementById('alert-error'),
-        alertErrorTitle: document.getElementById('alert-error-title'),
-        alertErrorDesc: document.getElementById('alert-error-desc'),
-        rulesContainer: document.getElementById('password-rules-container')
+    get elements() {
+        return {
+            form: document.getElementById('form-registro'),
+            inputNombre: document.getElementById('reg-nombre'),
+            inputEmail: document.getElementById('reg-email'),
+            inputPassword: document.getElementById('reg-password'),
+            inputConfirm: document.getElementById('reg-confirm-password'),
+            inputTerms: document.getElementById('reg-terms'),
+            submitBtn: document.getElementById('btn-crear-cuenta'),
+            alertSuccess: document.getElementById('alert-success'),
+            alertError: document.getElementById('alert-error'),
+            alertErrorTitle: document.getElementById('alert-error-title'),
+            alertErrorDesc: document.getElementById('alert-error-desc'),
+            rulesContainer: document.getElementById('password-rules-container')
+        };
     },
 
     /**
@@ -95,6 +97,16 @@ export const RegistroView = {
         alertSuccess.style.display = 'flex';
         alertSuccess.setAttribute('aria-hidden', 'false');
         alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    },
+
+    /**
+     * Muestra un mensaje de error en la vista
+     * 
+     * @param {string} mensaje - Mensaje de error a desplegar
+     * @param {string} [titulo] - Título opcional del banner de error
+     */
+    mostrarError(mensaje, titulo = 'Error al registrar la cuenta') {
+        this.mostrarErrorGlobal(titulo, mensaje);
     },
 
     /**
