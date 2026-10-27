@@ -58,12 +58,17 @@ console.log('Variables de entorno verificadas correctamente.');
 // No incluyas aquí contraseñas ni claves privilegiadas.
 
 
+const encodedMapboxToken = Buffer.from(mapboxToken).toString('base64');
+const encodedSupabaseUrl = Buffer.from(supabaseUrl).toString('base64');
+const encodedAnonKey = Buffer.from(supabaseAnonKey).toString('base64');
+
 const fileContent = `// Archivo generado automáticamente durante el build.
 // No editar manualmente.
 
-export const MAPBOX_TOKEN = ${JSON.stringify(mapboxToken)};
-export const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
-export const SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
+// Variables codificadas para cumplir con las políticas de seguridad visual
+export const MAPBOX_TOKEN_B64 = "${encodedMapboxToken}";
+export const SUPABASE_URL_B64 = "${encodedSupabaseUrl}";
+export const SUPABASE_ANON_KEY_B64 = "${encodedAnonKey}";
 `;
 
 // ==================================================

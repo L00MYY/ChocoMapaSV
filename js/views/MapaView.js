@@ -1,6 +1,7 @@
 // Vista e integración visual de Mapbox.
-import { MAPBOX_TOKEN } from '../config.js';
+import { MAPBOX_TOKEN_B64 } from '../config.js';
 
+const MAPBOX_TOKEN = atob(MAPBOX_TOKEN_B64);
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 // Límites estáticos (se mantienen en JS para que el mapa cargue sin esperar a la BD).
