@@ -1,9 +1,9 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
 const HEADERS = {
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'apikey': SUPABASE_ANON_KEY_B64,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY_B64}`,
     'Content-Type': 'application/json'
 };
 
@@ -17,7 +17,7 @@ function normalizarRutaStorage(path) {
 
 function obtenerSupabaseClient(token) {
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
-        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        return window.supabase.createClient(SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64, {
             global: {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             }
@@ -60,10 +60,10 @@ export async function verificarRolAdmin() {
         const userId = sesion.user.id;
         const authHeaders = {
             ...HEADERS,
-            'Authorization': `Bearer ${sesion.access_token || SUPABASE_ANON_KEY}`
+            'Authorization': `Bearer ${sesion.access_token || SUPABASE_ANON_KEY_B64}`
         };
 
-        const url = `${SUPABASE_URL}/rest/v1/admin_users?user_id=eq.${encodeURIComponent(userId)}&select=*`;
+        const url = `${SUPABASE_URL_B64}/rest/v1/admin_users?user_id=eq.${encodeURIComponent(userId)}&select=*`;
         const res = await fetch(url, {
             method: 'GET',
             headers: authHeaders
@@ -93,10 +93,10 @@ export async function obtenerReservasEnValidacion() {
         const sesion = await AuthModel.obtenerSesionActual();
         const authHeaders = {
             ...HEADERS,
-            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
+            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY_B64}`
         };
 
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?status=in.(pendiente_pago,en_validacion)&select=*,tours(*),tour_dates(*)&order=created_at.desc`;
+        const url = `${SUPABASE_URL_B64}/rest/v1/tour_reservations?status=in.(pendiente_pago,en_validacion)&select=*,tours(*),tour_dates(*)&order=created_at.desc`;
         const res = await fetch(url, {
             method: 'GET',
             headers: authHeaders
@@ -109,7 +109,7 @@ export async function obtenerReservasEnValidacion() {
 
         let recibosMap = new Map();
         try {
-            const urlRecibos = `${SUPABASE_URL}/rest/v1/payment_receipts?select=*`;
+            const urlRecibos = `${SUPABASE_URL_B64}/rest/v1/payment_receipts?select=*`;
             const resRecibos = await fetch(urlRecibos, {
                 method: 'GET',
                 headers: authHeaders
@@ -164,7 +164,7 @@ export async function obtenerUrlFirmada(storagePath) {
     }
 
     const sesion = await AuthModel.obtenerSesionActual();
-    const token = sesion?.access_token || SUPABASE_ANON_KEY;
+    const token = sesion?.access_token || SUPABASE_ANON_KEY_B64;
     const client = obtenerSupabaseClient(token);
     const candidateBuckets = ['receipts', 'payment_receipts'];
 
@@ -179,11 +179,11 @@ export async function obtenerUrlFirmada(storagePath) {
         }
 
         try {
-            const url = `${SUPABASE_URL}/storage/v1/object/sign/${bucket}/${cleanPath}`;
+            const url = `${SUPABASE_URL_B64}/storage/v1/object/sign/${bucket}/${cleanPath}`;
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'apikey': SUPABASE_ANON_KEY,
+                    'apikey': SUPABASE_ANON_KEY_B64,
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
@@ -194,7 +194,7 @@ export async function obtenerUrlFirmada(storagePath) {
                 const data = await res.json();
                 const signed = data.signedURL?.startsWith('http')
                     ? data.signedURL
-                    : `${SUPABASE_URL}/storage/v1${data.signedURL}`;
+                    : `${SUPABASE_URL_B64}/storage/v1${data.signedURL}`;
                 return { ok: true, signedUrl: signed };
             }
         } catch (_) {}
@@ -211,10 +211,10 @@ export async function verificarEstadoReserva(reservaId) {
         const sesion = await AuthModel.obtenerSesionActual();
         const authHeaders = {
             ...HEADERS,
-            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
+            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY_B64}`
         };
 
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}&select=id,status`;
+        const url = `${SUPABASE_URL_B64}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}&select=id,status`;
         const res = await fetch(url, {
             method: 'GET',
             headers: authHeaders
@@ -244,20 +244,20 @@ export async function aprobarReserva(reservaId) {
     }
 
     const sesion = await AuthModel.obtenerSesionActual();
-    const token = sesion?.access_token || SUPABASE_ANON_KEY;
+    const token = sesion?.access_token || SUPABASE_ANON_KEY_B64;
     const authHeaders = {
-        'apikey': SUPABASE_ANON_KEY,
+        'apikey': SUPABASE_ANON_KEY_B64,
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
     };
 
     try {
-        const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/aprobar_reserva_pago`;
+        const urlRpc = `${SUPABASE_URL_B64}/rest/v1/rpc/aprobar_reserva_pago`;
         const resRpc = await fetch(urlRpc, {
             method: 'POST',
             headers: {
-                'apikey': SUPABASE_ANON_KEY,
+                'apikey': SUPABASE_ANON_KEY_B64,
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
@@ -276,7 +276,7 @@ export async function aprobarReserva(reservaId) {
     } catch (_) {}
 
     try {
-        const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
+        const urlPatchReserva = `${SUPABASE_URL_B64}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
         const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
@@ -290,7 +290,7 @@ export async function aprobarReserva(reservaId) {
         if (resPatch.ok) {
             const filasActualizadas = await resPatch.json().catch(() => []);
             if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
-                const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+                const urlPatchReceipt = `${SUPABASE_URL_B64}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
                 await fetch(urlPatchReceipt, {
                     method: 'PATCH',
                     headers: authHeaders,
@@ -330,9 +330,9 @@ export async function rechazarReserva(reservaId, motivo) {
     }
 
     const sesion = await AuthModel.obtenerSesionActual();
-    const token = sesion?.access_token || SUPABASE_ANON_KEY;
+    const token = sesion?.access_token || SUPABASE_ANON_KEY_B64;
     const authHeaders = {
-        'apikey': SUPABASE_ANON_KEY,
+        'apikey': SUPABASE_ANON_KEY_B64,
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
@@ -341,11 +341,11 @@ export async function rechazarReserva(reservaId, motivo) {
     const motivoLimpio = motivo.trim();
 
     try {
-        const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/rechazar_reserva_pago`;
+        const urlRpc = `${SUPABASE_URL_B64}/rest/v1/rpc/rechazar_reserva_pago`;
         const resRpc = await fetch(urlRpc, {
             method: 'POST',
             headers: {
-                'apikey': SUPABASE_ANON_KEY,
+                'apikey': SUPABASE_ANON_KEY_B64,
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
@@ -365,7 +365,7 @@ export async function rechazarReserva(reservaId, motivo) {
     } catch (_) {}
 
     try {
-        const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
+        const urlPatchReserva = `${SUPABASE_URL_B64}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
         const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
@@ -379,7 +379,7 @@ export async function rechazarReserva(reservaId, motivo) {
         if (resPatch.ok) {
             const filasActualizadas = await resPatch.json().catch(() => []);
             if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
-                const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+                const urlPatchReceipt = `${SUPABASE_URL_B64}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
                 await fetch(urlPatchReceipt, {
                     method: 'PATCH',
                     headers: authHeaders,
