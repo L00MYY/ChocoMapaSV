@@ -5,24 +5,35 @@
  * Aplica guardias de autenticación y gestiona el flujo de navegación.
  */
 
+import { AuthModel } from '../models/AuthModel.js';
 import { MisToursModel } from '../models/MisToursModel.js';
 import { MisToursView } from '../views/MisToursView.js';
 
 export const MisToursController = {
     usuarioActual: null,
+    unsubscribeAuth: null,
 
     /**
      * Inicializa el controlador y valida la sesión del usuario
      */
     async init() {
+        this.inicializarSuscripcionAuth();
+
         try {
+            // Criterio 1: Guardia de autenticación inmediata
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion || !sesion.user) {
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
+                return;
+            }
+
             MisToursView.renderLoading();
 
-            // Criterio 1: Guardia de autenticación
-            // Si NO ha iniciado sesión, redirige inmediatamente a login.html?redirect=mis-tours.html
-            const usuario = await MisToursModel.verificarSesion();
+            const usuario = (await MisToursModel.verificarSesion()) || sesion.user;
             if (!usuario) {
-                window.location.href = 'login.html?redirect=mis-tours.html';
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
                 return;
             }
 
@@ -34,6 +45,34 @@ export const MisToursController = {
                 'Ocurrió un problema de comunicación con el servidor de autenticación.',
                 () => this.init()
             );
+        }
+    },
+
+    /**
+     * Suscribe un observador a cambios de estado de autenticación para proteger la vista en tiempo real
+     */
+    inicializarSuscripcionAuth() {
+        if (this.unsubscribeAuth) {
+            this.unsubscribeAuth();
+        }
+
+        this.unsubscribeAuth = AuthModel.onCambioEstadoAuth((evento, sesion) => {
+            if (evento === 'SIGNED_OUT' || !sesion?.user) {
+                this.usuarioActual = null;
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
+            }
+        });
+    },
+
+    /**
+     * Limpia el contenedor de tarjetas para proteger la información privada del usuario
+     */
+    limpiarVista() {
+        if (typeof MisToursView.limpiar === 'function') {
+            MisToursView.limpiar();
+        } else if (MisToursView.container) {
+            MisToursView.container.innerHTML = '';
         }
     },
 

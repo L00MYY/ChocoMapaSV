@@ -246,6 +246,15 @@ export const MisToursView = {
                 }
             });
         });
+    },
+
+    /**
+     * Limpia el contenedor de tarjetas para proteger la información privada del usuario
+     */
+    limpiar() {
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
     }
 };
 
