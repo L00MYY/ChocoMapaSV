@@ -27,6 +27,10 @@ export const AdminPagosController = {
 
     configurarEventos() {
         AdminPagosView.bindAccionesTabla({
+            onVerQr: ({ codigo, turista, tour, fecha, qrUrl }) => {
+                AdminPagosView.mostrarModalQr({ codigo, turista, tour, fecha, qrUrl });
+            },
+
             onVer: async ({ codigo, storagePath, mimeType }) => {
                 if (!storagePath) {
                     AdminPagosView.mostrarNotificacion('warning', 'Esta reserva no tiene un comprobante adjunto');
