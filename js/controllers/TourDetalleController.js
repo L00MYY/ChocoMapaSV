@@ -405,6 +405,7 @@ export const TourDetalleController = {
             cuposReservados: cupos,
             reservation_code: codigoGenerado,
             total_amount: montoTotal,
+            accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked),
             status: 'pendiente_pago',
             expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString()
         };
@@ -446,14 +447,15 @@ export const TourDetalleController = {
                 tour_date: tourDateStr,
                 status: 'pendiente_pago',
                 reservation_code: codigoFinal,
-                total_amount: montoTotal
+                total_amount: montoTotal,
+                accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked)
             };
 
             try {
                 localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaConfirmada));
             } catch (_) {}
 
-            window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoGenerado)}`;
+            window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoFinal)}`;
             return;
         } catch (error) {
             console.error('Error al procesar la reserva:', error);

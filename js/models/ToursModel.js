@@ -408,6 +408,11 @@ export async function crearReservaTour(datosReserva) {
         throw new Error('Debes iniciar sesión para realizar una reserva');
     }
 
+    const tourDateId = datosReserva.tourDateId || datosReserva.tour_date_id;
+    if (!tourDateId) {
+        throw new Error('Debes seleccionar una fecha de salida válida');
+    }
+
     const chars = '0123456789ABCDEF';
     let code = 'CM-';
     for (let i = 0; i < 6; i++) {
@@ -416,7 +421,7 @@ export async function crearReservaTour(datosReserva) {
 
     const payload = {
         tour_id: datosReserva.tourId || datosReserva.tour_id,
-        tour_date_id: datosReserva.tourDateId || datosReserva.tour_date_id,
+        tour_date_id: tourDateId,
         tour_date: datosReserva.tourDate || datosReserva.tour_date,
         tourist_id: sesion.user.id,
         tourist_name: (datosReserva.nombre || datosReserva.tourist_name || '').trim(),
@@ -426,6 +431,7 @@ export async function crearReservaTour(datosReserva) {
         reservation_code: datosReserva.reservation_code || datosReserva.codigo || code,
         status: datosReserva.status || 'pendiente_pago',
         total_amount: Number(datosReserva.total_amount ?? datosReserva.totalAmount) || null,
+        accepts_whatsapp: Boolean(datosReserva.accepts_whatsapp ?? datosReserva.acceptsWhatsapp ?? false),
         expires_at: datosReserva.expires_at || new Date(Date.now() + 60 * 60 * 1000).toISOString()
     };
 

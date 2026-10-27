@@ -58,6 +58,7 @@ export const AdminPagosView = {
             const codigo = r.reservation_code || `CM-${String(r.id).slice(0, 6).toUpperCase()}`;
             const monto = Number(r.total_amount) || 0;
             const fechaStr = this.formatearFecha(r.tour_date);
+            const tieneArchivo = Boolean(r.storage_path);
 
             return `
                 <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-mime="${r.mime_type || ''}">
@@ -74,12 +75,12 @@ export const AdminPagosView = {
                     <td><strong>${r.spots_reserved}</strong></td>
                     <td class="cell-monto">$${monto.toFixed(2)}</td>
                     <td>
-                        <button type="button" class="btn-action btn-ver-comprobante" data-action="ver">
+                        <button type="button" class="btn-action btn-ver-comprobante" data-action="ver" ${!tieneArchivo ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
-                            <span>Ver</span>
+                            <span>${tieneArchivo ? 'Ver' : 'Sin archivo'}</span>
                         </button>
                     </td>
                     <td>
@@ -119,22 +120,15 @@ export const AdminPagosView = {
 
         if (isPdf) {
             body.innerHTML = `
-                <div class="preview-pdf-container">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="1.8" width="64" height="64" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                    <p style="margin: 0; font-weight: 700; color: #1E293B;">Documento de comprobante en formato PDF</p>
-                    <p style="margin: 0; font-size: 0.88rem; color: #64748B;">Para mayor seguridad y resolución, puedes visualizarlo directamente en una pestaña protegida.</p>
+                <div class="preview-pdf-container" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+                    <iframe src="${url}" width="100%" height="420px" style="border:1px solid #CBD5E1; border-radius:8px;"></iframe>
+                    <p style="margin: 0; font-size: 0.88rem; color: #64748B;">Si el visor no carga en tu navegador, puedes abrirlo en la pestaña segura.</p>
                 </div>
             `;
         } else {
             body.innerHTML = `
-                <div class="preview-img-container">
-                    <img src="${url}" alt="Comprobante de pago" class="preview-img" loading="lazy">
+                <div class="preview-img-container" style="min-height:200px; display:flex; align-items:center; justify-content:center;">
+                    <img src="${url}" alt="Comprobante de pago" class="preview-img" style="max-width:100%; max-height:480px; object-fit:contain; border-radius:6px;" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding:20px; text-align:center; color:#DC2626; font-size:0.9rem; font-weight:600;\\'>No se pudo cargar la imagen desde el servidor (Error 404). El archivo no existe en el almacenamiento.</div>';">
                 </div>
             `;
         }

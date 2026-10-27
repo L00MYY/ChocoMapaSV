@@ -28,12 +28,17 @@ export const AdminPagosController = {
     configurarEventos() {
         AdminPagosView.bindAccionesTabla({
             onVer: async ({ codigo, storagePath, mimeType }) => {
+                if (!storagePath) {
+                    AdminPagosView.mostrarNotificacion('warning', 'Esta reserva no tiene un comprobante adjunto');
+                    return;
+                }
+
                 try {
                     const resUrl = await AdminPagosModel.obtenerUrlFirmada(storagePath);
                     if (resUrl.ok && resUrl.signedUrl) {
                         AdminPagosView.mostrarModalComprobante(resUrl.signedUrl, mimeType, codigo);
                     } else {
-                        AdminPagosView.mostrarNotificacion('error', 'No se pudo generar la URL de previsualización del comprobante');
+                        AdminPagosView.mostrarNotificacion('error', resUrl.error || 'No se pudo generar la URL del comprobante');
                     }
                 } catch (error) {
                     console.error(error);

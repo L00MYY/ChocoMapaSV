@@ -7,36 +7,23 @@ const HEADERS = {
     'Content-Type': 'application/json'
 };
 
+function normalizarRutaStorage(path) {
+    if (!path) return '';
+    return String(path)
+        .trim()
+        .replace(/^\/+/, '')
+        .replace(/^(receipts|payment_receipts)\//, '');
+}
+
 function obtenerSupabaseClient(token) {
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
-        return window.supabase.createClient(SUPABASE_URL, token || SUPABASE_ANON_KEY);
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            global: {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            }
+        });
     }
-    return {
-        storage: {
-            from: (bucket) => ({
-                createSignedUrl: async (path, expiresIn) => {
-                    const url = `${SUPABASE_URL}/storage/v1/object/sign/${bucket}/${path}`;
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${token || SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ expiresIn: expiresIn || 60 })
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        const fullUrl = data.signedURL?.startsWith('http')
-                            ? data.signedURL
-                            : `${SUPABASE_URL}/storage/v1${data.signedURL}`;
-                        return { data: { signedUrl: fullUrl }, error: null };
-                    }
-                    return { data: null, error: new Error('No se pudo generar URL firmada') };
-                }
-            })
-        }
-    };
+    return null;
 }
 
 export async function verificarRolAdmin() {
@@ -67,7 +54,7 @@ export async function verificarRolAdmin() {
 
         const userEmail = String(sesion.user.email || '').toLowerCase();
         if (userEmail.includes('admin') || userEmail.endsWith('@mitur.gob.sv')) {
-            return { esAdmin: true, user: sesion.user, admin: { user_id: userId, role: 'admin' } };
+            return { esAdmin: true, user: sesion.user, admin: { user_id: userId, role: 'validador_pagos' } };
         }
 
         return { esAdmin: false, razon: 'not_admin', user: sesion.user };
@@ -117,9 +104,14 @@ export async function obtenerReservasEnValidacion() {
 
         return (reservas || []).map(r => {
             const recibo = recibosMap.get(r.id);
+            const pathReal = recibo?.storage_path
+                ? normalizarRutaStorage(recibo.storage_path)
+                : (r.storage_path ? normalizarRutaStorage(r.storage_path) : '');
+
             return {
                 id: r.id,
                 tour_id: r.tour_id,
+                tour_date_id: r.tour_date_id,
                 tourist_id: r.tourist_id,
                 tourist_name: r.tourist_name || 'Turista',
                 tourist_email: r.tourist_email || '',
@@ -130,7 +122,7 @@ export async function obtenerReservasEnValidacion() {
                 total_amount: Number(r.total_amount) || (Number(r.tours?.final_price || r.tours?.price || 35) * (Number(r.spots_reserved) || 1)),
                 reservation_code: r.reservation_code || `CM-${String(r.id).slice(0, 6).toUpperCase()}`,
                 status: r.status,
-                storage_path: recibo?.storage_path || r.storage_path || `comprobantes/${r.id}/comprobante.png`,
+                storage_path: pathReal,
                 mime_type: recibo?.mime_type || 'image/png',
                 created_at: r.created_at
             };
@@ -142,47 +134,51 @@ export async function obtenerReservasEnValidacion() {
 }
 
 export async function obtenerUrlFirmada(storagePath) {
-    if (!storagePath) {
-        throw new Error('Ruta de archivo no proporcionada');
+    const cleanPath = normalizarRutaStorage(storagePath);
+    if (!cleanPath) {
+        return { ok: false, error: 'Esta reserva no cuenta con un archivo adjunto' };
     }
 
     const sesion = await AuthModel.obtenerSesionActual();
     const token = sesion?.access_token || SUPABASE_ANON_KEY;
     const client = obtenerSupabaseClient(token);
+    const candidateBuckets = ['receipts', 'payment_receipts'];
 
-    try {
-        const { data, error } = await client.storage.from('receipts').createSignedUrl(storagePath, 60);
-        if (!error && data?.signedUrl) {
-            return { ok: true, signedUrl: data.signedUrl };
+    for (const bucket of candidateBuckets) {
+        if (client) {
+            try {
+                const { data, error } = await client.storage.from(bucket).createSignedUrl(cleanPath, 120);
+                if (!error && data?.signedUrl) {
+                    return { ok: true, signedUrl: data.signedUrl };
+                }
+            } catch (_) {}
         }
-    } catch (_) {}
 
-    try {
-        const url = `${SUPABASE_URL}/storage/v1/object/sign/receipts/${storagePath}`;
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ expiresIn: 60 })
-        });
+        try {
+            const url = `${SUPABASE_URL}/storage/v1/object/sign/${bucket}/${cleanPath}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ expiresIn: 120 })
+            });
 
-        if (res.ok) {
-            const data = await res.json();
-            const signed = data.signedURL?.startsWith('http')
-                ? data.signedURL
-                : `${SUPABASE_URL}/storage/v1${data.signedURL}`;
-            return { ok: true, signedUrl: signed };
-        }
-    } catch (error) {
-        console.warn(error);
+            if (res.ok) {
+                const data = await res.json();
+                const signed = data.signedURL?.startsWith('http')
+                    ? data.signedURL
+                    : `${SUPABASE_URL}/storage/v1${data.signedURL}`;
+                return { ok: true, signedUrl: signed };
+            }
+        } catch (_) {}
     }
 
     return {
-        ok: true,
-        signedUrl: `${SUPABASE_URL}/storage/v1/object/public/receipts/${storagePath}`
+        ok: false,
+        error: 'No se pudo localizar el archivo en el almacenamiento. Asegúrate de que el bucket de Storage exista y el archivo haya sido transferido.'
     };
 }
 
@@ -249,8 +245,8 @@ export async function aprobarReserva(reservaId) {
     } catch (_) {}
 
     try {
-        const urlPatch = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
-        const resPatch = await fetch(urlPatch, {
+        const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
+        await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
             body: JSON.stringify({
@@ -260,9 +256,18 @@ export async function aprobarReserva(reservaId) {
             })
         });
 
-        if (resPatch.ok) {
-            return { ok: true };
-        }
+        const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+        await fetch(urlPatchReceipt, {
+            method: 'PATCH',
+            headers: authHeaders,
+            body: JSON.stringify({
+                status: 'aprobado',
+                reviewed_at: new Date().toISOString(),
+                reviewed_by: sesion?.user?.id || null
+            })
+        });
+
+        return { ok: true };
     } catch (error) {
         console.error(error);
     }
@@ -294,10 +299,10 @@ export async function rechazarReserva(reservaId, motivo) {
     const payload = {
         p_reservation_id: reservaId,
         reserva_id: reservaId,
-        p_motivo: motivo.trim(),
-        motivo: motivo.trim(),
         p_rejection_reason: motivo.trim(),
-        rejection_reason: motivo.trim()
+        rejection_reason: motivo.trim(),
+        p_motivo: motivo.trim(),
+        motivo: motivo.trim()
     };
 
     try {
@@ -314,8 +319,8 @@ export async function rechazarReserva(reservaId, motivo) {
     } catch (_) {}
 
     try {
-        const urlPatch = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
-        const resPatch = await fetch(urlPatch, {
+        const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
+        await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
             body: JSON.stringify({
@@ -325,9 +330,19 @@ export async function rechazarReserva(reservaId, motivo) {
             })
         });
 
-        if (resPatch.ok) {
-            return { ok: true };
-        }
+        const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+        await fetch(urlPatchReceipt, {
+            method: 'PATCH',
+            headers: authHeaders,
+            body: JSON.stringify({
+                status: 'rechazado',
+                rejection_reason: motivo.trim(),
+                reviewed_at: new Date().toISOString(),
+                reviewed_by: sesion?.user?.id || null
+            })
+        });
+
+        return { ok: true };
     } catch (error) {
         console.error(error);
     }
