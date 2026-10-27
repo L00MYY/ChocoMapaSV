@@ -6,9 +6,15 @@ import {
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
     obtenerFechaHoyLocal,
+    esFechaPasada,
     TourDetalleModel
 } from '../models/TourDetalleModel.js';
-import { AuthModel } from '../models/AuthModel.js';
+import {
+    AuthModel,
+    validarEmail,
+    validarTelefonoSV,
+    sanitizarUsuario
+} from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';
 
 let tourActual = null;
@@ -44,11 +50,8 @@ export const TourDetalleController = {
             }
             const fechaObj = (tourActual.tour_dates || []).find(d => String(d.id) === String(selectedDateId));
             if (fechaObj) {
-                const hoyStr = obtenerFechaHoyLocal();
-                const fechaStr = String(fechaObj.departure_date || '').split('T')[0];
-
                 // Impedir selección de fecha pasada o igual a la actual
-                if (fechaStr <= hoyStr) {
+                if (esFechaPasada(fechaObj.departure_date)) {
                     TourDetalleView.marcarFechaSeleccionada(null);
                     TourDetalleView.actualizarCupos(0);
                     return;
@@ -120,12 +123,10 @@ export const TourDetalleController = {
             return dateA - dateB;
         });
 
-        const hoyStr = obtenerFechaHoyLocal();
-
-        // Buscar únicamente la primera fecha estrictamente futura (> hoyStr)
+        // Buscar únicamente la primera fecha estrictamente futura
         const proximaFutura = fechasOrdenadas.find(f => {
-            const fStr = String(f.departure_date || f).split('T')[0];
-            return fStr > hoyStr;
+            const fStr = f.departure_date || f;
+            return !esFechaPasada(fStr);
         });
 
         return proximaFutura || null;
@@ -136,13 +137,10 @@ export const TourDetalleController = {
         const e = TourDetalleView.elements;
         const radioChecked = document.querySelector('input[name="tour_date"]:checked, input[name="tour_date_id"]:checked');
         const selectedId = e.selectDate?.value || radioChecked?.value;
-        const hoyStr = obtenerFechaHoyLocal();
-
         if (selectedId) {
             const encontrada = tourActual.tour_dates.find(d => String(d.id) === String(selectedId));
-            if (encontrada) {
-                const fechaStr = String(encontrada.departure_date || '').split('T')[0];
-                if (fechaStr > hoyStr) return encontrada;
+            if (encontrada && !esFechaPasada(encontrada.departure_date)) {
+                return encontrada;
             }
         }
         return this.obtenerFechaMasProxima(tourActual.tour_dates);
@@ -273,11 +271,10 @@ export const TourDetalleController = {
                     TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
                 } else {
                     // Criterio 4: Si el tour no cuenta con fechas futuras vigentes, deshabilitar reserva
-                    const hoyStr = obtenerFechaHoyLocal();
                     const fechas = tourActual.tour_dates || [];
                     const tieneFechasFuturas = fechas.some(d => {
                         const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return String(fechaStr).split('T')[0] > hoyStr;
+                        return !esFechaPasada(fechaStr);
                     });
                     if (fechas.length > 0 && !tieneFechasFuturas) {
                         TourDetalleView.deshabilitarReservaPorTourPasado();
@@ -320,11 +317,10 @@ export const TourDetalleController = {
                         }
                     } catch (_) {}
 
-                    const hoyStr = obtenerFechaHoyLocal();
                     const fechas = tourActual.tour_dates || [];
                     const tieneFechasFuturas = fechas.some(d => {
                         const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return String(fechaStr).split('T')[0] > hoyStr;
+                        return !esFechaPasada(fechaStr);
                     });
                     if (fechas.length > 0 && !tieneFechasFuturas) {
                         TourDetalleView.deshabilitarReservaPorTourPasado();
@@ -352,11 +348,28 @@ export const TourDetalleController = {
         const values = TourDetalleView.obtenerDatosReserva();
         TourDetalleView.limpiarErrores();
         const errors = [];
-        if (!values.nombre) errors.push(['inputName', 'Este campo es obligatorio']);
-        if (!values.email) errors.push(['inputEmail', 'Este campo es obligatorio']);
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.push(['inputEmail', 'Ingresa un correo electrónico con formato válido']);
-        if (!values.telefono) errors.push(['inputPhone', 'Este campo es obligatorio']);
-        else if (!/^\d+$/.test(values.telefono)) errors.push(['inputPhone', 'El teléfono debe contener solo números']);
+
+        // Sanitización y validación del nombre con sanitizarUsuario
+        const nombreSanitizado = sanitizarUsuario(values.nombre);
+        if (!nombreSanitizado) {
+            errors.push(['inputName', 'Este campo es obligatorio']);
+        }
+
+        // Validación de correo electrónico con validarEmail
+        const emailSanitizado = (values.email || '').trim();
+        if (!emailSanitizado) {
+            errors.push(['inputEmail', 'Este campo es obligatorio']);
+        } else if (!validarEmail(emailSanitizado)) {
+            errors.push(['inputEmail', 'Ingresa un correo electrónico con formato válido']);
+        }
+
+        // Validación de teléfono con validarTelefonoSV
+        const telefonoSanitizado = (values.telefono || '').trim();
+        if (!telefonoSanitizado) {
+            errors.push(['inputPhone', 'Este campo es obligatorio']);
+        } else if (!validarTelefonoSV(telefonoSanitizado)) {
+            errors.push(['inputPhone', 'El teléfono debe contener un número válido salvadoreño']);
+        }
 
         // Validación de fecha seleccionada
         if (!values.tour_date_id && !values.fecha) {
@@ -367,12 +380,11 @@ export const TourDetalleController = {
             String(d.id) === String(values.tour_date_id) || String(d.departure_date) === String(values.fecha)
         );
 
-        const hoyStr = obtenerFechaHoyLocal();
         const fechaStr = fechaSeleccionada
-            ? String(fechaSeleccionada.departure_date || '').split('T')[0]
-            : String(values.fecha || '').split('T')[0];
+            ? String(fechaSeleccionada.departure_date || '')
+            : String(values.fecha || '');
 
-        if (fechaSeleccionada && fechaStr <= hoyStr) {
+        if (fechaSeleccionada && esFechaPasada(fechaStr)) {
             errors.push(['selectDate', 'La fecha seleccionada ya no se encuentra disponible. Por favor elige una fecha futura.']);
         }
 
@@ -399,9 +411,9 @@ export const TourDetalleController = {
             tourId: tourActual.id,
             tourDateId: tourDateId,
             tourDate: tourDateStr,
-            nombre: values.nombre.trim(),
-            email: values.email.trim(),
-            telefono: values.telefono.trim(),
+            nombre: nombreSanitizado,
+            email: emailSanitizado,
+            telefono: telefonoSanitizado,
             cuposReservados: cupos
         };
 
@@ -435,9 +447,9 @@ export const TourDetalleController = {
                 tour_id: tourActual.id,
                 tour_date_id: tourDateId,
                 tourist_id: sesion.user.id,
-                tourist_name: values.nombre.trim(),
-                tourist_email: values.email.trim(),
-                tourist_phone: values.telefono.trim(),
+                tourist_name: nombreSanitizado,
+                tourist_email: emailSanitizado,
+                tourist_phone: telefonoSanitizado,
                 spots_reserved: cupos,
                 tour_date: tourDateStr,
                 status: 'Confirmado'

@@ -485,6 +485,18 @@ export const actualizarCuposFecha = actualizarCuposTour;
 export const obtenerPorId = obtenerTourPorId;
 
 /**
+ * Retorna la fecha actual en la zona local del usuario en formato estándar YYYY-MM-DD.
+ * @returns {string} Fecha en formato 'YYYY-MM-DD'
+ */
+export function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
+
+/**
  * Formatea un número decimal como moneda estadounidense USD (ej. $28.00)
  * @param {number|string} valor 
  * @returns {string}
@@ -493,6 +505,145 @@ export function formatearMonedaUSD(valor) {
     const num = Number(valor);
     if (isNaN(num)) return '$0.00';
     return `$${num.toFixed(2)}`;
+}
+
+/**
+ * Calcula el precio final aplicando un descuento porcentual y redondeando a 2 decimales.
+ * @param {number|string} precioBase 
+ * @param {number|string} porcentajeDescuento 
+ * @returns {number}
+ */
+export function calcularPrecioConDescuento(precioBase, porcentajeDescuento) {
+    const p = Number(precioBase);
+    const d = Number(porcentajeDescuento);
+    if (isNaN(p) || p <= 0) return 0;
+    if (isNaN(d) || d <= 0) return Number(p.toFixed(2));
+    const finalPrice = p * (1 - d / 100);
+    return Number(finalPrice.toFixed(2));
+}
+
+/**
+ * Determina si una fecha de salida es pasada (o igual a la fecha de referencia).
+ * En la regla de negocio de reservas, las fechas del día de hoy o anteriores no están disponibles para reserva.
+ * @param {string} fechaStr 
+ * @param {string} [fechaReferencia] - Fecha 'YYYY-MM-DD' de referencia (por defecto hoy local)
+ * @returns {boolean}
+ */
+export function esFechaPasada(fechaStr, fechaReferencia) {
+    if (!fechaStr) return true;
+    const ref = fechaReferencia ? String(fechaReferencia).split('T')[0] : obtenerFechaHoyLocal();
+    const f = String(fechaStr).split('T')[0];
+    return f <= ref;
+}
+
+/**
+ * Determina si una fecha de salida es futura y vigente para realizar reservaciones.
+ * @param {string} fechaStr 
+ * @param {string} [fechaReferencia]
+ * @returns {boolean}
+ */
+export function esFechaVigente(fechaStr, fechaReferencia) {
+    return !esFechaPasada(fechaStr, fechaReferencia);
+}
+
+/**
+ * Filtra un catálogo de tours por departamento de manera insensible a mayúsculas y espacios.
+ * @param {Array<Object>} tours 
+ * @param {string} departamento 
+ * @returns {Array<Object>}
+ */
+export function filtrarPorDepartamento(tours, departamento) {
+    if (!Array.isArray(tours)) return [];
+    if (!departamento || !departamento.trim() || departamento === 'todos') return tours;
+    const deptoNorm = departamento.trim().toLowerCase();
+    return tours.filter(t => (t.department || '').trim().toLowerCase() === deptoNorm);
+}
+
+/**
+ * Filtra un catálogo de tours por condición de oferta ('oferta' vs 'sin_oferta').
+ * @param {Array<Object>} tours 
+ * @param {string} condicionOferta 
+ * @returns {Array<Object>}
+ */
+export function filtrarPorOferta(tours, condicionOferta) {
+    if (!Array.isArray(tours)) return [];
+    if (!condicionOferta || condicionOferta === 'todas') return tours;
+    return tours.filter(t => {
+        const tieneOferta = t.has_offer === true && Number(t.discount_percentage) > 0;
+        if (condicionOferta === 'oferta') return tieneOferta;
+        if (condicionOferta === 'sin_oferta') return !tieneOferta;
+        return true;
+    });
+}
+
+/**
+ * Realiza una búsqueda parcial insensible a mayúsculas por texto libre en el nombre/título del tour.
+ * @param {Array<Object>} tours 
+ * @param {string} textoBusqueda 
+ * @returns {Array<Object>}
+ */
+export function buscarPorTitulo(tours, textoBusqueda) {
+    if (!Array.isArray(tours)) return [];
+    if (!textoBusqueda || !textoBusqueda.trim()) return tours;
+    const queryNorm = textoBusqueda.trim().toLowerCase();
+    return tours.filter(t => {
+        const titulo = (t.name || t.title || '').trim().toLowerCase();
+        return titulo.includes(queryNorm);
+    });
+}
+
+/**
+ * Función pura que filtra una lista de tours en base a los criterios recibidos.
+ * Admite filtros: departamento, oferta, busqueda/texto, fecha, lugar.
+ * 
+ * @param {Array<Object>} listaTours - Array de tours a filtrar
+ * @param {Object} [filtros={}] - Objeto con criterios de filtro
+ * @returns {Array<Object>} Nueva lista filtrada
+ */
+export function filtrarCatalogoTours(listaTours, filtros = {}) {
+    if (!Array.isArray(listaTours)) return [];
+    const {
+        fecha = '',
+        departamento = '',
+        oferta = '',
+        lugar = '',
+        busqueda = '',
+        texto = ''
+    } = filtros;
+
+    let resultado = listaTours;
+
+    if (fecha) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => {
+                const f = typeof item === 'string' ? item : item.departure_date;
+                return String(f).split('T')[0] === String(fecha).split('T')[0];
+            })
+        );
+    }
+
+    if (departamento) {
+        resultado = filtrarPorDepartamento(resultado, departamento);
+    }
+
+    if (oferta) {
+        resultado = filtrarPorOferta(resultado, oferta);
+    }
+
+    if (lugar) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
+                item.place_id === lugar || item.places?.id === lugar
+            )
+        );
+    }
+
+    const termino = busqueda || texto;
+    if (termino) {
+        resultado = buscarPorTitulo(resultado, termino);
+    }
+
+    return resultado;
 }
 
 /**
@@ -540,6 +691,10 @@ export const ToursModel = {
     actualizarCuposTour,
     actualizarCuposFecha,
     crearReservaTour,
+    filtrarCatalogoTours,
+    setTours(tours) {
+        todosLosTours = Array.isArray(tours) ? tours : [];
+    },
     async cargarCatalogo() {
         const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error('Timeout de seguridad (6s) excedido al cargar catálogo')), 6000);
@@ -556,30 +711,7 @@ export const ToursModel = {
     },
 
     getToursFiltrados(filtros = {}) {
-        const { fecha = '', departamento = '', oferta = '', lugar = '' } = filtros;
-        const deptoNormalizado = departamento.trim().toLowerCase();
-
-        return todosLosTours.filter(tour => {
-            if (fecha && !(Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => item.departure_date === fecha))) {
-                return false;
-            }
-
-            if (deptoNormalizado && (tour.department || '').trim().toLowerCase() !== deptoNormalizado) {
-                return false;
-            }
-
-            const tieneOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
-            if (oferta === 'oferta' && !tieneOferta) return false;
-            if (oferta === 'sin_oferta' && tieneOferta) return false;
-
-            if (lugar && !(Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
-                item.place_id === lugar || item.places?.id === lugar
-            ))) {
-                return false;
-            }
-
-            return true;
-        });
+        return filtrarCatalogoTours(todosLosTours, filtros);
     },
 
     getTotalTours() {

@@ -4,7 +4,7 @@
  * Orquestador entre la vista (RegistroView) y el modelo (AuthModel).
  */
 
-import { AuthModel } from '../models/AuthModel.js';
+import { AuthModel, validarEmail, sanitizarUsuario } from '../models/AuthModel.js';
 import { RegistroView, REGLAS_PASSWORD } from '../views/RegistroView.js';
 
 export const RegistroController = {
@@ -100,17 +100,18 @@ export const RegistroController = {
         const errores = [];
 
         // 1. Nombre completo
-        if (!datos.nombre) {
+        const nombreLimpio = sanitizarUsuario(datos.nombre);
+        if (!nombreLimpio) {
             errores.push(['inputNombre', 'El nombre completo es obligatorio.']);
-        } else if (datos.nombre.length < 3) {
+        } else if (nombreLimpio.length < 3) {
             errores.push(['inputNombre', 'El nombre debe contener al menos 3 caracteres.']);
         }
 
         // 2. Correo electrónico
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!datos.email) {
+        const emailLimpio = (datos.email || '').trim();
+        if (!emailLimpio) {
             errores.push(['inputEmail', 'El correo electrónico es obligatorio.']);
-        } else if (!emailRegex.test(datos.email)) {
+        } else if (!validarEmail(emailLimpio)) {
             errores.push(['inputEmail', 'Ingresa un formato de correo electrónico válido.']);
         }
 
@@ -170,7 +171,8 @@ export const RegistroController = {
         RegistroView.mostrarCargando(true);
 
         try {
-            const data = await AuthModel.registrarUsuario(datos.nombre, datos.email, datos.password);
+            const nombreSanitizado = sanitizarUsuario(datos.nombre);
+            const data = await AuthModel.registrarUsuario(nombreSanitizado, datos.email.trim(), datos.password);
 
             // Solo si la respuesta de Supabase es exitosa (data.user existe)
             if (data && data.user) {

@@ -1,4 +1,4 @@
-import { formatearFechaLarga, formatearMonedaUSD } from '../models/ToursModel.js';
+import { formatearFechaLarga, formatearMonedaUSD, esFechaPasada } from '../models/ToursModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const LUGAR_FALLBACK = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80';
@@ -291,8 +291,7 @@ export const TourDetalleView = {
             const dateId = entry.id || `date-${index}`;
             const spots = entry.available_spots !== undefined ? Number(entry.available_spots) : 0;
             const label = formatearFechaLarga(rawDate);
-            const fechaStr = String(rawDate).split('T')[0];
-            const esPasada = fechaStr <= hoyStr;
+            const esPasada = esFechaPasada(rawDate);
 
             // Opción en el selector con value = tour_dates.id
             const option = document.createElement('option');

@@ -15,7 +15,8 @@ import {
     actualizarCuposTour,
     actualizarCuposFecha,
     formatearFechaLarga,
-    formatearMonedaUSD
+    formatearMonedaUSD,
+    esFechaPasada
 } from './ToursModel.js';
 
 export {
@@ -26,7 +27,8 @@ export {
     actualizarCuposTour,
     actualizarCuposFecha,
     formatearFechaLarga,
-    formatearMonedaUSD
+    formatearMonedaUSD,
+    esFechaPasada
 };
 
 /**
@@ -228,6 +230,7 @@ export const TourDetalleModel = {
     calcularEstadoVisual,
     formatearFechaLarga,
     formatearMonedaUSD,
+    esFechaPasada,
     TOURS_DEMO
 };
 

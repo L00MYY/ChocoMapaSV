@@ -308,9 +308,72 @@ export async function registrarUsuario(fullName, email, password) {
 }
 
 /**
+ * Valida de forma estricta el formato de un correo electrónico.
+ * @param {string} email 
+ * @returns {boolean}
+ */
+export function validarEmail(email) {
+  if (typeof email !== 'string') return false;
+  const limpio = email.trim();
+  if (!limpio) return false;
+  if (/\s/.test(limpio) || limpio.includes('..')) return false;
+  // Formato estricto: usuario@dominio.tld (sin puntos consecutivos, al menos 2 letras de TLD)
+  const regex = /^[a-zA-Z0-9_%+-]+(?:\.[a-zA-Z0-9_%+-]+)*@[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
+  return regex.test(limpio);
+}
+
+/**
+ * Valida que una contraseña cumpla con criterios de seguridad mínimos:
+ * longitud mínima (8 caracteres) y caracteres alfanuméricos (letras y números).
+ * @param {string} password 
+ * @param {Object} [opciones]
+ * @param {number} [opciones.minLength=8]
+ * @param {boolean} [opciones.requireAlphanumeric=true]
+ * @returns {boolean}
+ */
+export function validarPassword(password, { minLength = 8, requireAlphanumeric = true } = {}) {
+  if (typeof password !== 'string') return false;
+  if (password.length < minLength || password.length > 32) return false;
+  if (requireAlphanumeric) {
+    const tieneLetras = /[a-zA-Z]/.test(password);
+    const tieneNumeros = /[0-9]/.test(password);
+    if (!tieneLetras || !tieneNumeros) return false;
+  }
+  return true;
+}
+
+/**
+ * Valida un número telefónico salvadoreño (8 dígitos numéricos válidos).
+ * En El Salvador los números fijos inician con 2 y los móviles con 6 o 7.
+ * Admite formato continuo o separado por guion/espacio (ej. 7123-4567, 71234567, 22501234).
+ * @param {string|number} telefono 
+ * @returns {boolean}
+ */
+export function validarTelefonoSV(telefono) {
+  if (typeof telefono !== 'string' && typeof telefono !== 'number') return false;
+  const limpio = String(telefono).trim().replace(/[-\s]/g, '');
+  // 8 dígitos numéricos salvadoreños con prefijos válidos (2, 6, 7)
+  return /^[267]\d{7}$/.test(limpio);
+}
+
+/**
+ * Sanitiza una cadena de texto (como nombre de usuario), aplicando trim.
+ * @param {string} cadena 
+ * @returns {string}
+ */
+export function sanitizarUsuario(cadena) {
+  if (typeof cadena !== 'string') return '';
+  return cadena.trim();
+}
+
+/**
  * Objeto AuthModel agrupando la API del modelo de autenticación
  */
 export const AuthModel = {
+    validarEmail,
+    validarPassword,
+    validarTelefonoSV,
+    sanitizarUsuario,
     iniciarSesion,
     registrarUsuario,
     obtenerSesionActual,
