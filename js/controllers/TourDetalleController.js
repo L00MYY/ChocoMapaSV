@@ -387,6 +387,14 @@ export const TourDetalleController = {
         const tourDateId = fechaSeleccionada?.id || values.tour_date_id;
         const tourDateStr = fechaSeleccionada?.departure_date || values.tour_date || values.fecha;
 
+        const precioUnitario = Number(tourActual.final_price || tourActual.price || 0);
+        const montoTotal = Number((precioUnitario * cupos).toFixed(2));
+        const chars = '0123456789ABCDEF';
+        let codigoGenerado = 'CM-';
+        for (let i = 0; i < 6; i++) {
+            codigoGenerado += chars[Math.floor(Math.random() * chars.length)];
+        }
+
         const datosReserva = {
             tourId: tourActual.id,
             tourDateId: tourDateId,
@@ -394,7 +402,11 @@ export const TourDetalleController = {
             nombre: nombreSanitizado,
             email: emailSanitizado,
             telefono: telefonoSanitizado,
-            cuposReservados: cupos
+            cuposReservados: cupos,
+            reservation_code: codigoGenerado,
+            total_amount: montoTotal,
+            status: 'pendiente_pago',
+            expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString()
         };
 
         const button = e.btnConfirmReserve;
@@ -419,7 +431,7 @@ export const TourDetalleController = {
             TourDetalleView.actualizarCupos(nuevosCuposDisponibles);
 
             const reservaIdGenerado = resultado?.data?.id || `res-${Date.now()}`;
-            const codigoGenerado = resultado?.data?.reservation_code || resultado?.data?.code || resultado?.data?.codigo || `CM-${String(reservaIdGenerado).slice(0, 6).toUpperCase()}`;
+            const codigoFinal = resultado?.data?.reservation_code || codigoGenerado;
 
             const reservaConfirmada = {
                 ...(resultado?.data || {}),
@@ -433,7 +445,8 @@ export const TourDetalleController = {
                 spots_reserved: cupos,
                 tour_date: tourDateStr,
                 status: 'pendiente_pago',
-                reservation_code: codigoGenerado
+                reservation_code: codigoFinal,
+                total_amount: montoTotal
             };
 
             try {
