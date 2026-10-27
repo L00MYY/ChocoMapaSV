@@ -4,7 +4,11 @@
  * Capa de datos desacoplada del DOM que gestiona la comunicación con Supabase Auth.
  */
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
+
+// Decodificamos en memoria al momento de ejecutar el código
+const SUPABASE_URL = atob(SUPABASE_URL_B64);
+const SUPABASE_ANON_KEY = atob(SUPABASE_ANON_KEY_B64);
 
 const STORAGE_KEY = 'chocomapa_auth_session';
 const authListeners = new Set();
