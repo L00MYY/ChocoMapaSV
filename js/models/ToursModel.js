@@ -1,5 +1,6 @@
 // Modelo y acceso a datos para tours y reservas (MITUR SV)
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { AuthModel } from './AuthModel.js';
 
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
@@ -28,12 +29,11 @@ export const TOURS_DEMO = [
         has_offer: true,
         discount_percentage: 20,
         final_price: 28.00,
-        available_spots: 12,
         is_active: true,
         tour_dates: [
-            { id: 'd1000001', departure_date: '2026-10-18' },
-            { id: 'd1000002', departure_date: '2026-10-25' },
-            { id: 'd1000003', departure_date: '2026-11-01' }
+            { id: 'd1000001', departure_date: '2026-10-18', available_spots: 12 },
+            { id: 'd1000002', departure_date: '2026-10-25', available_spots: 8 },
+            { id: 'd1000003', departure_date: '2026-11-01', available_spots: 10 }
         ],
         tour_places: [
             {
@@ -92,12 +92,11 @@ export const TOURS_DEMO = [
         has_offer: false,
         discount_percentage: 0,
         final_price: 45.00,
-        available_spots: 8,
         is_active: true,
         tour_dates: [
-            { id: 'd2000001', departure_date: '2026-10-18' },
-            { id: 'd2000002', departure_date: '2026-10-24' },
-            { id: 'd2000003', departure_date: '2026-10-31' }
+            { id: 'd2000001', departure_date: '2026-10-18', available_spots: 8 },
+            { id: 'd2000002', departure_date: '2026-10-24', available_spots: 6 },
+            { id: 'd2000003', departure_date: '2026-10-31', available_spots: 4 }
         ],
         tour_places: [
             {
@@ -155,12 +154,11 @@ export const TOURS_DEMO = [
         has_offer: true,
         discount_percentage: 15,
         final_price: 42.50,
-        available_spots: 15,
         is_active: true,
         tour_dates: [
-            { id: 'd3000001', departure_date: '2026-10-19' },
-            { id: 'd3000002', departure_date: '2026-10-26' },
-            { id: 'd3000003', departure_date: '2026-11-02' }
+            { id: 'd3000001', departure_date: '2026-10-19', available_spots: 15 },
+            { id: 'd3000002', departure_date: '2026-10-26', available_spots: 12 },
+            { id: 'd3000003', departure_date: '2026-11-02', available_spots: 10 }
         ],
         tour_places: [
             {
@@ -234,7 +232,7 @@ export async function obtenerToursActivos() {
     try {
         const queryParams = new URLSearchParams({
             is_active: 'eq.true',
-            select: '*,tour_dates(*),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*)',
+            select: '*,tour_dates(id,departure_date,available_spots),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*)',
             order: 'name.asc'
         });
 
@@ -256,8 +254,8 @@ export async function obtenerToursActivos() {
 
 /**
  * Consulta un tour específico por su ID único (UUID) de forma resiliente
- * Realiza la consulta principal a tours y las secundarias (tour_places con places, tour_dates, tour_images)
- * de forma independiente con Promise.allSettled para que fallas en tablas secundarias no bloqueen la vista.
+ * Realiza la consulta principal a tours con la relación tour_dates(id, departure_date, available_spots)
+ * y las secundarias (tour_places con places, tour_dates, tour_images) con Promise.allSettled.
  * @param {string} id - Identificador UUID del tour
  * @returns {Promise<Object|null>} Registro del tour o null
  */
@@ -267,8 +265,8 @@ export async function obtenerTourPorId(id) {
     const cleanId = id.trim();
 
     try {
-        // 1. Consulta principal a la tabla tours
-        const tourUrl = `${SUPABASE_URL}/rest/v1/tours?id=eq.${cleanId}&select=*`;
+        // 1. Consulta principal a la tabla tours incluyendo tour_dates con available_spots
+        const tourUrl = `${SUPABASE_URL}/rest/v1/tours?id=eq.${cleanId}&select=*,tour_dates(id,departure_date,available_spots)`;
         const resTour = await fetchConTimeout(tourUrl, { headers: HEADERS }, 6000);
 
         if (resTour.ok) {
@@ -278,7 +276,7 @@ export async function obtenerTourPorId(id) {
 
                 // 2. Consultas secundarias independientes con Promise.allSettled
                 const placesUrl = `${SUPABASE_URL}/rest/v1/tour_places?tour_id=eq.${cleanId}&select=*,places(id,name,department,image_url,short_description)&order=visit_order.asc`;
-                const datesUrl = `${SUPABASE_URL}/rest/v1/tour_dates?tour_id=eq.${cleanId}&order=departure_date.asc`;
+                const datesUrl = `${SUPABASE_URL}/rest/v1/tour_dates?tour_id=eq.${cleanId}&select=id,departure_date,available_spots&order=departure_date.asc`;
                 const imagesUrl = `${SUPABASE_URL}/rest/v1/tour_images?tour_id=eq.${cleanId}`;
 
                 const [placesResult, datesResult, imagesResult] = await Promise.allSettled([
@@ -291,9 +289,11 @@ export async function obtenerTourPorId(id) {
                     ? placesResult.value
                     : [];
 
-                tour.tour_dates = (datesResult.status === 'fulfilled' && Array.isArray(datesResult.value))
-                    ? datesResult.value
-                    : [];
+                if (datesResult.status === 'fulfilled' && Array.isArray(datesResult.value) && datesResult.value.length > 0) {
+                    tour.tour_dates = datesResult.value;
+                } else if (!Array.isArray(tour.tour_dates)) {
+                    tour.tour_dates = [];
+                }
 
                 tour.tour_images = (imagesResult.status === 'fulfilled' && Array.isArray(imagesResult.value))
                     ? imagesResult.value
@@ -326,7 +326,7 @@ export async function obtenerToursPorLugar(placeId) {
     try {
         const queryParams = new URLSearchParams({
             place_id: `eq.${placeId}`,
-            select: 'tour_id,visit_order,tours(*,tour_dates(*),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*))'
+            select: 'tour_id,visit_order,tours(*,tour_dates(id,departure_date,available_spots),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*))'
         });
 
         const url = `${SUPABASE_URL}/rest/v1/tour_places?${queryParams.toString()}`;
@@ -397,53 +397,103 @@ export async function obtenerLugaresParaFiltro() {
 }
 
 /**
- * Inserta una nueva reserva en la tabla tour_reservations de Supabase (CP-021)
- * @param {Object} reservaData - { tour_id, tourist_name, tourist_email, tourist_phone, tour_date, spots_reserved }
- * @returns {Promise<{ ok: boolean, data?: Object, error?: string }>}
+ * Inserta una nueva reserva en la tabla tour_reservations de Supabase
+ * @param {Object} datosReserva - Datos de la reserva a registrar
+ * @returns {Promise<{ ok: boolean, data?: Object }>}
+ * @throws {Error} Si la petición a Supabase falla
  */
-export async function crearReservaTour(reservaData) {
-    try {
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations`;
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                ...HEADERS,
-                'Prefer': 'return=representation'
-            },
-            body: JSON.stringify(reservaData)
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            return { ok: true, data: Array.isArray(data) ? data[0] : data };
-        } else {
-            const errJson = await res.json().catch(() => ({}));
-            console.warn('Respuesta no exitosa al guardar reserva en Supabase:', res.status, errJson);
-            // Si el error es por tour inexistente en demo local o RLS, permitimos que la UI valide el éxito
-            return { ok: true, data: reservaData, note: 'Simulación local de reserva guardada' };
-        }
-    } catch (error) {
-        console.error('Error al enviar reserva a Supabase:', error);
-        return { ok: true, data: reservaData, note: 'Reserva procesada' };
+export async function crearReservaTour(datosReserva) {
+    const sesion = await AuthModel.obtenerSesionActual();
+    if (!sesion || !sesion.user) {
+        throw new Error('Debes iniciar sesión para realizar una reserva');
     }
+
+    // Payload que envía ÚNICAMENTE columnas válidas de la tabla tour_reservations
+    const payload = {
+        tour_id: datosReserva.tourId || datosReserva.tour_id,
+        tour_date_id: datosReserva.tourDateId || datosReserva.tour_date_id,
+        tour_date: datosReserva.tourDate || datosReserva.tour_date, // formato YYYY-MM-DD
+        tourist_id: sesion.user.id,
+        tourist_name: (datosReserva.nombre || datosReserva.tourist_name || '').trim(),
+        tourist_email: (datosReserva.email || datosReserva.tourist_email || '').trim(),
+        tourist_phone: (datosReserva.telefono || datosReserva.tourist_phone || '').trim(),
+        spots_reserved: Number(datosReserva.cuposReservados ?? datosReserva.spots_reserved)
+    };
+
+    // Asegurarse estrictamente de que available_spots NO esté en este objeto
+    delete payload.available_spots;
+
+    const url = `${SUPABASE_URL}/rest/v1/tour_reservations`;
+    const respuesta = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${sesion.access_token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!respuesta.ok) {
+        const errorBody = await respuesta.json().catch(() => ({}));
+        throw new Error(errorBody.message || 'Error al guardar la reservación');
+    }
+
+    const data = await respuesta.json().catch(() => null);
+    const resultado = Array.isArray(data) ? data[0] : (data || payload);
+    return { ok: true, data: resultado };
 }
 
 /**
- * Intenta actualizar los cupos disponibles de un tour tras confirmar la reserva
- * @param {string} tourId - UUID del tour
- * @param {number} nuevosCupos - Nueva cantidad de cupos disponibles
+ * Actualiza los cupos disponibles de una fecha específica en tour_dates tras confirmar la reserva
+ * @param {string} tourDateId - UUID del registro en la tabla tour_dates
+ * @param {number} nuevosCuposDisponibles - Nueva cantidad de cupos disponibles
+ * @returns {Promise<Object>} Datos actualizados devueltos por Supabase
+ * @throws {Error} Si la actualización en Supabase falla
  */
-export async function actualizarCuposTour(tourId, nuevosCupos) {
-    try {
-        const url = `${SUPABASE_URL}/rest/v1/tours?id=eq.${tourId}`;
-        await fetch(url, {
-            method: 'PATCH',
-            headers: HEADERS,
-            body: JSON.stringify({ available_spots: nuevosCupos })
-        });
-    } catch (error) {
-        console.warn('No se pudieron actualizar los cupos en la base de datos:', error);
+export async function actualizarCuposTour(tourDateId, nuevosCuposDisponibles) {
+    if (!tourDateId) return null;
+
+    const sesion = await AuthModel.obtenerSesionActual();
+    const token = sesion?.access_token || SUPABASE_ANON_KEY;
+
+    const url = `${SUPABASE_URL}/rest/v1/tour_dates?id=eq.${tourDateId}`;
+    const respuesta = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation' // Para verificar que realmente actualizó una fila
+        },
+        body: JSON.stringify({
+            available_spots: nuevosCuposDisponibles
+        })
+    });
+
+    if (!respuesta.ok) {
+        const errorBody = await respuesta.json().catch(() => ({}));
+        throw new Error(errorBody.message || 'Error al actualizar cupos en tour_dates');
     }
+
+    const data = await respuesta.json().catch(() => null);
+    return Array.isArray(data) ? data[0] : data;
+}
+
+export const actualizarCuposFecha = actualizarCuposTour;
+export const obtenerPorId = obtenerTourPorId;
+
+/**
+ * Retorna la fecha actual en la zona local del usuario en formato estándar YYYY-MM-DD.
+ * @returns {string} Fecha en formato 'YYYY-MM-DD'
+ */
+export function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
 }
 
 /**
@@ -455,6 +505,145 @@ export function formatearMonedaUSD(valor) {
     const num = Number(valor);
     if (isNaN(num)) return '$0.00';
     return `$${num.toFixed(2)}`;
+}
+
+/**
+ * Calcula el precio final aplicando un descuento porcentual y redondeando a 2 decimales.
+ * @param {number|string} precioBase 
+ * @param {number|string} porcentajeDescuento 
+ * @returns {number}
+ */
+export function calcularPrecioConDescuento(precioBase, porcentajeDescuento) {
+    const p = Number(precioBase);
+    const d = Number(porcentajeDescuento);
+    if (isNaN(p) || p <= 0) return 0;
+    if (isNaN(d) || d <= 0) return Number(p.toFixed(2));
+    const finalPrice = p * (1 - d / 100);
+    return Number(finalPrice.toFixed(2));
+}
+
+/**
+ * Determina si una fecha de salida es pasada (o igual a la fecha de referencia).
+ * En la regla de negocio de reservas, las fechas del día de hoy o anteriores no están disponibles para reserva.
+ * @param {string} fechaStr 
+ * @param {string} [fechaReferencia] - Fecha 'YYYY-MM-DD' de referencia (por defecto hoy local)
+ * @returns {boolean}
+ */
+export function esFechaPasada(fechaStr, fechaReferencia) {
+    if (!fechaStr) return true;
+    const ref = fechaReferencia ? String(fechaReferencia).split('T')[0] : obtenerFechaHoyLocal();
+    const f = String(fechaStr).split('T')[0];
+    return f <= ref;
+}
+
+/**
+ * Determina si una fecha de salida es futura y vigente para realizar reservaciones.
+ * @param {string} fechaStr 
+ * @param {string} [fechaReferencia]
+ * @returns {boolean}
+ */
+export function esFechaVigente(fechaStr, fechaReferencia) {
+    return !esFechaPasada(fechaStr, fechaReferencia);
+}
+
+/**
+ * Filtra un catálogo de tours por departamento de manera insensible a mayúsculas y espacios.
+ * @param {Array<Object>} tours 
+ * @param {string} departamento 
+ * @returns {Array<Object>}
+ */
+export function filtrarPorDepartamento(tours, departamento) {
+    if (!Array.isArray(tours)) return [];
+    if (!departamento || !departamento.trim() || departamento === 'todos') return tours;
+    const deptoNorm = departamento.trim().toLowerCase();
+    return tours.filter(t => (t.department || '').trim().toLowerCase() === deptoNorm);
+}
+
+/**
+ * Filtra un catálogo de tours por condición de oferta ('oferta' vs 'sin_oferta').
+ * @param {Array<Object>} tours 
+ * @param {string} condicionOferta 
+ * @returns {Array<Object>}
+ */
+export function filtrarPorOferta(tours, condicionOferta) {
+    if (!Array.isArray(tours)) return [];
+    if (!condicionOferta || condicionOferta === 'todas') return tours;
+    return tours.filter(t => {
+        const tieneOferta = t.has_offer === true && Number(t.discount_percentage) > 0;
+        if (condicionOferta === 'oferta') return tieneOferta;
+        if (condicionOferta === 'sin_oferta') return !tieneOferta;
+        return true;
+    });
+}
+
+/**
+ * Realiza una búsqueda parcial insensible a mayúsculas por texto libre en el nombre/título del tour.
+ * @param {Array<Object>} tours 
+ * @param {string} textoBusqueda 
+ * @returns {Array<Object>}
+ */
+export function buscarPorTitulo(tours, textoBusqueda) {
+    if (!Array.isArray(tours)) return [];
+    if (!textoBusqueda || !textoBusqueda.trim()) return tours;
+    const queryNorm = textoBusqueda.trim().toLowerCase();
+    return tours.filter(t => {
+        const titulo = (t.name || t.title || '').trim().toLowerCase();
+        return titulo.includes(queryNorm);
+    });
+}
+
+/**
+ * Función pura que filtra una lista de tours en base a los criterios recibidos.
+ * Admite filtros: departamento, oferta, busqueda/texto, fecha, lugar.
+ * 
+ * @param {Array<Object>} listaTours - Array de tours a filtrar
+ * @param {Object} [filtros={}] - Objeto con criterios de filtro
+ * @returns {Array<Object>} Nueva lista filtrada
+ */
+export function filtrarCatalogoTours(listaTours, filtros = {}) {
+    if (!Array.isArray(listaTours)) return [];
+    const {
+        fecha = '',
+        departamento = '',
+        oferta = '',
+        lugar = '',
+        busqueda = '',
+        texto = ''
+    } = filtros;
+
+    let resultado = listaTours;
+
+    if (fecha) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => {
+                const f = typeof item === 'string' ? item : item.departure_date;
+                return String(f).split('T')[0] === String(fecha).split('T')[0];
+            })
+        );
+    }
+
+    if (departamento) {
+        resultado = filtrarPorDepartamento(resultado, departamento);
+    }
+
+    if (oferta) {
+        resultado = filtrarPorOferta(resultado, oferta);
+    }
+
+    if (lugar) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
+                item.place_id === lugar || item.places?.id === lugar
+            )
+        );
+    }
+
+    const termino = busqueda || texto;
+    if (termino) {
+        resultado = buscarPorTitulo(resultado, termino);
+    }
+
+    return resultado;
 }
 
 /**
@@ -497,6 +686,15 @@ let todosLosTours = [];
 let lugaresDisponibles = [];
 
 export const ToursModel = {
+    obtenerPorId,
+    obtenerTourPorId,
+    actualizarCuposTour,
+    actualizarCuposFecha,
+    crearReservaTour,
+    filtrarCatalogoTours,
+    setTours(tours) {
+        todosLosTours = Array.isArray(tours) ? tours : [];
+    },
     async cargarCatalogo() {
         const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error('Timeout de seguridad (6s) excedido al cargar catálogo')), 6000);
@@ -513,30 +711,7 @@ export const ToursModel = {
     },
 
     getToursFiltrados(filtros = {}) {
-        const { fecha = '', departamento = '', oferta = '', lugar = '' } = filtros;
-        const deptoNormalizado = departamento.trim().toLowerCase();
-
-        return todosLosTours.filter(tour => {
-            if (fecha && !(Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => item.departure_date === fecha))) {
-                return false;
-            }
-
-            if (deptoNormalizado && (tour.department || '').trim().toLowerCase() !== deptoNormalizado) {
-                return false;
-            }
-
-            const tieneOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
-            if (oferta === 'oferta' && !tieneOferta) return false;
-            if (oferta === 'sin_oferta' && tieneOferta) return false;
-
-            if (lugar && !(Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
-                item.place_id === lugar || item.places?.id === lugar
-            ))) {
-                return false;
-            }
-
-            return true;
-        });
+        return filtrarCatalogoTours(todosLosTours, filtros);
     },
 
     getTotalTours() {

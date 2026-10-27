@@ -34,26 +34,42 @@ export const NavbarController = {
     inicializarEventos() {
         const { btnUser, btnLogout, btnLogin, dropdownMenu, userContainer } = NavbarView.elements;
 
-        // 1. Abrir/Cerrar Dropdown al hacer clic en el botón circular de usuario
-        btnUser?.addEventListener('click', (event) => {
+        // 1. Abrir/Cerrar Dropdown al hacer clic o toque en el botón circular de usuario (móvil y escritorio)
+        let lastToggleTime = 0;
+        const toggleDropdown = (event) => {
+            const now = Date.now();
+            if (now - lastToggleTime < 350) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+            lastToggleTime = now;
+            event.preventDefault();
             event.stopPropagation();
             NavbarView.alternarDropdown();
-        });
+        };
 
-        // 2. Prevenir que clics dentro del contenido del dropdown (excepto botones de acción) lo cierren
-        dropdownMenu?.addEventListener('click', (event) => {
+        btnUser?.addEventListener('click', toggleDropdown);
+        btnUser?.addEventListener('touchend', toggleDropdown);
+
+        // 2. Prevenir que clics y toques dentro del dropdown (excepto botones de acción) lo cierren
+        const stopPropagationHandler = (event) => {
             event.stopPropagation();
-        });
+        };
+        dropdownMenu?.addEventListener('click', stopPropagationHandler);
+        dropdownMenu?.addEventListener('touchend', stopPropagationHandler);
 
-        // 3. Cerrar dropdown automáticamente al hacer clic en cualquier lugar fuera del menú
-        document.addEventListener('click', (event) => {
+        // 3. Cerrar dropdown automáticamente al hacer clic o toque en cualquier lugar fuera del menú
+        const outsideHandler = (event) => {
             if (!NavbarView.isDropdownAbierto()) return;
 
             const clickDentroDeMenu = userContainer?.contains(event.target);
             if (!clickDentroDeMenu) {
                 NavbarView.cerrarDropdown();
             }
-        });
+        };
+        document.addEventListener('click', outsideHandler);
+        document.addEventListener('touchend', outsideHandler);
 
         // 4. Cerrar dropdown automáticamente al presionar la tecla Escape
         document.addEventListener('keydown', (event) => {

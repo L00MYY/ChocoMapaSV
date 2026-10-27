@@ -276,15 +276,19 @@ main,
 .search-icon {
   position: absolute;
   left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 20px;
   height: 20px;
   color: var(--blue-bell);
   pointer-events: none;
 }
 
-.search-input {
+.search-input,
+#search-input {
   width: 100%;
   padding: 13px 44px 13px 48px;
+  padding-left: 48px !important; /* Espacio suficiente para no pisar el icono */
   font-size: 0.98rem;
   font-family: var(--font-family);
   color: var(--text-primary);

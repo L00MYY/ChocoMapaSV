@@ -136,7 +136,7 @@
         </header>
 
         <!-- 2. Contenido Principal -->
-        <main class="tour-detail-main" id="main-content">
+        <main class="tour-detail-main tour-detail-container" id="main-content">
 
             <!-- Estado de Carga -->
             <section class="state-container state-loading" id="state-loading" aria-live="polite">
@@ -195,8 +195,8 @@
                 <div class="tour-content-grid">
                     <!-- Columna Izquierda: Información Detallada -->
                     <div class="tour-primary-column">
-                        <!-- Descripción Completa -->
-                        <section class="card-panel description-panel">
+                        <!-- Descripción -->
+                        <section class="card-panel tour-card tour-section-card description-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -206,7 +206,7 @@
                                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                     </svg>
                                 </div>
-                                <h2 class="panel-title">Descripción Completa</h2>
+                                <h2 class="panel-title">Descripción</h2>
                             </div>
                             <div class="panel-body">
                                 <p class="tour-full-description" id="tour-full-description">
@@ -216,7 +216,7 @@
                         </section>
 
                         <!-- Lugares Turísticos que Incluye -->
-                        <section class="card-panel places-panel">
+                        <section class="card-panel tour-card tour-section-card places-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -236,42 +236,6 @@
                                 <ol class="tour-places-list" id="tour-places-list">
                                     <!-- Lista ordenada inyectada dinámicamente -->
                                 </ol>
-                            </div>
-                        </section>
-
-                        <!-- Fechas de Salida y Horarios -->
-                        <section class="card-panel schedule-panel">
-                            <div class="panel-header">
-                                <div class="panel-icon-wrap" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                                    </svg>
-                                </div>
-                                <div class="panel-heading-texts">
-                                    <h2 class="panel-title">Fechas de Salida y Horarios</h2>
-                                    <p class="panel-subtitle">Próximas expediciones programadas</p>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="departure-time-box">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        width="20" height="20" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                    <span>Hora de salida: <strong id="tour-departure-time">--:--</strong></span>
-                                </div>
-
-                                <div class="departure-dates-container">
-                                    <h3 class="dates-heading">Fechas disponibles:</h3>
-                                    <div class="dates-chips-grid" id="tour-dates-chips">
-                                        <!-- Fechas inyectadas dinámicamente -->
-                                    </div>
-                                </div>
                             </div>
                         </section>
                     </div>
@@ -322,6 +286,42 @@
                                 </a>
                             </div>
                         </div>
+
+                        <!-- Fechas de Salida y Horarios -->
+                        <section class="card-panel schedule-panel" id="schedule-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <div class="panel-heading-texts">
+                                    <h2 class="panel-title">Fechas de Salida y Horarios</h2>
+                                    <p class="panel-subtitle">Próximas expediciones programadas</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="departure-time-box">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="20" height="20" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>Hora de salida: <strong id="tour-departure-time">--:--</strong></span>
+                                </div>
+
+                                <div class="departure-dates-container">
+                                    <h3 class="dates-heading">Fechas disponibles:</h3>
+                                    <div class="dates-chips-grid" id="tour-dates-chips">
+                                        <!-- Fechas inyectadas dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
 
                         <!-- Tarjeta de Precio y Acción Principal -->
                         <div class="card-panel booking-card" id="booking-card">
