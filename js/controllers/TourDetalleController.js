@@ -273,22 +273,23 @@ export const TourDetalleController = {
             TourDetalleView.actualizarCupos(cuposActualizados);
 
             const reservaIdGenerado = resultado?.data?.id || `res-${Date.now()}`;
+            const codigoGenerado = resultado?.data?.reservation_code || resultado?.data?.code || resultado?.data?.codigo || `CM-${String(reservaIdGenerado).slice(0, 6).toUpperCase()}`;
             const reservaCompleta = {
                 id: reservaIdGenerado,
                 tour_id: tourActual.id,
                 tourist_id: sesion.user.id,
                 spots_reserved: cupos,
                 tour_date: values.fecha,
-                status: 'Confirmado'
+                status: 'pendiente_pago',
+                reservation_code: codigoGenerado
             };
 
-            // Guardar localmente para contingencia inmediata y persistencia
             try {
                 localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaCompleta));
             } catch (_) {}
 
-            TourDetalleView.mostrarConfirmacion(tourActual, reservaCompleta);
-            TourDetalleView.renderizarModoHistorial(reservaCompleta, tourActual);
+            window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoGenerado)}`;
+            return;
         } catch (error) {
             console.error('Error al guardar la reserva:', error);
             TourDetalleView.mostrarError('Ocurrió un error al procesar tu reserva con el servidor. Por favor intenta nuevamente.');
