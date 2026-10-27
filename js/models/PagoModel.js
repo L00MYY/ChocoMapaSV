@@ -30,6 +30,7 @@ export async function obtenerDetalleReserva(reservaId) {
                 return {
                     id: item.id,
                     tour_id: item.tour_id,
+                    tour_date_id: item.tour_date_id,
                     tourist_id: item.tourist_id,
                     tourist_name: item.tourist_name || (sesion?.user?.user_metadata?.full_name || 'Turista'),
                     tourist_email: item.tourist_email || (sesion?.user?.email || ''),
@@ -39,6 +40,7 @@ export async function obtenerDetalleReserva(reservaId) {
                     status: item.status || 'pendiente_pago',
                     reservation_code: item.reservation_code || item.code || `CM-${String(item.id).slice(0, 6).toUpperCase()}`,
                     total_amount: Number(item.total_amount) || (Number(item.tours?.final_price || item.tours?.price || 35) * (Number(item.spots_reserved) || 1)),
+                    accepts_whatsapp: Boolean(item.accepts_whatsapp),
                     expires_at: item.expires_at || null,
                     created_at: item.created_at || new Date().toISOString(),
                     tours: item.tours || null
@@ -60,6 +62,7 @@ export async function obtenerDetalleReserva(reservaId) {
                         return {
                             id: parsed.id,
                             tour_id: parsed.tour_id,
+                            tour_date_id: parsed.tour_date_id,
                             tourist_id: parsed.tourist_id,
                             tourist_name: parsed.tourist_name || 'Turista',
                             tourist_email: parsed.tourist_email || '',
@@ -69,6 +72,7 @@ export async function obtenerDetalleReserva(reservaId) {
                             status: parsed.status || 'pendiente_pago',
                             reservation_code: parsed.reservation_code || `CM-${String(parsed.id).slice(0, 6).toUpperCase()}`,
                             total_amount: Number(parsed.total_amount) || 35.00,
+                            accepts_whatsapp: Boolean(parsed.accepts_whatsapp),
                             expires_at: parsed.expires_at || null,
                             created_at: parsed.created_at || new Date().toISOString(),
                             tours: parsed.tours || null
@@ -82,6 +86,7 @@ export async function obtenerDetalleReserva(reservaId) {
     return {
         id: reservaId,
         tour_id: 'a1000000-0000-0000-0000-000000000001',
+        tour_date_id: null,
         tourist_id: '',
         tourist_name: 'Turista ChocoMapa',
         tourist_email: '',
@@ -91,6 +96,7 @@ export async function obtenerDetalleReserva(reservaId) {
         status: 'pendiente_pago',
         reservation_code: `CM-${String(reservaId).slice(0, 6).toUpperCase()}`,
         total_amount: 35.00,
+        accepts_whatsapp: false,
         expires_at: null,
         created_at: new Date().toISOString(),
         tours: {
@@ -122,10 +128,15 @@ export async function subirComprobanteStorage(reservaId, file) {
 
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
         try {
-            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                global: {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {}
+                }
+            });
             const { data, error } = await client.storage.from('receipts').upload(storagePath, file, {
                 cacheControl: '3600',
-                upsert: true
+                upsert: true,
+                contentType: file.type || 'application/octet-stream'
             });
             if (!error && data) {
                 return { ok: true, path: storagePath };
@@ -147,9 +158,6 @@ export async function subirComprobanteStorage(reservaId, file) {
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        if (res.status === 404 && errorData?.code === 'NoSuchBucket') {
-            return { ok: true, path: storagePath };
-        }
         throw new Error(errorData.message || `Error al subir archivo a Storage (${res.status})`);
     }
 
@@ -212,7 +220,7 @@ export async function notificarComprobante(reservaId, storagePath, fileHash, mim
                 file_hash: fileHash,
                 mime_type: mimeType,
                 file_size_bytes: fileSize,
-                status: 'en_validacion'
+                status: 'en_revision'
             })
         });
     } catch (_) {}

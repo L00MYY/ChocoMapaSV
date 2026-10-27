@@ -516,6 +516,127 @@ body.page-admin {
   display: none !important;
 }
 
+.cell-qr {
+  text-align: center;
+  width: 56px;
+}
+
+.btn-ver-qr {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  padding: 4px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-ver-qr:hover {
+  background: #EDF2F7;
+  border-color: var(--blue-bell);
+  transform: scale(1.05);
+}
+
+.qr-thumbnail {
+  display: block;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.modal-container-qr {
+  max-width: 440px;
+}
+
+.modal-qr-body {
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.qr-preview-box {
+  background: #FFFFFF;
+  padding: 16px;
+  border-radius: 14px;
+  border: 2px solid #E2E8F0;
+  display: inline-flex;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.qr-details {
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.qr-details-codigo {
+  margin: 0 0 6px 0;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #002B49;
+  letter-spacing: 0.5px;
+}
+
+.qr-details-turista {
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.qr-details-tour {
+  margin: 0 0 4px 0;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.qr-details-fecha {
+  margin: 0;
+  color: #64748B;
+  font-size: 0.88rem;
+}
+
+.modal-qr-footer {
+  justify-content: center;
+  gap: 12px;
+}
+
+.badge-status-val {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid #BFDBFE;
+  white-space: nowrap;
+}
+
+.badge-status-pen {
+  background: #FFFBEB;
+  color: #B45309;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid #FDE68A;
+  white-space: nowrap;
+}
+
+.badge-status-conf {
+  background: #ECFDF5;
+  color: #047857;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid #A7F3D0;
+  white-space: nowrap;
+}
+
 @media (max-width: 820px) {
   .admin-header {
     flex-direction: column;
