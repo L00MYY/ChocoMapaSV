@@ -26,6 +26,30 @@ function obtenerSupabaseClient(token) {
     return null;
 }
 
+function sincronizarEstadoLocalStorage(reservaId, nuevoStatus, motivo = null) {
+    try {
+        const claves = Object.keys(localStorage);
+        for (const clave of claves) {
+            if (clave.startsWith('chocomapa_reserva_')) {
+                const raw = localStorage.getItem(clave);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && (parsed.id === reservaId || parsed.reservation_code === reservaId)) {
+                        parsed.status = nuevoStatus;
+                        if (nuevoStatus === 'confirmada') {
+                            parsed.confirmed_at = new Date().toISOString();
+                        }
+                        if (motivo) {
+                            parsed.rejection_reason = motivo;
+                        }
+                        localStorage.setItem(clave, JSON.stringify(parsed));
+                    }
+                }
+            }
+        }
+    } catch (_) {}
+}
+
 export async function verificarRolAdmin() {
     try {
         const sesion = await AuthModel.obtenerSesionActual();
@@ -57,19 +81,6 @@ export async function verificarRolAdmin() {
             return { esAdmin: true, user: sesion.user, admin: { user_id: userId, role: 'validador_pagos' } };
         }
 
-        try {
-            const resTotal = await fetch(`${SUPABASE_URL}/rest/v1/admin_users?select=user_id&limit=1`, {
-                method: 'GET',
-                headers: authHeaders
-            });
-            if (resTotal.ok) {
-                const admins = await resTotal.json();
-                if (Array.isArray(admins) && admins.length === 0) {
-                    return { esAdmin: true, user: sesion.user, admin: { user_id: userId, role: 'validador_inicial' } };
-                }
-            }
-        } catch (_) {}
-
         return { esAdmin: false, razon: 'not_admin', user: sesion.user };
     } catch (error) {
         console.error(error);
@@ -85,7 +96,7 @@ export async function obtenerReservasEnValidacion() {
             'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
         };
 
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?status=not.in.(confirmada,cancelada,rechazada,rechazado)&select=*,tours(*),tour_dates(*)&order=created_at.desc`;
+        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?status=in.(pendiente_pago,en_validacion)&select=*,tours(*),tour_dates(*)&order=created_at.desc`;
         const res = await fetch(url, {
             method: 'GET',
             headers: authHeaders
@@ -223,12 +234,12 @@ export async function aprobarReserva(reservaId) {
     if (!reservaId) throw new Error('ID de reserva obligatorio');
 
     const statusActual = await verificarEstadoReserva(reservaId);
-    const yaProcesada = ['confirmada', 'cancelada', 'rechazada', 'rechazado'].includes(statusActual);
+    const yaProcesada = ['confirmada', 'cancelada', 'rechazada', 'rechazado', 'expirada'].includes(statusActual);
     if (statusActual && yaProcesada) {
         return {
             ok: false,
             concurrencia: true,
-            mensaje: 'Esta reserva ya fue validada previamente por otro administrador'
+            mensaje: 'Esta reserva ya fue procesada previamente'
         };
     }
 
@@ -237,30 +248,36 @@ export async function aprobarReserva(reservaId) {
     const authHeaders = {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-
-    const payload = {
-        p_reservation_id: reservaId,
-        reserva_id: reservaId
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
     };
 
     try {
         const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/aprobar_reserva_pago`;
         const resRpc = await fetch(urlRpc, {
             method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify(payload)
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                p_reservation_id: reservaId
+            })
         });
 
         if (resRpc.ok) {
-            return { ok: true };
+            const rpcData = await resRpc.json().catch(() => null);
+            if (rpcData && rpcData.success === true) {
+                sincronizarEstadoLocalStorage(reservaId, 'confirmada');
+                return { ok: true };
+            }
         }
     } catch (_) {}
 
     try {
         const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
-        await fetch(urlPatchReserva, {
+        const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
             body: JSON.stringify({
@@ -270,23 +287,32 @@ export async function aprobarReserva(reservaId) {
             })
         });
 
-        const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
-        await fetch(urlPatchReceipt, {
-            method: 'PATCH',
-            headers: authHeaders,
-            body: JSON.stringify({
-                status: 'aprobado',
-                reviewed_at: new Date().toISOString(),
-                reviewed_by: sesion?.user?.id || null
-            })
-        });
+        if (resPatch.ok) {
+            const filasActualizadas = await resPatch.json().catch(() => []);
+            if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
+                const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+                await fetch(urlPatchReceipt, {
+                    method: 'PATCH',
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        status: 'aprobado',
+                        reviewed_at: new Date().toISOString(),
+                        reviewed_by: sesion?.user?.id || null
+                    })
+                }).catch(() => {});
 
-        return { ok: true };
+                sincronizarEstadoLocalStorage(reservaId, 'confirmada');
+                return { ok: true };
+            }
+        }
     } catch (error) {
         console.error(error);
     }
 
-    return { ok: true };
+    return {
+        ok: false,
+        mensaje: 'No se pudo actualizar la reserva en la base de datos. Verifica los permisos RLS y la función aprobar_reserva_pago en Supabase.'
+    };
 }
 
 export async function rechazarReserva(reservaId, motivo) {
@@ -294,12 +320,12 @@ export async function rechazarReserva(reservaId, motivo) {
     if (!motivo || !String(motivo).trim()) throw new Error('El motivo de rechazo es obligatorio');
 
     const statusActual = await verificarEstadoReserva(reservaId);
-    const yaProcesada = ['confirmada', 'cancelada', 'rechazada', 'rechazado'].includes(statusActual);
+    const yaProcesada = ['confirmada', 'cancelada', 'rechazada', 'rechazado', 'expirada'].includes(statusActual);
     if (statusActual && yaProcesada) {
         return {
             ok: false,
             concurrencia: true,
-            mensaje: 'Esta reserva ya fue validada previamente por otro administrador'
+            mensaje: 'Esta reserva ya fue procesada previamente'
         };
     }
 
@@ -308,61 +334,75 @@ export async function rechazarReserva(reservaId, motivo) {
     const authHeaders = {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
     };
 
-    const payload = {
-        p_reservation_id: reservaId,
-        reserva_id: reservaId,
-        p_rejection_reason: motivo.trim(),
-        rejection_reason: motivo.trim(),
-        p_motivo: motivo.trim(),
-        motivo: motivo.trim()
-    };
+    const motivoLimpio = motivo.trim();
 
     try {
         const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/rechazar_reserva_pago`;
         const resRpc = await fetch(urlRpc, {
             method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify(payload)
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                p_reservation_id: reservaId,
+                p_rejection_reason: motivoLimpio
+            })
         });
 
         if (resRpc.ok) {
-            return { ok: true };
+            const rpcData = await resRpc.json().catch(() => null);
+            if (rpcData && rpcData.success === true) {
+                sincronizarEstadoLocalStorage(reservaId, 'rechazada', motivoLimpio);
+                return { ok: true };
+            }
         }
     } catch (_) {}
 
     try {
         const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
-        await fetch(urlPatchReserva, {
+        const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
             headers: authHeaders,
             body: JSON.stringify({
                 status: 'rechazada',
-                rejection_reason: motivo.trim(),
+                rejection_reason: motivoLimpio,
                 validated_by: sesion?.user?.id || null
             })
         });
 
-        const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
-        await fetch(urlPatchReceipt, {
-            method: 'PATCH',
-            headers: authHeaders,
-            body: JSON.stringify({
-                status: 'rechazado',
-                rejection_reason: motivo.trim(),
-                reviewed_at: new Date().toISOString(),
-                reviewed_by: sesion?.user?.id || null
-            })
-        });
+        if (resPatch.ok) {
+            const filasActualizadas = await resPatch.json().catch(() => []);
+            if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
+                const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
+                await fetch(urlPatchReceipt, {
+                    method: 'PATCH',
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        status: 'rechazado',
+                        rejection_reason: motivoLimpio,
+                        reviewed_at: new Date().toISOString(),
+                        reviewed_by: sesion?.user?.id || null
+                    })
+                }).catch(() => {});
 
-        return { ok: true };
+                sincronizarEstadoLocalStorage(reservaId, 'rechazada', motivoLimpio);
+                return { ok: true };
+            }
+        }
     } catch (error) {
         console.error(error);
     }
 
-    return { ok: true };
+    return {
+        ok: false,
+        mensaje: 'No se pudo rechazar la reserva en la base de datos. Verifica los permisos RLS en Supabase.'
+    };
 }
 
 export const AdminPagosModel = {

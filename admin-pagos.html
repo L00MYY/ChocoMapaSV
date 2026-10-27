@@ -151,7 +151,7 @@
                             <span>Panel Administrativo MITUR</span>
                         </div>
                         <h1 class="admin-title">Validación de Pagos y Reservas de Tours</h1>
-                        <p class="admin-subtitle">Revisión, consulta de códigos QR y confirmación oficial de reservaciones de tours.</p>
+                        <p class="admin-subtitle">Revisión de comprobantes de transferencia y confirmación oficial de reservaciones de tours.</p>
                     </div>
 
                     <div class="admin-stats">
@@ -168,7 +168,6 @@
                             <thead>
                                 <tr>
                                     <th>Código</th>
-                                    <th>QR</th>
                                     <th>Turista</th>
                                     <th>Teléfono</th>
                                     <th>Tour</th>
@@ -182,7 +181,7 @@
                             </thead>
                             <tbody id="tabla-reservas-body">
                                 <tr>
-                                    <td colspan="11">
+                                    <td colspan="10">
                                         <div class="empty-state">
                                             <p class="empty-text">Cargando reservaciones pendientes...</p>
                                         </div>
@@ -203,42 +202,6 @@
                 <p class="footer-tagline">El Salvador • Tierra de Anfitriones</p>
             </div>
         </footer>
-    </div>
-
-    <div id="modal-qr" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-qr-titulo">
-        <div class="modal-container modal-container-qr">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-qr-titulo">Código QR de la Reserva</h3>
-                <button type="button" class="modal-close" id="btn-cerrar-modal-qr" aria-label="Cerrar modal QR">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="modal-body modal-qr-body" id="modal-qr-body">
-                <div class="qr-preview-box">
-                    <img id="modal-qr-img" src="" alt="Código QR de la reserva" width="220" height="220">
-                </div>
-                <div class="qr-details">
-                    <p class="qr-details-codigo" id="modal-qr-codigo">CM-XXXXXX</p>
-                    <p class="qr-details-turista" id="modal-qr-turista">Turista</p>
-                    <p class="qr-details-tour" id="modal-qr-tour">Tour</p>
-                    <p class="qr-details-fecha" id="modal-qr-fecha">Fecha: --</p>
-                </div>
-            </div>
-            <div class="modal-footer modal-qr-footer">
-                <a href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-ver-comprobante" id="btn-descargar-qr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span>Abrir QR en alta resolución</span>
-                </a>
-                <button type="button" class="btn-action" id="btn-cerrar-qr-footer">Cerrar</button>
-            </div>
-        </div>
     </div>
 
     <div id="modal-comprobante" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-comprobante-titulo">
