@@ -57,14 +57,14 @@ console.log('Variables de entorno verificadas correctamente.');
 // Estas variables son accesibles desde el navegador.
 // No incluyas aquí contraseñas ni claves privilegiadas.
 
-/*
+
 const fileContent = `// Archivo generado automáticamente durante el build.
 // No editar manualmente.
 
 export const MAPBOX_TOKEN = ${JSON.stringify(mapboxToken)};
 export const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
 export const SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
-`;*/
+`;
 
 // ==================================================
 // 3. CONSTRUIR LA CARPETA DIST
@@ -153,7 +153,7 @@ try {
 
     fs.writeFileSync(
         distConfigPath,
-        //fileContent,
+        fileContent,
         'utf8'
     );
 
@@ -176,7 +176,7 @@ try {
 
         fs.writeFileSync(
             legacyConfigPath,
-            //fileContent,
+            fileContent,
             'utf8'
         );
 
