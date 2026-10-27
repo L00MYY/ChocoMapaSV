@@ -11,6 +11,8 @@ import {
 } from '../models/TourDetalleModel.js';
 import {
     AuthModel,
+    puedeReservarTour,
+    requiereIniciarSesionParaReserva,
     validarEmail,
     validarTelefonoSV,
     sanitizarUsuario
@@ -79,7 +81,7 @@ export const TourDetalleController = {
             if (isFromHistorial) return;
 
             const sesion = await AuthModel.obtenerSesionActual();
-            if (!sesion || !sesion.user) {
+            if (requiereIniciarSesionParaReserva(sesion)) {
                 window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
                 return;
             }

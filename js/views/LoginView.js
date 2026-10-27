@@ -38,7 +38,86 @@ export const LoginView = {
     },
 
     /**
-     * Oculta y limpia el contenedor de mensajes de error.
+     * Resuelve el elemento de entrada correspondiente a una clave o id
+     * @private
+     */
+    _resolverInput(inputKey) {
+        if (!inputKey) return null;
+        if (typeof inputKey !== 'string') return inputKey;
+
+        const mapa = {
+            email: this.elements.emailInput,
+            emailInput: this.elements.emailInput,
+            password: this.elements.passwordInput,
+            passwordInput: this.elements.passwordInput
+        };
+
+        return mapa[inputKey] || document.getElementById(inputKey) || null;
+    },
+
+    /**
+     * Muestra un mensaje de error específico debajo de un campo individual.
+     * 
+     * @param {'email' | 'password' | string} campo - Identificador del campo
+     * @param {string} mensaje - Mensaje de validación
+     */
+    mostrarErrorCampo(campo, mensaje) {
+        const input = this._resolverInput(campo);
+        if (!input) return;
+
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        formGroup.classList.add('has-error');
+        input.classList.add('is-invalid');
+
+        let errorContainer = formGroup.querySelector('.field-error-message');
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'field-error-message show';
+            errorContainer.setAttribute('role', 'alert');
+            formGroup.appendChild(errorContainer);
+        }
+
+        let errorTextSpan = errorContainer.querySelector('.error-text');
+        if (!errorTextSpan) {
+            errorTextSpan = document.createElement('span');
+            errorTextSpan.className = 'error-text';
+            errorContainer.appendChild(errorTextSpan);
+        }
+
+        errorTextSpan.textContent = mensaje || 'Campo obligatorio';
+        errorContainer.classList.add('show');
+        errorContainer.classList.remove('hidden');
+        errorContainer.style.display = 'flex';
+    },
+
+    /**
+     * Limpia los indicadores visuales y el mensaje de error de un campo individual.
+     * 
+     * @param {'email' | 'password' | string} campo
+     */
+    limpiarErrorCampo(campo) {
+        const input = this._resolverInput(campo);
+        if (!input) return;
+
+        const formGroup = input.closest('.form-group');
+        if (formGroup) {
+            formGroup.classList.remove('has-error');
+            const errorContainer = formGroup.querySelector('.field-error-message');
+            if (errorContainer) {
+                errorContainer.classList.remove('show');
+                errorContainer.style.display = 'none';
+                const textSpan = errorContainer.querySelector('.error-text');
+                if (textSpan) textSpan.textContent = '';
+            }
+        }
+
+        input.classList.remove('is-invalid');
+    },
+
+    /**
+     * Oculta y limpia el contenedor de mensajes de error global y por campo.
      */
     limpiarError() {
         const { errorMsgContainer, emailInput, passwordInput } = this.elements;
@@ -51,6 +130,16 @@ export const LoginView = {
 
         emailInput?.classList.remove('is-invalid');
         passwordInput?.classList.remove('is-invalid');
+
+        this.limpiarErrorCampo('email');
+        this.limpiarErrorCampo('password');
+    },
+
+    /**
+     * Limpia todos los errores tanto por campo como alertas globales.
+     */
+    limpiarErrores() {
+        this.limpiarError();
     },
 
     /**

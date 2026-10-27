@@ -4,7 +4,7 @@
  * Orquestador entre la vista (RegistroView) y el modelo (AuthModel).
  */
 
-import { AuthModel, validarEmail, sanitizarUsuario } from '../models/AuthModel.js';
+import { AuthModel, validarFormularioRegistro, sanitizarUsuario } from '../models/AuthModel.js';
 import { RegistroView, REGLAS_PASSWORD } from '../views/RegistroView.js';
 
 export const RegistroController = {
@@ -91,56 +91,20 @@ export const RegistroController = {
     },
 
     /**
-     * Valida los datos del formulario aplicando las reglas de negocio
+     * Valida los datos del formulario aplicando las reglas de negocio del modelo
      * 
      * @param {{ nombre: string, email: string, password: string, confirm: string, terms: boolean }} datos
      * @returns {Array<[string, string]>} Lista de pares [campo, mensajeError]
      */
     validar(datos) {
+        const { errores: errs } = validarFormularioRegistro(datos);
         const errores = [];
 
-        // 1. Nombre completo
-        const nombreLimpio = sanitizarUsuario(datos.nombre);
-        if (!nombreLimpio) {
-            errores.push(['inputNombre', 'El nombre completo es obligatorio.']);
-        } else if (nombreLimpio.length < 3) {
-            errores.push(['inputNombre', 'El nombre debe contener al menos 3 caracteres.']);
-        }
-
-        // 2. Correo electrónico
-        const emailLimpio = (datos.email || '').trim();
-        if (!emailLimpio) {
-            errores.push(['inputEmail', 'El correo electrónico es obligatorio.']);
-        } else if (!validarEmail(emailLimpio)) {
-            errores.push(['inputEmail', 'Ingresa un formato de correo electrónico válido.']);
-        }
-
-        // 3. Contraseña
-        if (!datos.password) {
-            errores.push(['inputPassword', 'La contraseña es obligatoria.']);
-        } else {
-            const cumpleLongitud = REGLAS_PASSWORD.length(datos.password);
-            const cumpleMayuscula = REGLAS_PASSWORD.uppercase(datos.password);
-            const cumpleMinuscula = REGLAS_PASSWORD.lowercase(datos.password);
-            const cumpleNumero = REGLAS_PASSWORD.number(datos.password);
-            const cumpleEspecial = REGLAS_PASSWORD.special(datos.password);
-
-            if (!cumpleLongitud || !cumpleMayuscula || !cumpleMinuscula || !cumpleNumero || !cumpleEspecial) {
-                errores.push(['inputPassword', 'La contraseña no cumple con todas las reglas de seguridad requeridas.']);
-            }
-        }
-
-        // 4. Confirmación de contraseña
-        if (!datos.confirm) {
-            errores.push(['inputConfirm', 'Debes confirmar tu contraseña.']);
-        } else if (datos.password !== datos.confirm) {
-            errores.push(['inputConfirm', 'Las contraseñas no coinciden. Por favor verifícalas.']);
-        }
-
-        // 5. Términos y condiciones
-        if (!datos.terms) {
-            errores.push(['inputTerms', 'Debes aceptar los términos y la política de privacidad.']);
-        }
+        if (errs.nombre) errores.push(['inputNombre', errs.nombre]);
+        if (errs.email) errores.push(['inputEmail', errs.email]);
+        if (errs.password) errores.push(['inputPassword', errs.password]);
+        if (errs.confirmacion) errores.push(['inputConfirm', errs.confirmacion]);
+        if (errs.terminos) errores.push(['inputTerms', errs.terminos]);
 
         return errores;
     },
