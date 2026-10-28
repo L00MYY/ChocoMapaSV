@@ -1,5 +1,6 @@
 // Vista e integración visual de Mapbox.
 import { MAPBOX_TOKEN_B64 } from '../config.js';
+import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const MAPBOX_TOKEN = atob(MAPBOX_TOKEN_B64);
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -232,9 +233,9 @@ export function openPopupAndFly(lugar, colorHex) {
         const color = colorHex || '#FF6B6B';
 
         // --- Calificación promedio (columna score de public.ratings) ---
-        const promedio = calcularPromedioRatings(lugar.ratings);
-        const hayRating = promedio > 0;
-        const ratingTexto = hayRating ? promedio.toFixed(1) : 'Sin calificaciones';
+        const infoRating = calcularPromedioRating(lugar.ratings);
+        const hayRating = infoRating.tieneCalificaciones;
+        const ratingTexto = hayRating ? infoRating.texto : 'Sin calificaciones aún';
         // --- Horarios (columna opening_days de public.places) ---
         const horarios = lugar.opening_days && lugar.opening_days.trim().length > 0
             ? lugar.opening_days.trim()
@@ -262,7 +263,7 @@ export function openPopupAndFly(lugar, colorHex) {
         rating.style.cssText = 'display:flex;align-items:center;gap:6px;margin:8px 0;';
         const stars = document.createElement('span');
         stars.style.cssText = 'display:flex;gap:2px;align-items:center;';
-        if (hayRating) stars.appendChild(crearEstrellas(promedio));
+        if (hayRating) stars.appendChild(crearEstrellas(infoRating.promedio));
         const ratingLabel = document.createElement('span');
         ratingLabel.style.cssText = 'font-size:0.85rem;font-weight:600;color:#374151;';
         ratingLabel.textContent = ratingTexto;
@@ -270,8 +271,7 @@ export function openPopupAndFly(lugar, colorHex) {
         if (hayRating) {
             const count = document.createElement('span');
             count.style.cssText = 'font-size:0.75rem;color:#6B7280;';
-            const cantidadRatings = Array.isArray(lugar.ratings) ? lugar.ratings.length : 0;
-            count.textContent = `(${cantidadRatings} resena${cantidadRatings !== 1 ? 's' : ''})`;
+            count.textContent = `(${infoRating.total} reseña${infoRating.total !== 1 ? 's' : ''})`;
             rating.appendChild(count);
         }
 

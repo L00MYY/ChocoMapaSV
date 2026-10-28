@@ -18,7 +18,8 @@ export const LugaresController = {
             searchInput,
             searchClearBtn,
             btnRetry,
-            btnResetFilters
+            btnResetFilters,
+            ratingPillsContainer
         } = LugaresView.elements;
 
         searchInput?.addEventListener('input', (event) => {
@@ -36,6 +37,13 @@ export const LugaresController = {
             this.aplicarFiltros();
         });
 
+        ratingPillsContainer?.addEventListener('click', (event) => {
+            const btn = event.target.closest('.rating-pill-btn');
+            if (!btn) return;
+            const minRating = Number(btn.dataset.rating) || 0;
+            this.seleccionarRating(minRating);
+        });
+
         btnRetry?.addEventListener('click', () => this.cargarLugares());
 
         btnResetFilters?.addEventListener('click', () => {
@@ -44,6 +52,7 @@ export const LugaresController = {
             searchClearBtn?.classList.add('hidden');
             const btnTodos = LugaresView.elements.categoryPillsContainer?.querySelector('[data-category="todos"], [data-categoria="todos"]');
             this.seleccionarCategoria('todos', btnTodos, true);
+            this.seleccionarRating(0);
         });
 
         window.addEventListener('popstate', () => {
@@ -95,6 +104,12 @@ export const LugaresController = {
             this.actualizarURLConCategoria(valorURL);
         }
 
+        this.aplicarFiltros();
+    },
+
+    seleccionarRating(minRating) {
+        LugaresModel.setRatingMinimo(minRating);
+        LugaresView.actualizarRatingActivo(minRating);
         this.aplicarFiltros();
     },
 

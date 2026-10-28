@@ -1,9 +1,23 @@
 import { obtenerLugaresTuristicos } from './SupabaseClient.js';
 import { coincideCategoria, normalizarTexto } from '../utils/textUtils.js';
+import {
+    calcularPromedioRating,
+    validarScoreRating,
+    evaluarElegibilidadCalificacion,
+    filtrarLugaresPorRating
+} from './CalificacionesModel.js';
+
+export {
+    calcularPromedioRating,
+    validarScoreRating,
+    evaluarElegibilidadCalificacion,
+    filtrarLugaresPorRating
+};
 
 let todosLosLugares = [];
 let categoriaActiva = 'todos';
 let terminoBusqueda = '';
+let ratingMinimoActivo = 0;
 
 function desduplicarLugares(lista) {
     if (!Array.isArray(lista)) return [];
@@ -51,6 +65,18 @@ export const LugaresModel = {
         return terminoBusqueda;
     },
 
+    setRatingMinimo(minRating) {
+        if (minRating === 'Todas' || minRating === 'todas') {
+            ratingMinimoActivo = 0;
+        } else {
+            ratingMinimoActivo = Number(minRating) || 0;
+        }
+    },
+
+    getRatingMinimo() {
+        return ratingMinimoActivo;
+    },
+
     getLugaresFiltrados() {
         let filtrados = todosLosLugares;
 
@@ -69,6 +95,10 @@ export const LugaresModel = {
                     descripcion.includes(busquedaNorm) ||
                     categoria.includes(busquedaNorm);
             });
+        }
+
+        if (ratingMinimoActivo > 0) {
+            filtrados = filtrarLugaresPorRating(filtrados, ratingMinimoActivo);
         }
 
         return filtrados;

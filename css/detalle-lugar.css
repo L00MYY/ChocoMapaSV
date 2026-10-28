@@ -1913,3 +1913,233 @@ main,
 
   /* Footer centralizado en css/footer.css */
 }
+
+/* ==========================================================================
+   Panel de Calificación del Visitante (CA-04 y CA-05)
+   ========================================================================== */
+.rating-action-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.rating-widget-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rating-widget-status {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* Estado No Autenticado (CA-05) */
+.rating-widget-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface-subtle);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+.rating-auth-msg {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--deep-space-blue);
+  margin: 0;
+}
+
+.rating-auth-sub {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Estado Bloqueado sin Tour Confirmado (CA-04) */
+.rating-widget-locked {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 16px;
+  border-radius: var(--radius-md);
+}
+
+.rating-warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.warning-icon {
+  width: 22px;
+  height: 22px;
+  stroke: #D97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rating-warning-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #92400E;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.rating-locked-hint {
+  font-size: 0.82rem;
+  color: #B45309;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Estado Ya Calificado (Inmutabilidad) */
+.rating-widget-done {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  padding: 18px;
+  border-radius: var(--radius-md);
+}
+
+.rating-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.done-check-icon {
+  width: 20px;
+  height: 20px;
+  stroke: #16A34A;
+  stroke-width: 2.5;
+}
+
+.rating-stars-fixed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rating-immutable-notice {
+  font-size: 0.8rem;
+  color: #15803D;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Estado Formulario Interactivo */
+.rating-widget-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rating-form-prompt {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.rating-stars-interactive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.star-btn-interactive {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition);
+}
+
+.star-btn-interactive:hover {
+  transform: scale(1.22);
+}
+
+.star-btn-interactive .star-icon {
+  width: 28px;
+  height: 28px;
+  transition: fill var(--transition), stroke var(--transition);
+}
+
+.rating-score-description {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #D97706;
+  min-height: 20px;
+}
+
+.btn-rating-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-rating-login {
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+}
+
+.btn-rating-login:hover {
+  background: var(--cerulean);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-rating-submit {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+
+.btn-rating-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+}
+
+.btn-rating-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.rating-widget-feedback {
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}

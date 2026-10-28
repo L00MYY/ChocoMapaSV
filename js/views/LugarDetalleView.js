@@ -1,4 +1,5 @@
 import { formatearMonedaUSD } from '../models/ToursModel.js';
+import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const TOUR_IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
@@ -13,46 +14,39 @@ function formatearHora(hora) {
     return `${String(numero).padStart(2, '0')}:${minutos} ${periodo}`;
 }
 
-function calcularPromedio(ratings, id) {
-    if (!Array.isArray(ratings) || ratings.length === 0) {
-        let hash = 0;
-        for (let index = 0; index < id.length; index++) {
-            hash = (hash << 5) - hash + id.charCodeAt(index);
-            hash |= 0;
-        }
-        return [4.7, 4.8, 4.9, 4.8][Math.abs(hash) % 4];
-    }
-    const total = ratings.reduce((sum, rating) => sum + (Number(rating.score) || 0), 0);
-    return Math.min(5, Math.max(1, Math.round(total / ratings.length * 10) / 10));
-}
-
 export const LugarDetalleView = {
-    elements: {
-        loading: document.getElementById('state-loading'),
-        error: document.getElementById('state-error'),
-        errorMessage: document.getElementById('error-message'),
-        content: document.getElementById('state-content'),
-        returnButton: document.getElementById('btn-return-map'),
-        title: document.getElementById('place-title'),
-        category: document.getElementById('place-category-badge'),
-        location: document.getElementById('place-location-text'),
-        heroImage: document.getElementById('place-hero-image'),
-        mediaRegion: document.getElementById('place-media-region'),
-        description: document.getElementById('place-description'),
-        department: document.getElementById('attr-department'),
-        region: document.getElementById('attr-region'),
-        status: document.getElementById('attr-status'),
-        rating: document.getElementById('rating-numeric-value'),
-        stars: document.getElementById('rating-stars-graphic'),
-        services: document.getElementById('services-badges-grid'),
-        scheduleDays: document.getElementById('schedule-days-value'),
-        scheduleHours: document.getElementById('schedule-hours-value'),
-        scheduleNote: document.getElementById('schedule-note-text'),
-        dateFilter: document.getElementById('place-tour-date'),
-        clearDate: document.getElementById('btn-clear-place-date'),
-        toursEmpty: document.getElementById('place-tours-empty'),
-        toursEmptyText: document.getElementById('place-empty-text'),
-        toursGrid: document.getElementById('place-tours-grid')
+    get elements() {
+        if (typeof document === 'undefined') return {};
+        return {
+            loading: document.getElementById('state-loading'),
+            error: document.getElementById('state-error'),
+            errorMessage: document.getElementById('error-message'),
+            content: document.getElementById('state-content'),
+            returnButton: document.getElementById('btn-return-map'),
+            title: document.getElementById('place-title'),
+            category: document.getElementById('place-category-badge'),
+            location: document.getElementById('place-location-text'),
+            heroImage: document.getElementById('place-hero-image'),
+            mediaRegion: document.getElementById('place-media-region'),
+            description: document.getElementById('place-description'),
+            department: document.getElementById('attr-department'),
+            region: document.getElementById('attr-region'),
+            status: document.getElementById('attr-status'),
+            rating: document.getElementById('rating-numeric-value'),
+            stars: document.getElementById('rating-stars-graphic'),
+            ratingCaptionLabel: document.getElementById('rating-caption-label'),
+            ratingActionPanel: document.getElementById('rating-action-panel'),
+            ratingWidgetContainer: document.getElementById('rating-widget-container'),
+            services: document.getElementById('services-badges-grid'),
+            scheduleDays: document.getElementById('schedule-days-value'),
+            scheduleHours: document.getElementById('schedule-hours-value'),
+            scheduleNote: document.getElementById('schedule-note-text'),
+            dateFilter: document.getElementById('place-tour-date'),
+            clearDate: document.getElementById('btn-clear-place-date'),
+            toursEmpty: document.getElementById('place-tours-empty'),
+            toursEmptyText: document.getElementById('place-empty-text'),
+            toursGrid: document.getElementById('place-tours-grid')
+        };
     },
 
     mostrarEstado(estado, mensaje = '') {
@@ -61,6 +55,42 @@ export const LugarDetalleView = {
         error?.classList.toggle('hidden', estado !== 'error');
         content?.classList.toggle('hidden', estado !== 'content');
         if (estado === 'error' && errorMessage && mensaje) errorMessage.textContent = mensaje;
+    },
+
+    renderizarRatingCabecera(ratings) {
+        const e = this.elements;
+        const infoRating = calcularPromedioRating(ratings);
+        const caption = e.ratingCaptionLabel || document.querySelector('.rating-caption-label');
+
+        if (e.rating) {
+            e.rating.textContent = infoRating.tieneCalificaciones ? infoRating.texto : 'Sin calificaciones aún';
+        }
+
+        if (caption) {
+            caption.textContent = infoRating.tieneCalificaciones
+                ? `(${infoRating.total} valoración${infoRating.total !== 1 ? 'es' : ''})`
+                : 'Sin calificaciones aún';
+        }
+
+        if (e.stars) {
+            e.stars.replaceChildren();
+            for (let index = 1; index <= 5; index++) {
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('viewBox', '0 0 24 24');
+                star.classList.add('star-icon');
+                const isFilled = infoRating.tieneCalificaciones && (
+                    index <= Math.floor(infoRating.promedio) ||
+                    (index === Math.floor(infoRating.promedio) + 1 && (infoRating.promedio % 1) >= 0.4)
+                );
+                if (!isFilled) {
+                    star.classList.add('empty');
+                }
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+                star.appendChild(polygon);
+                e.stars.appendChild(star);
+            }
+        }
     },
 
     renderizarLugar(lugar) {
@@ -86,21 +116,8 @@ export const LugarDetalleView = {
         if (e.region) e.region.textContent = lugar.region || 'El Salvador';
         if (e.status) e.status.textContent = lugar.is_active === false ? 'Temporalmente inactivo' : 'Sitio Activo';
 
-        const promedio = calcularPromedio(lugar.ratings, lugar.id || '');
-        if (e.rating) e.rating.textContent = promedio ? promedio.toFixed(1) : 'Sin calificaciones';
-        if (e.stars) {
-            e.stars.replaceChildren();
-            for (let index = 1; index <= 5; index++) {
-                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                star.setAttribute('viewBox', '0 0 24 24');
-                star.classList.add('star-icon');
-                if (index > Math.floor(promedio) && !(index === Math.floor(promedio) + 1 && promedio % 1 >= 0.4)) star.classList.add('empty');
-                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                polygon.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
-                star.appendChild(polygon);
-                e.stars.appendChild(star);
-            }
-        }
+        // Renderizado consistente y dinámico sin valores quemados (CA-01)
+        this.renderizarRatingCabecera(lugar.ratings);
 
         if (e.services) {
             e.services.replaceChildren();
@@ -266,5 +283,252 @@ export const LugarDetalleView = {
             fragment.appendChild(card);
         });
         toursGrid.appendChild(fragment);
+    },
+
+    renderizarSeccionCalificacion({ elegibilidad, onCalificar, onLogin }) {
+        const container = this.elements.ratingWidgetContainer;
+        if (!container) return;
+        container.replaceChildren();
+
+        // CA-05: Restricción para usuarios no autenticados
+        if (elegibilidad?.razon === 'AUTH_REQUERIDA' || !elegibilidad?.usuario) {
+            const authCard = document.createElement('div');
+            authCard.className = 'rating-widget-auth';
+
+            const msg = document.createElement('p');
+            msg.className = 'rating-auth-msg';
+            msg.textContent = elegibilidad?.mensaje || 'Debes iniciar sesión para calificar este lugar';
+
+            // Estrellas interactivas que invitan a iniciar sesión al interactuar
+            const starsContainer = document.createElement('div');
+            starsContainer.className = 'rating-stars-interactive rating-stars-guest';
+            starsContainer.setAttribute('role', 'group');
+            starsContainer.setAttribute('aria-label', 'Inicia sesión para calificar este lugar');
+
+            for (let i = 1; i <= 5; i++) {
+                const starBtn = document.createElement('button');
+                starBtn.type = 'button';
+                starBtn.className = 'star-btn-interactive star-btn-guest';
+                starBtn.setAttribute('aria-label', `Calificar con ${i} estrellas (requiere iniciar sesión)`);
+                starBtn.title = 'Inicia sesión para calificar este lugar';
+                starBtn.addEventListener('click', () => onLogin?.());
+
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('viewBox', '0 0 24 24');
+                star.classList.add('star-icon', 'empty');
+                const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+                star.appendChild(poly);
+                starBtn.appendChild(star);
+                starsContainer.appendChild(starBtn);
+            }
+
+            const sub = document.createElement('p');
+            sub.className = 'rating-auth-sub';
+            sub.textContent = 'Inicia sesión para calificar este lugar y compartir tu experiencia tras confirmar tus visitas guiadas.';
+
+            const loginBtn = document.createElement('button');
+            loginBtn.type = 'button';
+            loginBtn.className = 'btn-rating-action btn-rating-login';
+            loginBtn.id = 'btn-rating-login';
+            loginBtn.textContent = 'Inicia sesión para calificar este lugar';
+            loginBtn.setAttribute('aria-label', 'Inicia sesión para calificar este lugar');
+            loginBtn.addEventListener('click', () => onLogin?.());
+
+            authCard.append(msg, starsContainer, sub, loginBtn);
+            container.appendChild(authCard);
+            return;
+        }
+
+        // CA-04: Usuario ya calificó previamente (Inmutabilidad / voto único)
+        if (elegibilidad?.yaCalifico || elegibilidad?.razon === 'YA_CALIFICADO') {
+            const doneCard = document.createElement('div');
+            doneCard.className = 'rating-widget-done';
+
+            const badge = document.createElement('div');
+            badge.className = 'rating-done-badge';
+            badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="done-check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Ya has calificado este lugar</span>`;
+
+            const scoreContainer = document.createElement('div');
+            scoreContainer.className = 'rating-stars-fixed';
+            const fixedScore = elegibilidad.calificacionPrevia || 5;
+
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('viewBox', '0 0 24 24');
+                star.classList.add('star-icon');
+                if (i > fixedScore) star.classList.add('empty');
+                const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+                star.appendChild(poly);
+                scoreContainer.appendChild(star);
+            }
+
+            const notice = document.createElement('p');
+            notice.className = 'rating-immutable-notice';
+            notice.textContent = 'Tu calificación es única e inmutable para garantizar la autenticidad de la comunidad.';
+
+            doneCard.append(badge, scoreContainer, notice);
+            container.appendChild(doneCard);
+            return;
+        }
+
+        // CA-04: Usuario no tiene tour confirmado para este lugar
+        if (elegibilidad?.razon === 'SIN_TOUR_CONFIRMADO' || !elegibilidad?.puede) {
+            const lockedCard = document.createElement('div');
+            lockedCard.className = 'rating-widget-locked';
+
+            const warning = document.createElement('div');
+            warning.className = 'rating-warning-box';
+            warning.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><p class="rating-warning-text">${elegibilidad?.mensaje || 'Solo puedes calificar lugares turísticos incluidos en tours que hayas reservado y confirmado'}</p>`;
+
+            const hint = document.createElement('p');
+            hint.className = 'rating-locked-hint';
+            hint.textContent = 'Reserva uno de los tours oficiales disponibles abajo para este sitio para poder emitir tu calificación una vez confirmada la reserva.';
+
+            lockedCard.append(warning, hint);
+            container.appendChild(lockedCard);
+            return;
+        }
+
+        // CA-04: Usuario elegible para calificar
+        const formCard = document.createElement('div');
+        formCard.className = 'rating-widget-form';
+
+        const prompt = document.createElement('p');
+        prompt.className = 'rating-form-prompt';
+        prompt.textContent = 'Selecciona tu calificación de 1 a 5 estrellas:';
+
+        const starSelector = document.createElement('div');
+        starSelector.className = 'rating-stars-interactive';
+        starSelector.setAttribute('role', 'radiogroup');
+        starSelector.setAttribute('aria-label', 'Selecciona una puntuación del 1 al 5');
+
+        let scoreSeleccionado = 0;
+        const starButtons = [];
+
+        const etiquetasScore = ['', '1 estrella - Mala', '2 estrellas - Regular', '3 estrellas - Buena', '4 estrellas - Muy buena', '5 estrellas - Excelente'];
+
+        const scoreDesc = document.createElement('span');
+        scoreDesc.className = 'rating-score-description';
+        scoreDesc.textContent = 'Haz clic en una estrella';
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'button';
+        submitBtn.className = 'btn-rating-action btn-rating-submit';
+        submitBtn.id = 'btn-rating-submit';
+        submitBtn.textContent = 'Enviar calificación';
+        submitBtn.disabled = true;
+
+        const feedbackMsg = document.createElement('div');
+        feedbackMsg.className = 'rating-widget-feedback hidden';
+        feedbackMsg.id = 'rating-widget-feedback';
+
+        function actualizarEstrellasInteractivas(scoreHover) {
+            starButtons.forEach((btn, idx) => {
+                const starSvg = btn.querySelector('.star-icon');
+                if (starSvg) {
+                    starSvg.classList.toggle('empty', (idx + 1) > scoreHover);
+                }
+            });
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'star-btn-interactive';
+            btn.dataset.score = String(i);
+            btn.setAttribute('role', 'radio');
+            btn.setAttribute('aria-checked', 'false');
+            btn.setAttribute('aria-label', `${i} estrellas`);
+
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            star.setAttribute('viewBox', '0 0 24 24');
+            star.classList.add('star-icon', 'empty');
+            const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+            star.appendChild(poly);
+            btn.appendChild(star);
+
+            btn.addEventListener('mouseenter', () => {
+                actualizarEstrellasInteractivas(i);
+                scoreDesc.textContent = etiquetasScore[i];
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                actualizarEstrellasInteractivas(scoreSeleccionado);
+                scoreDesc.textContent = scoreSeleccionado > 0 ? etiquetasScore[scoreSeleccionado] : 'Haz clic en una estrella';
+            });
+
+            btn.addEventListener('click', () => {
+                scoreSeleccionado = i;
+                starButtons.forEach((b, idx) => {
+                    b.setAttribute('aria-checked', (idx + 1) === i ? 'true' : 'false');
+                });
+                actualizarEstrellasInteractivas(scoreSeleccionado);
+                scoreDesc.textContent = etiquetasScore[scoreSeleccionado];
+                submitBtn.disabled = false;
+                feedbackMsg.classList.add('hidden');
+            });
+
+            starButtons.push(btn);
+            starSelector.appendChild(btn);
+        }
+
+        submitBtn.addEventListener('click', async () => {
+            if (scoreSeleccionado < 1 || scoreSeleccionado > 5) return;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            try {
+                await onCalificar?.(scoreSeleccionado);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar calificación';
+            }
+        });
+
+        formCard.append(prompt, starSelector, scoreDesc, submitBtn, feedbackMsg);
+        container.appendChild(formCard);
+    },
+
+    mostrarCalificacionExitosa(score) {
+        const container = this.elements.ratingWidgetContainer;
+        if (!container) return;
+        container.replaceChildren();
+
+        const successCard = document.createElement('div');
+        successCard.className = 'rating-widget-done';
+
+        const badge = document.createElement('div');
+        badge.className = 'rating-done-badge';
+        badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="done-check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg><span>¡Calificación enviada con éxito!</span>`;
+
+        const starsFixed = document.createElement('div');
+        starsFixed.className = 'rating-stars-fixed';
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            star.setAttribute('viewBox', '0 0 24 24');
+            star.classList.add('star-icon');
+            if (i > score) star.classList.add('empty');
+            const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+            star.appendChild(poly);
+            starsFixed.appendChild(star);
+        }
+
+        const notice = document.createElement('p');
+        notice.className = 'rating-immutable-notice';
+        notice.textContent = 'Ya has calificado este lugar. Tu valoración es inmutable y ayuda a otros turistas.';
+
+        successCard.append(badge, starsFixed, notice);
+        container.appendChild(successCard);
+    },
+
+    mostrarErrorCalificacion(mensaje) {
+        const feedback = document.getElementById('rating-widget-feedback');
+        if (feedback) {
+            feedback.textContent = mensaje;
+            feedback.classList.remove('hidden');
+        }
     }
 };
