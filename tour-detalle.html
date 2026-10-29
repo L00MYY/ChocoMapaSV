@@ -8,14 +8,12 @@
         content="Información completa, itinerario, fechas y reservación de cupos para tours turísticos oficiales en El Salvador - MITUR.">
     <title>Detalle del Tour | Ministerio de Turismo SV</title>
 
-    <!-- Fuentes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- Estilos globales y específicos del detalle de tour -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tour-detalle.css">
     <link rel="stylesheet" href="css/navbar.css">
@@ -24,7 +22,6 @@
 
 <body class="page-tour-detail">
     <div class="page-layout">
-        <!-- 1. Header / Navbar Institucional -->
         <header class="navbar app-header">
             <div class="header-container">
                 <a href="index.html" class="app-logo-container"
@@ -70,11 +67,11 @@
                         <span>Tours</span>
                     </a>
 
-                    <!-- Control de Autenticación / Perfil Institucional -->
                     <div class="nav-auth" id="nav-auth">
-                        <!-- Estado No Autenticado: Botón Iniciar Sesión (Con redirección automática de retorno) -->
-                        <a href="login.html" class="nav-link nav-btn-login" id="nav-btn-login" role="button" aria-label="Iniciar sesión">
-                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <a href="login.html" class="nav-link nav-btn-login" id="nav-btn-login" role="button"
+                            aria-label="Iniciar sesión">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                                 <polyline points="10 17 15 12 10 7"></polyline>
                                 <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -82,26 +79,32 @@
                             <span>Iniciar sesión</span>
                         </a>
 
-                        <!-- Estado Autenticado: Avatar y Dropdown de Usuario -->
                         <div class="nav-user-dropdown-container hidden" id="nav-user-container">
-                            <button type="button" class="nav-user-avatar-btn" id="nav-user-btn" aria-expanded="false" aria-haspopup="true" aria-controls="nav-user-dropdown" aria-label="Menú de perfil de usuario">
+                            <button type="button" class="nav-user-avatar-btn" id="nav-user-btn" aria-expanded="false"
+                                aria-haspopup="true" aria-controls="nav-user-dropdown"
+                                aria-label="Menú de perfil de usuario">
                                 <span class="nav-user-avatar" id="nav-user-avatar" aria-hidden="true">
-                                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
                                 </span>
                             </button>
 
-                            <div class="nav-user-dropdown hidden" id="nav-user-dropdown" role="menu" aria-labelledby="nav-user-btn">
+                            <div class="nav-user-dropdown hidden" id="nav-user-dropdown" role="menu"
+                                aria-labelledby="nav-user-btn">
                                 <div class="nav-dropdown-header">
                                     <span class="nav-dropdown-label">Cuenta activa</span>
                                     <span class="nav-user-email" id="nav-user-email">usuario@correo.com</span>
                                 </div>
                                 <ul class="nav-dropdown-menu" role="none">
                                     <li role="none">
-                                        <a href="mis-tours.html" class="nav-dropdown-item" id="nav-link-historial" role="menuitem">
-                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <a href="mis-tours.html" class="nav-dropdown-item" id="nav-link-historial"
+                                            role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" aria-hidden="true">
                                                 <circle cx="12" cy="12" r="10"></circle>
                                                 <polyline points="12 6 12 12 16 14"></polyline>
                                             </svg>
@@ -110,8 +113,11 @@
                                     </li>
                                     <li class="nav-dropdown-divider" role="separator" aria-hidden="true"></li>
                                     <li role="none">
-                                        <button type="button" class="nav-dropdown-item nav-dropdown-item-danger" id="nav-btn-logout" role="menuitem">
-                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <button type="button" class="nav-dropdown-item nav-dropdown-item-danger"
+                                            id="nav-btn-logout" role="menuitem">
+                                            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" aria-hidden="true">
                                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                                 <polyline points="16 17 21 12 16 7"></polyline>
                                                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -124,8 +130,10 @@
                         </div>
                     </div>
 
-                    <a href="tours.html" class="nav-link btn-return" id="btn-return" aria-label="Volver al catálogo de tours">
-                        <svg class="nav-icon icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <a href="tours.html" class="nav-link btn-return" id="btn-return"
+                        aria-label="Volver al catálogo de tours">
+                        <svg class="nav-icon icon-return" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
@@ -135,16 +143,12 @@
             </div>
         </header>
 
-        <!-- 2. Contenido Principal -->
         <main class="tour-detail-main tour-detail-container" id="main-content">
-
-            <!-- Estado de Carga -->
             <section class="state-container state-loading" id="state-loading" aria-live="polite">
                 <div class="spinner-pulse" aria-hidden="true"></div>
                 <p class="state-text">Cargando información oficial del tour...</p>
             </section>
 
-            <!-- Estado de Error / Tour no encontrado o sin datos -->
             <section class="state-container state-error hidden" id="state-error" role="alert">
                 <div class="error-card">
                     <div class="error-icon-box" aria-hidden="true">
@@ -161,9 +165,7 @@
                 </div>
             </section>
 
-            <!-- Contenido Completo del Tour -->
             <article class="tour-detail-article hidden" id="state-content">
-                <!-- Encabezado del Tour -->
                 <header class="tour-header">
                     <div class="tour-meta-badges">
                         <span class="badge-dept" id="tour-department-badge">San Salvador</span>
@@ -181,21 +183,16 @@
                     </div>
                 </header>
 
-                <!-- Galería Multimedia -->
                 <section class="tour-gallery-section" aria-label="Galería fotográfica del tour">
                     <div class="main-image-wrapper">
                         <img id="tour-hero-image" class="tour-hero-image" src="" alt="Fotografía principal del tour">
                     </div>
                     <div class="thumbnails-strip" id="tour-thumbnails-strip" aria-label="Miniaturas de la galería">
-                        <!-- Miniaturas inyectadas dinámicamente -->
                     </div>
                 </section>
 
-                <!-- Cuadrícula de Contenido: Información e Itinerario + Panel Lateral de Reserva -->
                 <div class="tour-content-grid">
-                    <!-- Columna Izquierda: Información Detallada -->
                     <div class="tour-primary-column">
-                        <!-- Descripción -->
                         <section class="card-panel tour-card tour-section-card description-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
@@ -215,7 +212,6 @@
                             </div>
                         </section>
 
-                        <!-- Lugares Turísticos que Incluye -->
                         <section class="card-panel tour-card tour-section-card places-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
@@ -234,36 +230,140 @@
                             </div>
                             <div class="panel-body">
                                 <ol class="tour-places-list" id="tour-places-list">
-                                    <!-- Lista ordenada inyectada dinámicamente -->
                                 </ol>
                             </div>
                         </section>
                     </div>
 
-                    <!-- Columna Derecha: Tarjeta de Precio y Formulario de Reserva -->
                     <aside class="tour-sidebar-column">
-                        <!-- Bloque Especial de la Reserva desde Historial (Criterio 3) -->
-                        <div class="card-panel historial-reservation-card hidden" id="historial-reservation-card" aria-label="Información de tu reservación">
+                        <div class="card-panel historial-reservation-card hidden" id="reserva-pendiente-card"
+                            aria-label="Reserva pendiente de pago">
                             <div class="historial-reserva-header">
-                                <div class="historial-icon-wrap" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                <div class="historial-icon-wrap"
+                                    style="background: rgba(245, 158, 11, 0.15); color: #d97706;" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="22" height="22" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
                                 </div>
                                 <div class="historial-heading-text">
-                                    <h3 class="historial-reserva-title">Tu reservación oficial</h3>
-                                    <p class="historial-reserva-sub">Detalle registrado en MITUR</p>
+                                    <h3 class="historial-reserva-title">Tienes una reserva pendiente de pago</h3>
+                                    <p class="historial-reserva-sub">Completa tu pago para no perder tus cupos</p>
+                                </div>
+                            </div>
+
+                            <div class="historial-reserva-body">
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Estado:</span>
+                                    <span class="badge-reserva-status status-pendiente">Pendiente de pago</span>
+                                </div>
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Código:</span>
+                                    <strong class="historial-value" id="pendiente-codigo">--</strong>
+                                </div>
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Cupos reservados:</span>
+                                    <strong class="historial-value" id="pendiente-cupos">--</strong>
+                                </div>
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Fecha de salida:</span>
+                                    <span class="historial-value" id="pendiente-fecha">--</span>
+                                </div>
+                            </div>
+
+                            <div class="alerta-tiempo-restante" id="alerta-tiempo-restante"
+                                style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; color: #B45309; font-size: 0.9rem; font-weight: 600; margin-bottom: 16px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                                    height="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span id="texto-tiempo-restante">Tiempo restante: Calculando...</span>
+                            </div>
+
+                            <div class="historial-reserva-actions">
+                                <button type="button" class="btn-primary-action" id="btn-completar-pago"
+                                    style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 100%; border: none; font-weight: 700; padding: 14px 20px; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        width="18" height="18" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <span>Completar pago y subir comprobante</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-panel historial-reservation-card hidden" id="reserva-validacion-card"
+                            aria-label="Comprobante en revisión administrativa">
+                            <div class="historial-reserva-header">
+                                <div class="historial-icon-wrap"
+                                    style="background: rgba(27, 152, 224, 0.15); color: #1b98e0;" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="22" height="22" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="historial-heading-text">
+                                    <h3 class="historial-reserva-title">Comprobante enviado</h3>
+                                    <p class="historial-reserva-sub">En revisión administrativa</p>
+                                </div>
+                            </div>
+
+                            <div class="historial-reserva-body">
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Estado:</span>
+                                    <span class="badge-reserva-status"
+                                        style="background: rgba(27, 152, 224, 0.15); color: #0284c7; border: 1px solid rgba(27, 152, 224, 0.35);">En
+                                        validación</span>
+                                </div>
+                                <p style="margin: 0; color: #4a6572; font-size: 0.9rem; line-height: 1.5;">
+                                    Tu comprobante de pago ya fue enviado y se encuentra en revisión administrativa por
+                                    parte del personal del MITUR. Te notificaremos en cuanto tus cupos sean validados.
+                                </p>
+                                <div class="historial-info-row">
+                                    <span class="historial-label">Código de reserva:</span>
+                                    <strong class="historial-value" id="validacion-codigo">--</strong>
+                                </div>
+                            </div>
+
+                            <div class="historial-reserva-actions">
+                                <a href="mis-tours.html" class="btn-volver-mis-tours">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18" aria-hidden="true">
+                                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                                        <polyline points="12 19 5 12 12 5"></polyline>
+                                    </svg>
+                                    Ir a Mis tours
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-panel historial-reservation-card hidden" id="historial-reservation-card"
+                            aria-label="Información de tu reservación">
+                            <div class="historial-reserva-header">
+                                <div class="historial-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="22" height="22" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="historial-heading-text">
+                                    <h3 class="historial-reserva-title">¡Tus cupos están confirmados!</h3>
+                                    <p class="historial-reserva-sub">Tu reservación oficial se encuentra confirmada</p>
                                 </div>
                             </div>
 
                             <div class="historial-reserva-body">
                                 <div class="historial-info-row">
                                     <span class="historial-label">Estado de la reserva:</span>
-                                    <span class="badge-reserva-status" id="historial-status-badge">Confirmado</span>
+                                    <span class="badge-reserva-status status-confirmado"
+                                        id="historial-status-badge">Confirmado</span>
                                 </div>
                                 <div class="historial-info-row">
                                     <span class="historial-label">Cupos reservados:</span>
@@ -275,19 +375,18 @@
                                 </div>
                             </div>
 
-                            <!-- Criterio 3: Texto exacto "Volver a mis tours" -->
                             <div class="historial-reserva-actions">
                                 <a href="mis-tours.html" class="btn-volver-mis-tours" id="btn-volver-mis-tours">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18" aria-hidden="true">
                                         <line x1="19" y1="12" x2="5" y2="12"></line>
                                         <polyline points="12 19 5 12 12 5"></polyline>
                                     </svg>
-                                    Volver a mis tours
+                                    Ir a Mis tours
                                 </a>
                             </div>
                         </div>
 
-                        <!-- Fechas de Salida y Horarios -->
                         <section class="card-panel schedule-panel" id="schedule-panel">
                             <div class="panel-header">
                                 <div class="panel-icon-wrap" aria-hidden="true">
@@ -317,18 +416,15 @@
                                 <div class="departure-dates-container">
                                     <h3 class="dates-heading">Fechas disponibles:</h3>
                                     <div class="dates-chips-grid" id="tour-dates-chips">
-                                        <!-- Fechas inyectadas dinámicamente -->
                                     </div>
                                 </div>
                             </div>
                         </section>
 
-                        <!-- Tarjeta de Precio y Acción Principal -->
                         <div class="card-panel booking-card" id="booking-card">
                             <div class="pricing-display" id="pricing-display">
                                 <span class="pricing-label">Precio por persona</span>
                                 <div class="pricing-row" id="pricing-row">
-                                    <!-- Renderizado de precio -->
                                 </div>
                             </div>
 
@@ -344,7 +440,6 @@
                             </button>
                         </div>
 
-                        <!-- Formulario de Reserva -->
                         <div class="card-panel reservation-card hidden" id="reservation-card"
                             aria-labelledby="form-heading">
                             <div class="reservation-card-header">
@@ -406,7 +501,6 @@
                             </form>
                         </div>
 
-                        <!-- Confirmación de Reserva Exitosa -->
                         <div class="card-panel success-card hidden" id="reservation-success-card" role="alert">
                             <div class="success-icon-wrap" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="36"
@@ -448,7 +542,6 @@
             </article>
         </main>
 
-        <!-- Pie de página institucional -->
         <footer class="app-footer">
             <div class="footer-container">
                 <p class="footer-copy">
@@ -459,7 +552,6 @@
         </footer>
     </div>
 
-    <!-- Script de Navbar y Script Principal de Detalle de Tour -->
     <script type="module" src="js/controllers/NavbarController.js"></script>
     <script type="module" src="js/controllers/TourDetalleController.js"></script>
 </body>
