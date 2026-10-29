@@ -1,5 +1,10 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { obtenerToursPorLugar } from './ToursModel.js';
+import { CalificacionesModel } from './CalificacionesModel.js';
+
+// Decodificamos en memoria al momento de ejecutar el código
+const SUPABASE_URL = atob(SUPABASE_URL_B64);
+const SUPABASE_ANON_KEY = atob(SUPABASE_ANON_KEY_B64);
 
 export const LugarDetalleModel = {
     async obtenerPorId(id) {
@@ -8,7 +13,7 @@ export const LugarDetalleModel = {
         try {
             const params = new URLSearchParams({
                 id: `eq.${id}`,
-                select: 'id,name,description,image_url,opening_days,opening_time,closing_time,department,region,is_active,latitude,longitude,categories(name,color),place_services(services(name)),ratings(score)'
+                select: 'id,name,description,image_url,opening_days,opening_time,closing_time,department,region,is_active,latitude,longitude,categories(name,color),place_services(services(name)),ratings(id,score,user_id)'
             });
             const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/places?${params}`, {
                 headers: {
@@ -29,5 +34,13 @@ export const LugarDetalleModel = {
 
     obtenerTours(idLugar) {
         return obtenerToursPorLugar(idLugar);
+    },
+
+    verificarElegibilidad(idLugar, usuario = undefined) {
+        return CalificacionesModel.verificarElegibilidad(idLugar, usuario);
+    },
+
+    guardarCalificacion({ placeId, score }) {
+        return CalificacionesModel.guardarCalificacion({ placeId, score });
     }
 };

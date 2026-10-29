@@ -5,8 +5,12 @@
  * para consultar tours individuales y reservaciones específicas.
  */
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
+
+// Decodificamos en memoria al momento de ejecutar el código
+const SUPABASE_URL = atob(SUPABASE_URL_B64);
+const SUPABASE_ANON_KEY = atob(SUPABASE_ANON_KEY_B64);
 import {
     TOURS_DEMO,
     obtenerTourPorId,

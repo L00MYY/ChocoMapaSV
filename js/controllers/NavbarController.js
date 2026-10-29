@@ -143,6 +143,21 @@ export const NavbarController = {
         }
     },
 
+    logoutCallbacks: new Set(),
+
+    /**
+     * Registra un callback que se invocará cuando el usuario cierre sesión desde el navbar
+     * @param {Function} callback
+     * @returns {Function} Función para cancelar la suscripción
+     */
+    onLogout(callback) {
+        if (typeof callback === 'function') {
+            this.logoutCallbacks.add(callback);
+            return () => this.logoutCallbacks.delete(callback);
+        }
+        return () => {};
+    },
+
     /**
      * Ejecuta el cierre de sesión a través del AuthModel y actualiza la interfaz
      */
@@ -151,18 +166,32 @@ export const NavbarController = {
             NavbarView.cerrarDropdown();
             await AuthModel.cerrarSesion();
             NavbarView.mostrarEstadoNoAutenticado();
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('auth:logout'));
+            }
+            this.logoutCallbacks.forEach(cb => {
+                try { cb(); } catch (err) { console.error('Error en callback logout:', err); }
+            });
         } catch (error) {
             console.error('Error al cerrar sesión desde el Navbar:', error);
             NavbarView.mostrarEstadoNoAutenticado();
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('auth:logout'));
+            }
+            this.logoutCallbacks.forEach(cb => {
+                try { cb(); } catch (err) { console.error('Error en callback logout:', err); }
+            });
         }
     }
 };
 
-// Inicialización automática al cargar el documento
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => NavbarController.init(), { once: true });
-} else {
-    NavbarController.init();
+// Inicialización automática al cargar el documento en el navegador
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => NavbarController.init(), { once: true });
+    } else {
+        NavbarController.init();
+    }
 }
 
 export default NavbarController;

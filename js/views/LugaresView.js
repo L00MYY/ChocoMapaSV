@@ -1,4 +1,5 @@
 import { normalizarTexto } from '../utils/textUtils.js';
+import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
@@ -58,11 +59,52 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
     title.className = 'place-card-title';
     title.textContent = lugar.name || 'Sitio turístico sin nombre registrado';
 
+    // Componente de calificación por estrellas y promedio (CA-02)
+    const infoRating = calcularPromedioRating(lugar.ratings);
+    const ratingStrip = document.createElement('div');
+    ratingStrip.className = 'place-card-rating';
+    ratingStrip.setAttribute('aria-label', infoRating.tieneCalificaciones
+        ? `Calificación ${infoRating.texto} de 5 estrellas basada en ${infoRating.total} reseñas`
+        : 'Sin calificaciones');
+
+    const starsGraphic = document.createElement('div');
+    starsGraphic.className = 'place-card-stars';
+    starsGraphic.setAttribute('role', 'img');
+
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        star.setAttribute('viewBox', '0 0 24 24');
+        star.setAttribute('class', 'place-star-icon');
+        const isFilled = infoRating.tieneCalificaciones && (
+            i <= Math.floor(infoRating.promedio) ||
+            (i === Math.floor(infoRating.promedio) + 1 && (infoRating.promedio % 1) >= 0.4)
+        );
+        if (!isFilled) {
+            star.classList.add('empty');
+        }
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+        star.appendChild(poly);
+        starsGraphic.appendChild(star);
+    }
+
+    const ratingLabel = document.createElement('span');
+    ratingLabel.className = 'place-card-rating-text';
+    if (infoRating.tieneCalificaciones) {
+        ratingLabel.textContent = `${infoRating.texto} (${infoRating.total} ${infoRating.total === 1 ? 'reseña' : 'reseñas'})`;
+    } else {
+        ratingLabel.textContent = 'Sin calificaciones';
+    }
+
+    ratingStrip.appendChild(starsGraphic);
+    ratingStrip.appendChild(ratingLabel);
+
     const description = document.createElement('p');
     description.className = 'place-card-description';
     description.textContent = lugar.description || 'No hay descripción disponible actualmente para este sitio.';
 
     bodyContainer.appendChild(title);
+    bodyContainer.appendChild(ratingStrip);
     bodyContainer.appendChild(description);
 
     const footerContainer = document.createElement('div');
@@ -113,6 +155,7 @@ export const LugaresView = {
         searchInput: document.getElementById('search-input'),
         searchClearBtn: document.getElementById('search-clear-btn'),
         categoryPillsContainer: document.getElementById('category-pills'),
+        ratingPillsContainer: document.getElementById('rating-pills'),
         resultsCounter: document.getElementById('results-counter'),
         btnRetry: document.getElementById('btn-retry'),
         btnResetFilters: document.getElementById('btn-reset-filters')
@@ -234,6 +277,17 @@ export const LugaresView = {
                 : categoria === categoriaActiva;
             button.classList.toggle('active', esActivo);
             button.setAttribute('aria-checked', esActivo ? 'true' : 'false');
+        });
+    },
+
+    actualizarRatingActivo(minRatingActivo) {
+        const { ratingPillsContainer } = this.elements;
+        const valor = String(minRatingActivo || 0);
+        ratingPillsContainer?.querySelectorAll('.rating-pill-btn').forEach(btn => {
+            const ratingValor = btn.dataset.rating || '0';
+            const esActivo = ratingValor === valor;
+            btn.classList.toggle('active', esActivo);
+            btn.setAttribute('aria-checked', esActivo ? 'true' : 'false');
         });
     }
 };

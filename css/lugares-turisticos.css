@@ -372,6 +372,91 @@ main,
   flex-shrink: 0;
 }
 
+/* Filtro de Calificación por Estrellas (CA-03) */
+.rating-filter-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.rating-filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--alice-blue);
+  opacity: 0.85;
+}
+
+.rating-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rating-pill-btn {
+  font-size: 0.82rem;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(232, 241, 242, 0.06);
+  color: #D1E3E6;
+  border: 1px solid rgba(232, 241, 242, 0.15);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.rating-pill-btn:hover {
+  background: rgba(232, 241, 242, 0.15);
+  color: #FFFFFF;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.rating-pill-btn.active {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  border-color: #F59E0B;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
+  font-weight: 700;
+}
+
+/* Componente de Estrellas en Tarjetas (CA-02) */
+.place-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+
+.place-card-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.place-star-icon {
+  width: 16px;
+  height: 16px;
+  fill: #F59E0B;
+  stroke: #F59E0B;
+  filter: drop-shadow(0 1px 1px rgba(245, 158, 11, 0.25));
+  flex-shrink: 0;
+}
+
+.place-star-icon.empty {
+  fill: #E2E8F0;
+  stroke: #CBD5E1;
+  filter: none;
+}
+
+.place-card-rating-text {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #4A6572;
+}
+
 .catalog-status-bar {
   margin-top: 14px;
 }

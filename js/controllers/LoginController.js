@@ -4,7 +4,7 @@
  * Orquestador entre la vista (LoginView) y el modelo (AuthModel).
  */
 
-import { AuthModel, validarEmail } from '../models/AuthModel.js';
+import { AuthModel, validarFormularioLogin, MENSAJE_ERROR_CREDENCIALES } from '../models/AuthModel.js';
 import { LoginView } from '../views/LoginView.js';
 
 export const LoginController = {
@@ -38,10 +38,12 @@ export const LoginController = {
 
         // Limpiar errores cuando el usuario edite cualquiera de los campos
         emailInput?.addEventListener('input', () => {
+            LoginView.limpiarErrorCampo('email');
             LoginView.limpiarError();
         });
 
         passwordInput?.addEventListener('input', () => {
+            LoginView.limpiarErrorCampo('password');
             LoginView.limpiarError();
         });
 
@@ -70,20 +72,17 @@ export const LoginController = {
         event.preventDefault();
         LoginView.limpiarError();
 
-        const { email, password } = LoginView.obtenerCredenciales();
+        const credenciales = LoginView.obtenerCredenciales();
 
-        // 1. Validación de campos obligatorios
-        if (!email || !password) {
-            LoginView.mostrarError('Todos los campos son obligatorios');
-            if (!email) LoginView.marcarCampoInvalido('emailInput', true);
-            else if (!password) LoginView.marcarCampoInvalido('passwordInput', true);
-            return;
-        }
-
-        // Validación de formato de correo con función del modelo
-        if (!validarEmail(email)) {
-            LoginView.mostrarError('Ingresa un correo electrónico con formato válido');
-            LoginView.marcarCampoInvalido('emailInput', true);
+        // 1. Validación previa mediante AuthModel (Criterios 1 y 3)
+        const validacion = validarFormularioLogin(credenciales);
+        if (!validacion.esValido) {
+            if (validacion.errores.email) {
+                LoginView.mostrarErrorCampo('email', validacion.errores.email);
+            }
+            if (validacion.errores.password) {
+                LoginView.mostrarErrorCampo('password', validacion.errores.password);
+            }
             return;
         }
 
@@ -92,14 +91,14 @@ export const LoginController = {
 
         try {
             // 3. Autenticación con Supabase Auth
-            await AuthModel.iniciarSesion(email, password);
+            await AuthModel.iniciarSesion(credenciales.email, credenciales.password);
 
             // 4. Redirección en caso de éxito
             this.redirigirUsuario();
         } catch (error) {
             console.error('Error de autenticación:', error);
             LoginView.mostrarCargando(false);
-            LoginView.mostrarError('Correo o contraseña incorrectos');
+            LoginView.mostrarError(MENSAJE_ERROR_CREDENCIALES);
             LoginView.marcarCampoInvalido('passwordInput', true);
         }
     },
