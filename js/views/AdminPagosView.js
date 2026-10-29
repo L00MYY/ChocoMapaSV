@@ -17,16 +17,6 @@ export const AdminPagosView = {
         btnCerrarModalRechazo: document.getElementById('btn-cerrar-modal-rechazo'),
         btnCancelarRechazo: document.getElementById('btn-cancelar-rechazo'),
         btnConfirmarRechazo: document.getElementById('btn-confirmar-rechazo'),
-        modalQr: document.getElementById('modal-qr'),
-        modalQrTitulo: document.getElementById('modal-qr-titulo'),
-        modalQrImg: document.getElementById('modal-qr-img'),
-        modalQrCodigo: document.getElementById('modal-qr-codigo'),
-        modalQrTurista: document.getElementById('modal-qr-turista'),
-        modalQrTour: document.getElementById('modal-qr-tour'),
-        modalQrFecha: document.getElementById('modal-qr-fecha'),
-        btnDescargarQr: document.getElementById('btn-descargar-qr'),
-        btnCerrarModalQr: document.getElementById('btn-cerrar-modal-qr'),
-        btnCerrarQrFooter: document.getElementById('btn-cerrar-qr-footer'),
         toastContainer: document.getElementById('toast-container')
     },
 
@@ -49,7 +39,7 @@ export const AdminPagosView = {
         if (!Array.isArray(reservas) || reservas.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="11">
+                    <td colspan="10">
                         <div class="empty-state">
                             <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -69,8 +59,6 @@ export const AdminPagosView = {
             const monto = Number(r.total_amount) || 0;
             const fechaStr = this.formatearFecha(r.tour_date);
             const tieneArchivo = Boolean(r.storage_path);
-            const qrThumb = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(codigo)}`;
-            const qrFull = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(codigo)}`;
 
             let statusBadge = `<span class="badge-status-pen">Pendiente de confirmar</span>`;
             if (r.status === 'en_validacion') {
@@ -82,13 +70,8 @@ export const AdminPagosView = {
             }
 
             return `
-                <tr data-id="${r.id}" data-codigo="${codigo}" data-turista="${this.escaparHtml(r.tourist_name)}" data-tour="${this.escaparHtml(r.tour_name)}" data-fecha="${fechaStr}" data-qr="${qrFull}" data-storage="${r.storage_path || ''}" data-mime="${r.mime_type || ''}">
+                <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-mime="${r.mime_type || ''}">
                     <td class="cell-codigo">${codigo}</td>
-                    <td class="cell-qr">
-                        <button type="button" class="btn-ver-qr" data-action="ver-qr" title="Ver código QR oficial de la reserva">
-                            <img src="${qrThumb}" alt="QR ${codigo}" class="qr-thumbnail" loading="lazy">
-                        </button>
-                    </td>
                     <td>
                         <div class="cell-turista">
                             <span class="turista-nombre">${this.escaparHtml(r.tourist_name)}</span>
@@ -130,27 +113,6 @@ export const AdminPagosView = {
                 </tr>
             `;
         }).join('');
-    },
-
-    mostrarModalQr({ codigo, turista, tour, fecha, qrUrl }) {
-        const modal = this.elements.modalQr;
-        if (!modal) return;
-
-        if (this.elements.modalQrTitulo) this.elements.modalQrTitulo.textContent = `Código QR - Reserva ${codigo || ''}`;
-        if (this.elements.modalQrImg) this.elements.modalQrImg.src = qrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(codigo)}`;
-        if (this.elements.modalQrCodigo) this.elements.modalQrCodigo.textContent = codigo || '';
-        if (this.elements.modalQrTurista) this.elements.modalQrTurista.textContent = turista || 'Turista';
-        if (this.elements.modalQrTour) this.elements.modalQrTour.textContent = tour || 'Tour Oficial MITUR';
-        if (this.elements.modalQrFecha) this.elements.modalQrFecha.textContent = `Fecha de salida: ${fecha || '--'}`;
-        if (this.elements.btnDescargarQr) this.elements.btnDescargarQr.href = qrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(codigo)}`;
-
-        modal.classList.remove('hidden');
-    },
-
-    cerrarModalQr() {
-        if (this.elements.modalQr) {
-            this.elements.modalQr.classList.add('hidden');
-        }
     },
 
     mostrarModalComprobante(url, mimeType, codigo) {
@@ -273,8 +235,6 @@ export const AdminPagosView = {
         this.elements.btnCerrarComprobanteFooter?.addEventListener('click', () => this.cerrarModalComprobante());
         this.elements.btnCerrarModalRechazo?.addEventListener('click', () => this.cerrarModalRechazo());
         this.elements.btnCancelarRechazo?.addEventListener('click', () => this.cerrarModalRechazo());
-        this.elements.btnCerrarModalQr?.addEventListener('click', () => this.cerrarModalQr());
-        this.elements.btnCerrarQrFooter?.addEventListener('click', () => this.cerrarModalQr());
 
         this.elements.modalComprobante?.addEventListener('click', (e) => {
             if (e.target === this.elements.modalComprobante) this.cerrarModalComprobante();
@@ -284,20 +244,15 @@ export const AdminPagosView = {
             if (e.target === this.elements.modalRechazo) this.cerrarModalRechazo();
         });
 
-        this.elements.modalQr?.addEventListener('click', (e) => {
-            if (e.target === this.elements.modalQr) this.cerrarModalQr();
-        });
-
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.cerrarModalComprobante();
                 this.cerrarModalRechazo();
-                this.cerrarModalQr();
             }
         });
     },
 
-    bindAccionesTabla({ onVer, onAprobar, onRechazarClick, onVerQr }) {
+    bindAccionesTabla({ onVer, onAprobar, onRechazarClick }) {
         this.elements.tablaBody?.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-action]');
             if (!btn || btn.disabled) return;
@@ -317,12 +272,6 @@ export const AdminPagosView = {
                 onAprobar({ reservaId, codigo, btn });
             } else if (action === 'rechazar') {
                 onRechazarClick({ reservaId, codigo, btn });
-            } else if (action === 'ver-qr') {
-                const turista = row.dataset.turista;
-                const tour = row.dataset.tour;
-                const fecha = row.dataset.fecha;
-                const qrUrl = row.dataset.qr;
-                if (onVerQr) onVerQr({ reservaId, codigo, turista, tour, fecha, qrUrl });
             }
         });
     },
@@ -374,7 +323,7 @@ export const AdminPagosView = {
                     day: 'numeric'
                 });
             }
-        } catch (_) {}
+        } catch (_) { }
         return String(fechaStr);
     }
 };

@@ -1,18 +1,23 @@
-/**
- * js/views/MisToursView.js
- * Vista del Historial de Tours para ChocoMapaSV (MITUR)
- * Encargada de manipular el DOM, renderizar estados (carga, error, vacío e historial)
- * y vincular eventos sin realizar llamadas a APIs.
- */
+function esFechaPasada(fechaStr) {
+    if (!fechaStr) return false;
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const hoyStr = `${anio}-${mes}-${dia}`;
+    const f = String(fechaStr).split('T')[0];
+    return f < hoyStr;
+}
 
 export const MisToursView = {
+    reservasActuales: [],
+    filtroActual: 'todos',
+    onVerDetalleHandler: null,
+
     get container() {
         return document.getElementById('mis-tours-content') || document.getElementById('mis-tours-container');
     },
 
-    /**
-     * Renderiza el estado visual de carga
-     */
     renderLoading() {
         if (!this.container) return;
         this.container.innerHTML = `
@@ -25,11 +30,6 @@ export const MisToursView = {
         `;
     },
 
-    /**
-     * Renderiza un mensaje de error visual amigable
-     * @param {string} mensaje 
-     * @param {Function} [onReintentar] 
-     */
     renderError(mensaje, onReintentar) {
         if (!this.container) return;
         const msg = mensaje || 'No pudimos cargar tus reservaciones en este momento.';
@@ -59,9 +59,6 @@ export const MisToursView = {
         }
     },
 
-    /**
-     * Renderiza el estado vacío con el texto exacto obligatorio: "Aún no tienes tours"
-     */
     renderEstadoVacio() {
         if (!this.container) return;
         this.container.innerHTML = `
@@ -72,7 +69,6 @@ export const MisToursView = {
                         <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                     </svg>
                 </div>
-                <!-- Criterio 2: Texto exacto "Aún no tienes tours" -->
                 <h2 class="empty-title">Aún no tienes tours</h2>
                 <p class="empty-description">
                     Explora los paquetes guiados del Ministerio de Turismo y reserva tu próxima aventura por El Salvador.
@@ -88,14 +84,11 @@ export const MisToursView = {
         `;
     },
 
-    /**
-     * Genera la clase CSS y el icono SVG según el estado exacto
-     * @param {'Pendiente de confirmar' | 'Confirmado' | 'Pasado'} status 
-     */
     obtenerDetallesStatus(status) {
         if (status === 'Confirmado') {
             return {
                 badgeClass: 'status-badge--confirmado',
+                badgeStyle: '',
                 iconSvg: `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -106,6 +99,7 @@ export const MisToursView = {
         if (status === 'Pasado') {
             return {
                 badgeClass: 'status-badge--pasado',
+                badgeStyle: '',
                 iconSvg: `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -114,9 +108,46 @@ export const MisToursView = {
                 `
             };
         }
-        // Pendiente de confirmar (por defecto)
+        if (status === 'En validación') {
+            return {
+                badgeClass: 'status-badge--validacion',
+                badgeStyle: 'background: rgba(27, 152, 224, 0.92); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35);',
+                iconSvg: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 14 14"></polyline>
+                    </svg>
+                `
+            };
+        }
+        if (status === 'Rechazado') {
+            return {
+                badgeClass: 'status-badge--rechazado',
+                badgeStyle: 'background: rgba(231, 76, 60, 0.92); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35);',
+                iconSvg: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                `
+            };
+        }
+        if (status === 'Expirada') {
+            return {
+                badgeClass: 'status-badge--expirada',
+                badgeStyle: 'background: rgba(108, 122, 137, 0.9); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25);',
+                iconSvg: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                `
+            };
+        }
         return {
             badgeClass: 'status-badge--pendiente',
+            badgeStyle: '',
             iconSvg: `
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -127,10 +158,42 @@ export const MisToursView = {
         };
     },
 
-    /**
-     * Renderiza la lista/cuadrícula de reservas del usuario
-     * @param {Array<Object>} reservas 
-     */
+    clasificarCategoria(r) {
+        const esPasado = r.status === 'Pasado' || r.status_original === 'Pasado' || esFechaPasada(r.tour_date);
+        if (esPasado) {
+            return 'pasados';
+        }
+
+        const statusLower = String(r.status_original || r.status || '').toLowerCase();
+        const esPendiente = r.status === 'Pendiente de pago' || r.status === 'En validación' || r.status === 'Pendiente de confirmar' ||
+            statusLower === 'pendiente_pago' || statusLower === 'en_validacion' || statusLower === 'pendiente de confirmar';
+        if (esPendiente) {
+            return 'pendientes';
+        }
+
+        const esConfirmado = (r.status === 'Confirmado' || statusLower === 'confirmada' || statusLower === 'confirmado') && !esFechaPasada(r.tour_date);
+        if (esConfirmado) {
+            return 'confirmados';
+        }
+
+        return 'otros';
+    },
+
+    filtrarReservas(reservas, filtro) {
+        if (!Array.isArray(reservas)) return [];
+        if (filtro === 'todos') return reservas;
+        if (filtro === 'pendientes') {
+            return reservas.filter(r => this.clasificarCategoria(r) === 'pendientes');
+        }
+        if (filtro === 'confirmados') {
+            return reservas.filter(r => this.clasificarCategoria(r) === 'confirmados');
+        }
+        if (filtro === 'pasados') {
+            return reservas.filter(r => this.clasificarCategoria(r) === 'pasados');
+        }
+        return reservas;
+    },
+
     renderHistorial(reservas) {
         if (!this.container) return;
 
@@ -139,11 +202,81 @@ export const MisToursView = {
             return;
         }
 
-        const cardsHtml = reservas.map(reserva => {
-            const { badgeClass, iconSvg } = this.obtenerDetallesStatus(reserva.status);
+        this.reservasActuales = reservas;
+
+        const conteo = {
+            todos: reservas.length,
+            pendientes: reservas.filter(r => this.clasificarCategoria(r) === 'pendientes').length,
+            confirmados: reservas.filter(r => this.clasificarCategoria(r) === 'confirmados').length,
+            pasados: reservas.filter(r => this.clasificarCategoria(r) === 'pasados').length
+        };
+
+        const tabsHtml = `
+            <div class="mis-tours-tabs" id="mis-tours-tabs" role="tablist" aria-label="Filtrar reservaciones">
+                <button type="button" class="mis-tours-tab-btn ${this.filtroActual === 'todos' ? 'active' : ''}" data-tab="todos" role="tab" aria-selected="${this.filtroActual === 'todos'}">
+                    <span>Todos</span>
+                    <span class="tab-counter">${conteo.todos}</span>
+                </button>
+                <button type="button" class="mis-tours-tab-btn ${this.filtroActual === 'pendientes' ? 'active' : ''}" data-tab="pendientes" role="tab" aria-selected="${this.filtroActual === 'pendientes'}">
+                    <span>Pendientes</span>
+                    <span class="tab-counter">${conteo.pendientes}</span>
+                </button>
+                <button type="button" class="mis-tours-tab-btn ${this.filtroActual === 'confirmados' ? 'active' : ''}" data-tab="confirmados" role="tab" aria-selected="${this.filtroActual === 'confirmados'}">
+                    <span>Confirmados</span>
+                    <span class="tab-counter">${conteo.confirmados}</span>
+                </button>
+                <button type="button" class="mis-tours-tab-btn ${this.filtroActual === 'pasados' ? 'active' : ''}" data-tab="pasados" role="tab" aria-selected="${this.filtroActual === 'pasados'}">
+                    <span>Pasados</span>
+                    <span class="tab-counter">${conteo.pasados}</span>
+                </button>
+            </div>
+            <div class="mis-tours-grid" id="mis-tours-grid"></div>
+        `;
+
+        this.container.innerHTML = tabsHtml;
+        this.renderGrid(this.filtroActual);
+        this.bindTabs();
+    },
+
+    renderGrid(filtro) {
+        const grid = document.getElementById('mis-tours-grid');
+        if (!grid) return;
+
+        const filtradas = this.filtrarReservas(this.reservasActuales, filtro);
+
+        if (filtradas.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; color: #a4c2cb; background: rgba(19, 41, 61, 0.45); border-radius: 14px; border: 1px dashed rgba(232, 241, 242, 0.2);">
+                    <p style="margin: 0; font-size: 1.05rem; font-weight: 600;">No tienes reservaciones en esta categoría.</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = filtradas.map(reserva => {
+            const { badgeClass, badgeStyle, iconSvg } = this.obtenerDetallesStatus(reserva.status);
             const tour = reserva.tour || {};
             const imagenUrl = tour.image_url || 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80';
             const departamento = tour.department || 'El Salvador';
+            const codigo = reserva.reservation_code || '';
+
+            const esPendientePago = reserva.status === 'Pendiente de pago' || String(reserva.status_original || '').toLowerCase() === 'pendiente_pago';
+
+            const botonSubirComprobante = esPendientePago ? `
+                <div style="margin-top: 12px;">
+                    <a href="pago-comprobante.html?reservaId=${encodeURIComponent(reserva.id)}&codigo=${encodeURIComponent(codigo)}" 
+                       class="btn-subir-comprobante" 
+                       data-action="subir-comprobante"
+                       style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35); box-sizing: border-box;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Subir comprobante</span>
+                    </a>
+                </div>
+            ` : '';
 
             return `
                 <article class="tour-history-card" 
@@ -159,8 +292,7 @@ export const MisToursView = {
                              class="card-image" 
                              loading="lazy">
                         
-                        <!-- Estado con texto exacto: "Pendiente de confirmar", "Confirmado" o "Pasado" -->
-                        <span class="status-badge ${badgeClass}">
+                        <span class="status-badge ${badgeClass}" style="${badgeStyle}">
                             ${iconSvg}
                             <span>${reserva.status}</span>
                         </span>
@@ -169,11 +301,9 @@ export const MisToursView = {
                     </div>
 
                     <div class="card-content">
-                        <!-- Nombre del tour -->
                         <h2 class="card-tour-title">${tour.name || 'Tour Oficial MITUR'}</h2>
 
                         <div class="card-meta-list">
-                            <!-- Fecha de salida formateada en español -->
                             <div class="card-meta-item">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -184,7 +314,6 @@ export const MisToursView = {
                                 <span>Salida: <strong>${reserva.fecha_formateada || reserva.tour_date}</strong></span>
                             </div>
 
-                            <!-- Cantidad de cupos reservados -->
                             <div class="card-meta-item">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -194,7 +323,19 @@ export const MisToursView = {
                                 </svg>
                                 <span>Cupos reservados: <strong>${reserva.spots_reserved}</strong></span>
                             </div>
+
+                            ${codigo ? `
+                                <div class="card-meta-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span>Código: <strong>${codigo}</strong></span>
+                                </div>
+                            ` : ''}
                         </div>
+
+                        ${botonSubirComprobante}
 
                         <div class="card-footer-action">
                             <span class="card-link-text">
@@ -210,20 +351,36 @@ export const MisToursView = {
             `;
         }).join('');
 
-        this.container.innerHTML = `
-            <div class="mis-tours-grid" id="mis-tours-grid">
-                ${cardsHtml}
-            </div>
-        `;
+        if (this.onVerDetalleHandler) {
+            this.bindVerDetalleTour(this.onVerDetalleHandler);
+        }
     },
 
-    /**
-     * Enlaza el evento click sobre cada tarjeta para abrir el detalle del tour
-     * Redirige hacia: tour-detalle.html?id=[TOUR_ID]&from=historial&reservaId=[RESERVATION_ID]
-     * 
-     * @param {Function} handler - Función invocada con (tourId, reservaId)
-     */
+    bindTabs() {
+        const containerTabs = document.getElementById('mis-tours-tabs');
+        if (!containerTabs) return;
+
+        containerTabs.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-tab]');
+            if (!btn) return;
+
+            const tab = btn.dataset.tab;
+            if (tab === this.filtroActual) return;
+
+            this.filtroActual = tab;
+
+            containerTabs.querySelectorAll('.mis-tours-tab-btn').forEach(b => {
+                const isActive = b.dataset.tab === tab;
+                b.classList.toggle('active', isActive);
+                b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            this.renderGrid(this.filtroActual);
+        });
+    },
+
     bindVerDetalleTour(handler) {
+        this.onVerDetalleHandler = handler;
         if (!this.container) return;
         const tarjetas = this.container.querySelectorAll('.tour-history-card');
 
@@ -237,10 +394,19 @@ export const MisToursView = {
                 }
             };
 
-            tarjeta.addEventListener('click', ejecutar);
+            tarjeta.addEventListener('click', (e) => {
+                if (e.target.closest('[data-action="subir-comprobante"]')) {
+                    e.stopPropagation();
+                    return;
+                }
+                ejecutar();
+            });
 
             tarjeta.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
+                    if (event.target.closest('[data-action="subir-comprobante"]')) {
+                        return;
+                    }
                     event.preventDefault();
                     ejecutar();
                 }
@@ -248,9 +414,6 @@ export const MisToursView = {
         });
     },
 
-    /**
-     * Limpia el contenedor de tarjetas para proteger la información privada del usuario
-     */
     limpiar() {
         if (this.container) {
             this.container.innerHTML = '';

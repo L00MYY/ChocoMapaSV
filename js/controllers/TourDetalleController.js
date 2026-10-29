@@ -6,8 +6,7 @@ import {
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
     obtenerFechaHoyLocal,
-    esFechaPasada,
-    TourDetalleModel
+    esFechaPasada
 } from '../models/TourDetalleModel.js';
 import {
     AuthModel,
@@ -27,8 +26,6 @@ export const TourDetalleController = {
 
     init() {
         const { btnReturn, btnOpenReserve, reservationForm, selectDate } = TourDetalleView.elements;
-        const params = new URLSearchParams(window.location.search);
-        const fromHistorial = params.get('from') === 'historial';
 
         btnReturn?.addEventListener('click', event => {
             const isFromHistorial = new URLSearchParams(window.location.search).get('from') === 'historial';
@@ -77,9 +74,6 @@ export const TourDetalleController = {
         });
 
         btnOpenReserve?.addEventListener('click', async () => {
-            const isFromHistorial = new URLSearchParams(window.location.search).get('from') === 'historial';
-            if (isFromHistorial) return;
-
             const sesion = await AuthModel.obtenerSesionActual();
             if (requiereIniciarSesionParaReserva(sesion)) {
                 window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
@@ -89,10 +83,15 @@ export const TourDetalleController = {
             try {
                 const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual?.id);
                 if (reservaExistente) {
-                    TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                    return;
+                    const st = String(reservaExistente.status_original || reservaExistente.status || '').toLowerCase().trim();
+                    const esActiva = ['pendiente_pago', 'en_validacion', 'confirmada', 'confirmado'].includes(st);
+
+                    if (esActiva) {
+                        this.evaluarReservaExistente(reservaExistente);
+                        return;
+                    }
                 }
-            } catch (_) {}
+            } catch (_) { }
 
             const fechaActual = this.obtenerFechaSeleccionadaActual();
             const cuposDisponibles = fechaActual ? Number(fechaActual.available_spots || 0) : 0;
@@ -110,6 +109,35 @@ export const TourDetalleController = {
         this.inicializarLimpiezaErrores();
         this.inicializarFailsafe();
         this.cargarTour();
+    },
+
+    evaluarReservaExistente(reserva) {
+        if (!reserva) {
+            TourDetalleView.restablecerModoPublico(tourActual);
+            return;
+        }
+
+        const status = String(reserva.status_original || reserva.status || '').toLowerCase().trim();
+
+        if (status === 'pendiente_pago') {
+            const exp = reserva.expires_at
+                ? new Date(reserva.expires_at).getTime()
+                : (reserva.created_at ? new Date(reserva.created_at).getTime() + 3600000 : null);
+
+            if (exp && Date.now() >= exp) {
+                TourDetalleView.restablecerModoPublico(tourActual);
+            } else {
+                TourDetalleView.mostrarReservaPendientePago(reserva, () => {
+                    TourDetalleView.restablecerModoPublico(tourActual);
+                });
+            }
+        } else if (status === 'en_validacion') {
+            TourDetalleView.mostrarReservaEnValidacion(reserva);
+        } else if (status === 'confirmada' || status === 'confirmado') {
+            TourDetalleView.mostrarReservaConfirmada(reserva);
+        } else {
+            TourDetalleView.restablecerModoPublico(tourActual);
+        }
     },
 
     obtenerFechaMasProxima(fechas) {
@@ -150,15 +178,14 @@ export const TourDetalleController = {
 
         this.unsubscribeAuth = AuthModel.onCambioEstadoAuth(async (evento, sesion) => {
             if (evento === 'SIGNED_OUT' || !sesion || !sesion.user) {
-                TourDetalleView.ocultarFormularioReserva();
-                TourDetalleView.limpiarFormularioReserva();
+                TourDetalleView.restablecerModoPublico(tourActual);
             } else if ((evento === 'SIGNED_IN' || evento === 'TOKEN_REFRESHED') && tourActual) {
                 try {
                     const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
-                    if (reservaExistente) {
-                        TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                    }
-                } catch (_) {}
+                    this.evaluarReservaExistente(reservaExistente);
+                } catch (_) {
+                    TourDetalleView.restablecerModoPublico(tourActual);
+                }
             }
         });
     },
@@ -226,24 +253,9 @@ export const TourDetalleController = {
                 TourDetalleView.deshabilitarReservaPorTourPasado();
             }
 
-            if (fromHistorial) {
-                let reserva = null;
-                if (reservaId) {
-                    reserva = await obtenerReservaPorId(reservaId);
-                }
-
-                if (!reserva) {
-                    reserva = {
-                        id: reservaId || 'demo-reserva',
-                        tour_id: tourActual.id,
-                        tour_date_id: fechaProxima?.id || null,
-                        spots_reserved: 1,
-                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || obtenerFechaHoyLocal(),
-                        status: 'Confirmado'
-                    };
-                }
-
-                TourDetalleView.renderizarModoHistorial(reserva, tourActual);
+            if (fromHistorial && reservaId) {
+                const reserva = await obtenerReservaPorId(reservaId);
+                this.evaluarReservaExistente(reserva);
             } else {
                 let reservaExistente = null;
                 try {
@@ -251,25 +263,12 @@ export const TourDetalleController = {
                     if (sesion?.user?.id) {
                         reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                     }
-                } catch (errCheck) {
-                    console.warn('Error al verificar reservación previa del usuario:', errCheck);
-                }
+                } catch (_) { }
 
-                if (reservaExistente) {
-                    TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                } else {
-                    const fechas = tourActual.tour_dates || [];
-                    const tieneFechasFuturas = fechas.some(d => {
-                        const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return !esFechaPasada(fechaStr);
-                    });
-                    if (fechas.length > 0 && !tieneFechasFuturas) {
-                        TourDetalleView.deshabilitarReservaPorTourPasado();
-                    }
-                }
+                this.evaluarReservaExistente(reservaExistente);
             }
         } catch (error) {
-            console.error('Error o timeout al cargar detalle del tour:', error);
+            console.error(error);
             tourActual = TOURS_DEMO.find(tour => tour.id === id) || null;
             if (tourActual) {
                 TourDetalleView.renderizarTour(tourActual);
@@ -284,34 +283,19 @@ export const TourDetalleController = {
                     TourDetalleView.deshabilitarReservaPorTourPasado();
                 }
 
-                if (fromHistorial) {
-                    TourDetalleView.renderizarModoHistorial({
-                        id: reservaId || 'demo-reserva',
-                        tour_id: tourActual.id,
-                        tour_date_id: fechaProxima?.id || null,
-                        spots_reserved: 1,
-                        tour_date: fechaProxima?.departure_date || tourActual.tour_dates?.[0]?.departure_date || obtenerFechaHoyLocal(),
-                        status: 'Confirmado'
-                    }, tourActual);
+                if (fromHistorial && reservaId) {
+                    const reserva = await obtenerReservaPorId(reservaId);
+                    this.evaluarReservaExistente(reserva);
                 } else {
+                    let reservaExistente = null;
                     try {
                         const sesion = await AuthModel.obtenerSesionActual();
                         if (sesion?.user?.id) {
-                            const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
-                            if (reservaExistente) {
-                                TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                            }
+                            reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                         }
-                    } catch (_) {}
+                    } catch (_) { }
 
-                    const fechas = tourActual.tour_dates || [];
-                    const tieneFechasFuturas = fechas.some(d => {
-                        const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return !esFechaPasada(fechaStr);
-                    });
-                    if (fechas.length > 0 && !tieneFechasFuturas) {
-                        TourDetalleView.deshabilitarReservaPorTourPasado();
-                    }
+                    this.evaluarReservaExistente(reservaExistente);
                 }
             } else {
                 TourDetalleView.mostrarEstado('error', 'No hay datos disponibles para mostrar', 'Ocurrió un problema de comunicación con el servidor o se agotó el tiempo de espera.');
@@ -450,17 +434,18 @@ export const TourDetalleController = {
                 status: 'pendiente_pago',
                 reservation_code: codigoFinal,
                 total_amount: montoTotal,
-                accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked)
+                accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked),
+                expires_at: datosReserva.expires_at
             };
 
             try {
                 localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaConfirmada));
-            } catch (_) {}
+            } catch (_) { }
 
             window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoFinal)}`;
             return;
         } catch (error) {
-            console.error('Error al procesar la reserva:', error);
+            console.error(error);
 
             if (e.historialCard) {
                 e.historialCard.classList.add('hidden');
