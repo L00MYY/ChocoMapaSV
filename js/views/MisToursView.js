@@ -102,8 +102,12 @@ export const MisToursView = {
         `;
     },
 
-    obtenerDetallesStatus(status) {
-        if (status === 'Confirmado') {
+    obtenerDetallesStatus(status, statusOriginal = null) {
+        const sLower = String(statusOriginal || status || '').trim().toLowerCase();
+        const esConfirmado = status === 'Confirmado' || sLower === 'confirmada' || sLower === 'confirmado';
+        const esRechazado = status === 'Rechazada' || status === 'Rechazado' || sLower === 'rechazada' || sLower === 'rechazado';
+
+        if (esConfirmado) {
             return {
                 badgeClass: 'status-badge--confirmado',
                 badgeStyle: '',
@@ -111,7 +115,8 @@ export const MisToursView = {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                `
+                `,
+                tooltipText: 'Su reserva ha sido confirmada, los detalles fueron enviados a su correo'
             };
         }
         if (status === 'Pasado') {
@@ -122,7 +127,8 @@ export const MisToursView = {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                `
+                `,
+                tooltipText: null
             };
         }
         if (status === 'Cancelado') {
@@ -134,10 +140,11 @@ export const MisToursView = {
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                `
+                `,
+                tooltipText: null
             };
         }
-        if (status === 'Rechazada' || status === 'Rechazado') {
+        if (esRechazado) {
             return {
                 badgeClass: 'status-badge--rechazado',
                 badgeStyle: 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.4);',
@@ -146,19 +153,21 @@ export const MisToursView = {
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                `
+                `,
+                tooltipText: 'Su reserva fue rechazada, los detalles fueron enviados a su correo'
             };
         }
         if (status === 'En validación') {
             return {
                 badgeClass: 'status-badge--validacion',
-                badgeStyle: 'background: rgba(27, 152, 224, 0.15); color: #0284c7; border: 1px solid rgba(27, 152, 224, 0.4);',
+                badgeStyle: 'background: rgb(248 248 248 / 1); color: #0284c7; border: 1px solid rgba(27, 152, 224, 0.4);',
                 iconSvg: `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                `
+                `,
+                tooltipText: null
             };
         }
         if (status === 'Expirada') {
@@ -171,7 +180,8 @@ export const MisToursView = {
                         <line x1="15" y1="9" x2="9" y2="15"></line>
                         <line x1="9" y1="9" x2="15" y2="15"></line>
                     </svg>
-                `
+                `,
+                tooltipText: null
             };
         }
         return {
@@ -183,7 +193,8 @@ export const MisToursView = {
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-            `
+            `,
+            tooltipText: null
         };
     },
 
@@ -295,7 +306,7 @@ export const MisToursView = {
         }
 
         grid.innerHTML = filtradas.map(reserva => {
-            const { badgeClass, badgeStyle, iconSvg } = this.obtenerDetallesStatus(reserva.status);
+            const { badgeClass, badgeStyle, iconSvg, tooltipText } = this.obtenerDetallesStatus(reserva.status, reserva.status_original);
             const tour = reserva.tour || {};
             const imagenUrl = tour.image_url || 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80';
             const departamento = tour.department || 'El Salvador';
@@ -319,6 +330,14 @@ export const MisToursView = {
                 </div>
             ` : '';
 
+            const tooltipAttrs = tooltipText
+                ? `class="status-badge ${badgeClass} status-badge--has-tooltip" style="${badgeStyle}" title="${tooltipText}" data-tooltip="${tooltipText}" tabindex="0"`
+                : `class="status-badge ${badgeClass}" style="${badgeStyle}"`;
+
+            const tooltipSpan = tooltipText
+                ? `<span class="status-tooltip-bubble" role="tooltip">${tooltipText}</span>`
+                : '';
+
             return `
                 <article class="tour-history-card" 
                          data-tour-id="${reserva.tour_id}" 
@@ -333,9 +352,10 @@ export const MisToursView = {
                              class="card-image" 
                              loading="lazy">
                         
-                        <span class="status-badge ${badgeClass}" style="${badgeStyle}">
+                        <span ${tooltipAttrs}>
                             ${iconSvg}
                             <span>${reserva.status}</span>
+                            ${tooltipSpan}
                         </span>
 
                         <span class="card-dept-tag">${departamento}</span>

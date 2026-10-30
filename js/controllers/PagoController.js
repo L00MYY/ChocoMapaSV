@@ -13,6 +13,9 @@ let expiresAtTimestamp = 0;
 
 export const PagoController = {
     async init() {
+        // Configurar protección inmediata ante cierre de sesión
+        this.configurarProteccionCierreSesion();
+
         // Asegurar inicialización y avatar del Navbar
         try {
             await NavbarController.init();
@@ -96,6 +99,116 @@ export const PagoController = {
 
         this.configurarTemporizador();
         this.configurarEventos();
+    },
+
+    configurarProteccionCierreSesion() {
+        const expulsarUsuario = () => {
+            try {
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.clear();
+                }
+            } catch (_) {}
+            if (typeof window !== 'undefined' && window.location?.replace) {
+                window.location.replace('login.html');
+            }
+        };
+
+        // 1. Suscribirse a los cambios de estado de autenticación de Supabase
+        if (typeof window !== 'undefined' && window.supabase?.auth?.onAuthStateChange) {
+            try {
+                window.supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_OUT' || !session) {
+                        expulsarUsuario();
+                    }
+                });
+            } catch (_) {}
+        }
+
+        if (AuthModel.onCambioEstadoAuth) {
+            try {
+                AuthModel.onCambioEstadoAuth((event, session) => {
+                    if (event === 'SIGNED_OUT' || !session) {
+                        expulsarUsuario();
+                    }
+                });
+            } catch (_) {}
+        }
+
+        if (NavbarController?.onLogout) {
+            try {
+                NavbarController.onLogout(() => {
+                    expulsarUsuario();
+                });
+            } catch (_) {}
+        }
+
+        if (typeof window !== 'undefined' && window.addEventListener) {
+            try {
+                window.addEventListener('auth:logout', () => {
+                    expulsarUsuario();
+                });
+            } catch (_) {}
+        }
+
+        // 2. En el manejador del botón #nav-btn-logout (o enlace de cerrar sesión en el Navbar):
+        const configurarBotonLogout = () => {
+            const btnLogout = typeof document !== 'undefined' && typeof document.getElementById === 'function'
+                ? document.getElementById('nav-btn-logout')
+                : null;
+            if (btnLogout && !btnLogout.dataset?.pagoLogoutBound) {
+                if (btnLogout.dataset) {
+                    btnLogout.dataset.pagoLogoutBound = 'true';
+                }
+                btnLogout.addEventListener?.('click', async (e) => {
+                    e.preventDefault?.();
+                    e.stopPropagation?.();
+
+                    try {
+                        if (typeof window !== 'undefined' && window.supabase?.auth?.signOut) {
+                            await window.supabase.auth.signOut();
+                        }
+                    } catch (_) {}
+
+                    try {
+                        await AuthModel.cerrarSesion();
+                    } catch (_) {}
+
+                    expulsarUsuario();
+                }, true);
+            }
+        };
+
+        configurarBotonLogout();
+        if (typeof document !== 'undefined' && document.addEventListener) {
+            document.addEventListener('DOMContentLoaded', configurarBotonLogout, { once: true });
+        }
+
+        // 3. Verificar en el ciclo de vida de la página (visibilitychange, focus, pageshow) que si AuthModel.obtenerSesionActual() retorna null, se aplique window.location.replace('login.html')
+        const verificarSesionCicloVida = async () => {
+            try {
+                const sesion = await AuthModel.obtenerSesionActual();
+                if (!sesion || !sesion.user) {
+                    expulsarUsuario();
+                }
+            } catch (_) {}
+        };
+
+        if (typeof document !== 'undefined' && document.addEventListener) {
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                    await verificarSesionCicloVida();
+                }
+            });
+        }
+
+        if (typeof window !== 'undefined' && window.addEventListener) {
+            window.addEventListener('focus', async () => {
+                await verificarSesionCicloVida();
+            });
+            window.addEventListener('pageshow', async () => {
+                await verificarSesionCicloVida();
+            });
+        }
     },
 
     configurarTemporizador() {
@@ -246,8 +359,6 @@ export const PagoController = {
         }
     }
 };
-
-export const PagoComprobanteController = PagoController;
 
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {

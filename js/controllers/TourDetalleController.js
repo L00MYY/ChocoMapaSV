@@ -6,7 +6,9 @@ import {
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
     obtenerFechaHoyLocal,
-    esFechaPasada
+    esFechaPasada,
+    sanitizarTelefono,
+    validarFormularioReserva
 } from '../models/TourDetalleModel.js';
 import {
     AuthModel,
@@ -25,7 +27,7 @@ export const TourDetalleController = {
     unsubscribeAuth: null,
 
     init() {
-        const { btnReturn, btnOpenReserve, reservationForm, selectDate } = TourDetalleView.elements;
+        const { btnReturn, btnOpenReserve, reservationForm, selectDate, inputPhone } = TourDetalleView.elements;
 
         btnReturn?.addEventListener('click', event => {
             const isFromHistorial = new URLSearchParams(window.location.search).get('from') === 'historial';
@@ -105,10 +107,56 @@ export const TourDetalleController = {
             this.procesarReserva();
         });
 
+        inputPhone?.addEventListener('input', (event) => {
+            const val = event.target.value;
+            const soloDigitos = val.replace(/\D/g, '');
+            if (val !== soloDigitos) {
+                event.target.value = soloDigitos;
+            }
+        });
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('pageshow', async (event) => {
+                // Si la página se restaura desde BFCache o recarga, volver a consultar si el usuario tiene una reserva activa
+                await this.verificarYBloquearReservaActiva();
+            });
+        }
+
         this.inicializarSuscripcionAuth();
         this.inicializarLimpiezaErrores();
         this.inicializarFailsafe();
         this.cargarTour();
+    },
+
+    async verificarYBloquearReservaActiva() {
+        try {
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion?.user?.id) return;
+
+            if (!tourActual) {
+                const search = (typeof window !== 'undefined' && window.location?.search) ? window.location.search : '';
+                const params = new URLSearchParams(search);
+                const tourId = params.get('id')?.trim() || 'a1000000-0000-0000-0000-000000000001';
+                tourActual = await obtenerTourPorId(tourId).catch(() => null);
+                tourActual ||= TOURS_DEMO.find(t => t.id === tourId) || null;
+            }
+
+            if (!tourActual?.id) return;
+
+            const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
+            if (reservaExistente) {
+                const st = String(reservaExistente.status_original || reservaExistente.status || '').toLowerCase().trim();
+                const esActiva = ['pendiente_pago', 'en_validacion', 'confirmada', 'confirmado'].includes(st);
+
+                if (esActiva) {
+                    TourDetalleView.ocultarFormularioReserva();
+                    TourDetalleView.limpiarFormularioReserva();
+                    this.evaluarReservaExistente(reservaExistente);
+                }
+            }
+        } catch (e) {
+            console.error('Error al verificar reserva activa en pageshow:', e);
+        }
     },
 
     evaluarReservaExistente(reserva) {
@@ -331,11 +379,14 @@ export const TourDetalleController = {
             errors.push(['inputEmail', 'Ingresa un correo electrónico con formato válido']);
         }
 
-        const telefonoSanitizado = (values.telefono || '').trim();
-        if (!telefonoSanitizado) {
+        const rawPhone = values.telefono || e.inputPhone?.value || '';
+        const telefonoSanitizado = sanitizarTelefono(rawPhone);
+        const validacionTelefono = validarFormularioReserva({ phone: rawPhone });
+
+        if (!rawPhone.trim()) {
             errors.push(['inputPhone', 'Este campo es obligatorio']);
-        } else if (!validarTelefonoSV(telefonoSanitizado)) {
-            errors.push(['inputPhone', 'El teléfono debe contener un número válido salvadoreño']);
+        } else if (!validacionTelefono.esValido) {
+            errors.push(['inputPhone', validacionTelefono.error || 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)']);
         }
 
         if (!values.tour_date_id && !values.fecha) {
@@ -388,6 +439,7 @@ export const TourDetalleController = {
             nombre: nombreSanitizado,
             email: emailSanitizado,
             telefono: telefonoSanitizado,
+            tourist_phone: telefonoSanitizado,
             cuposReservados: cupos,
             reservation_code: codigoGenerado,
             total_amount: montoTotal,
@@ -440,6 +492,11 @@ export const TourDetalleController = {
                 localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaConfirmada));
             } catch (_) { }
 
+            // Limpieza de formulario y reseteo de inputs antes de la redirección
+            TourDetalleView.limpiarFormularioReserva();
+            TourDetalleView.ocultarFormularioReserva();
+            e.reservationForm?.reset();
+
             window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoFinal)}`;
             return;
         } catch (error) {
@@ -465,8 +522,10 @@ export const TourDetalleController = {
     }
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => TourDetalleController.init(), { once: true });
-} else {
-    TourDetalleController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => TourDetalleController.init(), { once: true });
+    } else {
+        TourDetalleController.init();
+    }
 }

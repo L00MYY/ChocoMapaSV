@@ -43,59 +43,67 @@ function crearIconoCalendario() {
 export const TourDetalleView = {
     timerId: null,
 
-    elements: {
-        btnReturn: document.getElementById('btn-return'),
-        stateLoading: document.getElementById('state-loading'),
-        stateError: document.getElementById('state-error'),
-        stateContent: document.getElementById('state-content'),
-        departmentBadge: document.getElementById('tour-department-badge'),
-        discountBadge: document.getElementById('tour-discount-badge'),
-        spotsBadge: document.getElementById('tour-spots-badge'),
-        title: document.getElementById('tour-title'),
-        guideName: document.getElementById('tour-guide-name'),
-        heroImage: document.getElementById('tour-hero-image'),
-        thumbnailsStrip: document.getElementById('tour-thumbnails-strip'),
-        fullDescription: document.getElementById('tour-full-description'),
-        placesList: document.getElementById('tour-places-list'),
-        departureTime: document.getElementById('tour-departure-time'),
-        datesChips: document.getElementById('tour-dates-chips'),
-        pricingRow: document.getElementById('pricing-row'),
-        availableSpots: document.getElementById('tour-available-spots'),
-        btnOpenReserve: document.getElementById('btn-open-reserve'),
-        reservationCard: document.getElementById('reservation-card'),
-        reservationForm: document.getElementById('reservation-form'),
-        inputName: document.getElementById('tourist_name'),
-        inputEmail: document.getElementById('tourist_email'),
-        inputPhone: document.getElementById('tourist_phone'),
-        selectDate: document.getElementById('tour_date'),
-        inputSpots: document.getElementById('spots_reserved'),
-        btnConfirmReserve: document.getElementById('btn-confirm-reserve'),
-        errorName: document.getElementById('error-name'),
-        errorEmail: document.getElementById('error-email'),
-        errorPhone: document.getElementById('error-phone'),
-        errorDate: document.getElementById('error-date'),
-        errorSpots: document.getElementById('error-spots'),
-        reservationSuccessCard: document.getElementById('reservation-success-card'),
-        summaryTourName: document.getElementById('summary-tour-name'),
-        summaryTourDate: document.getElementById('summary-tour-date'),
-        summarySpots: document.getElementById('summary-spots'),
-        summaryTouristName: document.getElementById('summary-tourist-name'),
-        historialCard: document.getElementById('historial-reservation-card'),
-        historialStatusBadge: document.getElementById('historial-status-badge'),
-        historialSpotsCount: document.getElementById('historial-spots-count'),
-        historialTourDate: document.getElementById('historial-tour-date'),
-        btnVolverMisTours: document.getElementById('btn-volver-mis-tours'),
-        bookingCard: document.getElementById('booking-card'),
-        reservationCardDefault: document.getElementById('booking-card'),
-        reservaPendienteCard: document.getElementById('reserva-pendiente-card'),
-        pendienteCodigo: document.getElementById('pendiente-codigo'),
-        pendienteCupos: document.getElementById('pendiente-cupos'),
-        pendienteFecha: document.getElementById('pendiente-fecha'),
-        alertaTiempoRestante: document.getElementById('alerta-tiempo-restante'),
-        textoTiempoRestante: document.getElementById('texto-tiempo-restante'),
-        btnCompletarPago: document.getElementById('btn-completar-pago'),
-        reservaValidacionCard: document.getElementById('reserva-validacion-card'),
-        validacionCodigo: document.getElementById('validacion-codigo')
+    _mockElements: null,
+    get elements() {
+        if (this._mockElements) return this._mockElements;
+        if (typeof document === 'undefined') return this._mockElements || {};
+        return {
+            btnReturn: document.getElementById('btn-return'),
+            stateLoading: document.getElementById('state-loading'),
+            stateError: document.getElementById('state-error'),
+            stateContent: document.getElementById('state-content'),
+            departmentBadge: document.getElementById('tour-department-badge'),
+            discountBadge: document.getElementById('tour-discount-badge'),
+            spotsBadge: document.getElementById('tour-spots-badge'),
+            title: document.getElementById('tour-title'),
+            guideName: document.getElementById('tour-guide-name'),
+            heroImage: document.getElementById('tour-hero-image'),
+            thumbnailsStrip: document.getElementById('tour-thumbnails-strip'),
+            fullDescription: document.getElementById('tour-full-description'),
+            placesList: document.getElementById('tour-places-list'),
+            departureTime: document.getElementById('tour-departure-time'),
+            datesChips: document.getElementById('tour-dates-chips'),
+            pricingRow: document.getElementById('pricing-row'),
+            availableSpots: document.getElementById('tour-available-spots'),
+            btnOpenReserve: document.getElementById('btn-open-reserve'),
+            reservationCard: document.getElementById('reservation-card'),
+            reservationForm: document.getElementById('reservation-form'),
+            inputName: document.getElementById('tourist_name'),
+            inputEmail: document.getElementById('tourist_email'),
+            inputPhone: document.getElementById('tourist_phone'),
+            selectDate: document.getElementById('tour_date'),
+            inputSpots: document.getElementById('spots_reserved'),
+            btnConfirmReserve: document.getElementById('btn-confirm-reserve'),
+            errorName: document.getElementById('error-name'),
+            errorEmail: document.getElementById('error-email'),
+            errorPhone: document.getElementById('error-phone'),
+            errorDate: document.getElementById('error-date'),
+            errorSpots: document.getElementById('error-spots'),
+            reservationSuccessCard: document.getElementById('reservation-success-card'),
+            summaryTourName: document.getElementById('summary-tour-name'),
+            summaryTourDate: document.getElementById('summary-tour-date'),
+            summarySpots: document.getElementById('summary-spots'),
+            summaryTouristName: document.getElementById('summary-tourist-name'),
+            historialCard: document.getElementById('historial-reservation-card'),
+            historialStatusBadge: document.getElementById('historial-status-badge'),
+            historialSpotsCount: document.getElementById('historial-spots-count'),
+            historialTourDate: document.getElementById('historial-tour-date'),
+            btnVolverMisTours: document.getElementById('btn-volver-mis-tours'),
+            bookingCard: document.getElementById('booking-card'),
+            reservationCardDefault: document.getElementById('booking-card'),
+            reservaPendienteCard: document.getElementById('reserva-pendiente-card'),
+            pendienteCodigo: document.getElementById('pendiente-codigo'),
+            pendienteCupos: document.getElementById('pendiente-cupos'),
+            pendienteFecha: document.getElementById('pendiente-fecha'),
+            alertaTiempoRestante: document.getElementById('alerta-tiempo-restante'),
+            textoTiempoRestante: document.getElementById('texto-tiempo-restante'),
+            btnCompletarPago: document.getElementById('btn-completar-pago'),
+            reservaValidacionCard: document.getElementById('reserva-validacion-card'),
+            validacionCodigo: document.getElementById('validacion-codigo')
+        };
+    },
+    set elements(val) {
+        this._mockElements = val;
     },
 
     limpiarTimer() {
@@ -459,7 +467,7 @@ export const TourDetalleView = {
 
     limpiarErrores() {
         const e = this.elements;
-        [e.inputName, e.inputEmail, e.inputPhone, e.selectDate, e.inputSpots].forEach(input => input?.classList.remove('is-invalid'));
+        [e.inputName, e.inputEmail, e.inputPhone, e.selectDate, e.inputSpots].forEach(input => input?.classList?.remove?.('is-invalid'));
         [e.errorName, e.errorEmail, e.errorPhone, e.errorDate, e.errorSpots].forEach(error => {
             if (error) {
                 error.textContent = '';
@@ -509,6 +517,11 @@ export const TourDetalleView = {
     limpiarFormularioReserva() {
         const e = this.elements;
         e.reservationForm?.reset();
+        if (e.inputName) e.inputName.value = '';
+        if (e.inputEmail) e.inputEmail.value = '';
+        if (e.inputPhone) e.inputPhone.value = '';
+        if (e.selectDate) e.selectDate.value = '';
+        if (e.inputSpots) e.inputSpots.value = '1';
         this.limpiarErrores();
     },
 

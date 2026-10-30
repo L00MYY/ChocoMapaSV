@@ -189,11 +189,19 @@
                             reservaciones de tours.</p>
                     </div>
 
-                    <div class="admin-stats">
-                        <div class="stat-chip">
+                    <div class="admin-stats" id="admin-stats-filtros" role="tablist" aria-label="Filtro de reservaciones por estado">
+                        <button type="button" class="stat-chip stat-chip--pendientes active" id="filtro-pendientes" data-filtro="pendientes" role="tab" aria-selected="true" aria-controls="tabla-reservas-body">
                             <span class="stat-chip-number" id="stat-pendientes">0</span>
                             <span class="stat-chip-label">Pendientes</span>
-                        </div>
+                        </button>
+                        <button type="button" class="stat-chip stat-chip--aceptados" id="filtro-aceptados" data-filtro="aceptados" role="tab" aria-selected="false" aria-controls="tabla-reservas-body">
+                            <span class="stat-chip-number" id="stat-aceptados">0</span>
+                            <span class="stat-chip-label">Aceptados</span>
+                        </button>
+                        <button type="button" class="stat-chip stat-chip--rechazados" id="filtro-rechazados" data-filtro="rechazados" role="tab" aria-selected="false" aria-controls="tabla-reservas-body">
+                            <span class="stat-chip-number" id="stat-rechazados">0</span>
+                            <span class="stat-chip-label">Rechazados</span>
+                        </button>
                     </div>
                 </div>
 
@@ -301,6 +309,30 @@
                     </svg>
                     <span>Confirmar Rechazo</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modal-motivo" class="modal-overlay hidden" role="dialog" aria-modal="true"
+        aria-labelledby="modal-motivo-titulo">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-motivo-titulo">Motivo de Rechazo</h3>
+                <button type="button" class="modal-close" id="btn-cerrar-modal-motivo" aria-label="Cerrar visor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin: 0 0 10px; color: #64748B; font-size: 0.9rem; font-weight: 600;">Detalle documentado por el personal de MITUR:</p>
+                <div id="texto-motivo-rechazo-detalle" class="motivo-detalle-box"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action" id="btn-cerrar-motivo-footer">Cerrar</button>
             </div>
         </div>
     </div>

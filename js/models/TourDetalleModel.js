@@ -9,7 +9,9 @@ import {
     actualizarCuposFecha,
     formatearFechaLarga,
     formatearMonedaUSD,
-    esFechaPasada
+    esFechaPasada,
+    sanitizarTelefono,
+    validarFormularioReserva
 } from './ToursModel.js';
 
 const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
@@ -24,7 +26,9 @@ export {
     actualizarCuposFecha,
     formatearFechaLarga,
     formatearMonedaUSD,
-    esFechaPasada
+    esFechaPasada,
+    sanitizarTelefono,
+    validarFormularioReserva
 };
 
 export function obtenerFechaHoyLocal() {
@@ -201,6 +205,8 @@ export const TourDetalleModel = {
     formatearFechaLarga,
     formatearMonedaUSD,
     esFechaPasada,
+    sanitizarTelefono,
+    validarFormularioReserva,
     obtenerFechaHoyLocal,
     TOURS_DEMO
 };

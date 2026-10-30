@@ -6,6 +6,7 @@ import { NavbarController } from './NavbarController.js';
 export const AdminPagosController = {
     async init() {
         AdminPagosView.bindEventosModales();
+        AdminPagosView.bindFiltros();
         this.configurarCierreSesion();
         this.configurarBotonLoginAdmin();
 
@@ -119,7 +120,7 @@ export const AdminPagosController = {
 
                     if (res.ok) {
                         AdminPagosView.mostrarNotificacion('success', `Reserva ${codigo} aprobada y confirmada con éxito`);
-                        AdminPagosView.removerFila(reservaId);
+                        AdminPagosView.actualizarReservaLocal(reservaId, 'confirmada');
                     } else {
                         AdminPagosView.mostrarNotificacion('error', res.mensaje || 'No se pudo aprobar la reserva');
                         if (btn) btn.disabled = false;
@@ -133,6 +134,10 @@ export const AdminPagosController = {
 
             onRechazarClick: ({ reservaId, codigo }) => {
                 AdminPagosView.mostrarModalRechazo(reservaId, codigo);
+            },
+
+            onVerMotivo: ({ codigo, motivo }) => {
+                AdminPagosView.mostrarModalMotivo(codigo, motivo);
             }
         });
 
@@ -151,7 +156,7 @@ export const AdminPagosController = {
                 if (res.ok) {
                     AdminPagosView.cerrarModalRechazo();
                     AdminPagosView.mostrarNotificacion('error', 'Comprobante y reserva rechazados correctamente');
-                    AdminPagosView.removerFila(reservaId);
+                    AdminPagosView.actualizarReservaLocal(reservaId, 'rechazada', motivo);
                 } else {
                     AdminPagosView.mostrarNotificacion('error', res.mensaje || 'No se pudo rechazar la reserva');
                 }
@@ -167,10 +172,10 @@ export const AdminPagosController = {
 
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => AdminPagosController.init(), { once: true });
-} else {
-    AdminPagosController.init();
-}
+        document.addEventListener('DOMContentLoaded', () => AdminPagosController.init(), { once: true });
+    } else {
+        AdminPagosController.init();
+    }
 }
 
 export default AdminPagosController;

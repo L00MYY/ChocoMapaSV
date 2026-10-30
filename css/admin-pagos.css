@@ -111,17 +111,83 @@ footer,
   align-items: center;
   gap: 12px;
   color: #FFFFFF;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.stat-chip:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px);
+}
+
+.stat-chip:focus-visible {
+  outline: 2px solid var(--blue-bell);
+  outline-offset: 2px;
 }
 
 .stat-chip-number {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--blue-bell);
+  line-height: 1;
 }
 
 .stat-chip-label {
   font-size: 0.85rem;
-  opacity: 0.85;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* 1. Pendientes (neutro/azul) */
+.stat-chip--pendientes .stat-chip-number {
+  color: var(--blue-bell);
+}
+
+.stat-chip--pendientes:hover {
+  border-color: rgba(27, 152, 224, 0.45);
+  background: rgba(27, 152, 224, 0.14);
+}
+
+.stat-chip--pendientes.active {
+  background: rgba(27, 152, 224, 0.22);
+  border-color: var(--blue-bell);
+  box-shadow: 0 4px 18px rgba(27, 152, 224, 0.35);
+  transform: translateY(-2px);
+}
+
+/* 2. Aceptados (verde éxito) */
+.stat-chip--aceptados .stat-chip-number {
+  color: #10B981;
+}
+
+.stat-chip--aceptados:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.stat-chip--aceptados.active {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10B981;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+  transform: translateY(-2px);
+}
+
+/* 3. Rechazados (rojo alerta) */
+.stat-chip--rechazados .stat-chip-number {
+  color: #EF4444;
+}
+
+.stat-chip--rechazados:hover {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.stat-chip--rechazados.active {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #EF4444;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.35);
+  transform: translateY(-2px);
 }
 
 .admin-card {
@@ -578,6 +644,74 @@ footer,
   font-size: 0.78rem;
   border: 1px solid #FDE68A;
   white-space: nowrap;
+}
+
+
+.badge-status-rec {
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid #FECACA;
+  white-space: nowrap;
+}
+
+.badge-action-aprobada {
+  background: #ECFDF5;
+  color: #047857;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: 1px solid #A7F3D0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-action-rechazada {
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: 1px solid #FECACA;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-ver-motivo {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-ver-motivo:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+  border-color: #94A3B8;
+}
+
+.motivo-detalle-box {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: #1E293B;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .badge-status-conf {

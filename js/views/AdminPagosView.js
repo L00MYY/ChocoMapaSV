@@ -4,25 +4,36 @@ export const AdminPagosView = {
         if (this._mockElements) return this._mockElements;
         if (typeof document === 'undefined') return this._mockElements || {};
         return {
-        vistaAdmin: document.getElementById('vista-admin'),
-        vistaDenegada: document.getElementById('vista-denegada'),
-        statPendientes: document.getElementById('stat-pendientes'),
-        tablaBody: document.getElementById('tabla-reservas-body'),
-        modalComprobante: document.getElementById('modal-comprobante'),
-        modalComprobanteTitulo: document.getElementById('modal-comprobante-titulo'),
-        modalComprobanteBody: document.getElementById('modal-comprobante-body'),
-        btnAbrirPestanaComprobante: document.getElementById('btn-abrir-pestana-comprobante'),
-        btnCerrarModalComprobante: document.getElementById('btn-cerrar-modal-comprobante'),
-        btnCerrarComprobanteFooter: document.getElementById('btn-cerrar-comprobante-footer'),
-        modalRechazo: document.getElementById('modal-rechazo'),
-        modalRechazoTitulo: document.getElementById('modal-rechazo-titulo'),
-        textareaMotivoRechazo: document.getElementById('textarea-motivo-rechazo'),
-        errorMotivoRechazo: document.getElementById('error-motivo-rechazo'),
-        btnCerrarModalRechazo: document.getElementById('btn-cerrar-modal-rechazo'),
-        btnCancelarRechazo: document.getElementById('btn-cancelar-rechazo'),
-        btnConfirmarRechazo: document.getElementById('btn-confirmar-rechazo'),
-        toastContainer: document.getElementById('toast-container'),
-        alertaSesionTurista: (typeof document !== 'undefined' ? document.getElementById('alerta-sesion-activa-turista') : null)
+            vistaAdmin: document.getElementById('vista-admin'),
+            vistaDenegada: document.getElementById('vista-denegada'),
+            statPendientes: document.getElementById('stat-pendientes'),
+            statAceptados: document.getElementById('stat-aceptados'),
+            statRechazados: document.getElementById('stat-rechazados'),
+            filtroPendientes: document.getElementById('filtro-pendientes'),
+            filtroAceptados: document.getElementById('filtro-aceptados'),
+            filtroRechazados: document.getElementById('filtro-rechazados'),
+            filtrosContainer: document.getElementById('admin-stats-filtros'),
+            tablaBody: document.getElementById('tabla-reservas-body'),
+            modalComprobante: document.getElementById('modal-comprobante'),
+            modalComprobanteTitulo: document.getElementById('modal-comprobante-titulo'),
+            modalComprobanteBody: document.getElementById('modal-comprobante-body'),
+            btnAbrirPestanaComprobante: document.getElementById('btn-abrir-pestana-comprobante'),
+            btnCerrarModalComprobante: document.getElementById('btn-cerrar-modal-comprobante'),
+            btnCerrarComprobanteFooter: document.getElementById('btn-cerrar-comprobante-footer'),
+            modalRechazo: document.getElementById('modal-rechazo'),
+            modalRechazoTitulo: document.getElementById('modal-rechazo-titulo'),
+            textareaMotivoRechazo: document.getElementById('textarea-motivo-rechazo'),
+            errorMotivoRechazo: document.getElementById('error-motivo-rechazo'),
+            btnCerrarModalRechazo: document.getElementById('btn-cerrar-modal-rechazo'),
+            btnCancelarRechazo: document.getElementById('btn-cancelar-rechazo'),
+            btnConfirmarRechazo: document.getElementById('btn-confirmar-rechazo'),
+            modalMotivo: document.getElementById('modal-motivo'),
+            modalMotivoTitulo: document.getElementById('modal-motivo-titulo'),
+            textoMotivoRechazoDetalle: document.getElementById('texto-motivo-rechazo-detalle'),
+            btnCerrarModalMotivo: document.getElementById('btn-cerrar-modal-motivo'),
+            btnCerrarMotivoFooter: document.getElementById('btn-cerrar-motivo-footer'),
+            toastContainer: document.getElementById('toast-container'),
+            alertaSesionTurista: (typeof document !== 'undefined' ? document.getElementById('alerta-sesion-activa-turista') : null)
         };
     },
     set elements(val) {
@@ -30,6 +41,8 @@ export const AdminPagosView = {
     },
 
     reservaRechazoActualId: null,
+    todasLasReservas: [],
+    filtroActual: 'pendientes',
 
     mostrarAccesoDenegado() {
         if (this.elements.vistaAdmin) {
@@ -63,16 +76,69 @@ export const AdminPagosView = {
         this.mostrarNotificacion('warning', 'Asegúrese de cerrar la sesión actual antes de intentar iniciar sesión como administrador');
     },
 
-    renderListado(reservas) {
+    clasificarCategoria(status) {
+        const s = String(status || '').trim().toLowerCase();
+        if (s === 'confirmada' || s === 'confirmado') {
+            return 'aceptados';
+        }
+        if (s === 'rechazada' || s === 'rechazado') {
+            return 'rechazados';
+        }
+        if (s === 'pendiente_pago' || s === 'en_validacion' || s === 'pendiente de confirmar') {
+            return 'pendientes';
+        }
+        return 'pendientes';
+    },
+
+    actualizarContadores(reservas) {
+        const lista = Array.isArray(reservas) ? reservas : [];
+        const conteo = {
+            pendientes: lista.filter(r => this.clasificarCategoria(r.status) === 'pendientes').length,
+            aceptados: lista.filter(r => this.clasificarCategoria(r.status) === 'aceptados').length,
+            rechazados: lista.filter(r => this.clasificarCategoria(r.status) === 'rechazados').length
+        };
+
+        if (this.elements.statPendientes) {
+            this.elements.statPendientes.textContent = String(conteo.pendientes);
+        }
+        if (this.elements.statAceptados) {
+            this.elements.statAceptados.textContent = String(conteo.aceptados);
+        }
+        if (this.elements.statRechazados) {
+            this.elements.statRechazados.textContent = String(conteo.rechazados);
+        }
+
+        return conteo;
+    },
+
+    renderListado(reservas, filtro = null) {
         const tbody = this.elements.tablaBody;
         if (!tbody) return;
 
-        const count = Array.isArray(reservas) ? reservas.length : 0;
-        if (this.elements.statPendientes) {
-            this.elements.statPendientes.textContent = String(count);
+        if (Array.isArray(reservas)) {
+            this.todasLasReservas = reservas;
         }
 
-        if (!Array.isArray(reservas) || reservas.length === 0) {
+        if (filtro) {
+            this.filtroActual = filtro;
+        }
+
+        this.actualizarContadores(this.todasLasReservas);
+
+        const filtradas = this.todasLasReservas.filter(r => this.clasificarCategoria(r.status) === this.filtroActual);
+
+        if (filtradas.length === 0) {
+            let tituloVacio = 'No hay reservaciones pendientes';
+            let textoVacio = 'No se encontraron reservaciones en espera de confirmación o validación en este momento.';
+
+            if (this.filtroActual === 'aceptados') {
+                tituloVacio = 'No hay reservaciones aceptadas';
+                textoVacio = 'Aún no se han registrado reservaciones aprobadas o confirmadas en el sistema.';
+            } else if (this.filtroActual === 'rechazados') {
+                tituloVacio = 'No hay reservaciones rechazadas';
+                textoVacio = 'No existen reservaciones rechazadas en el historial administrativo.';
+            }
+
             tbody.innerHTML = `
                 <tr>
                     <td colspan="10">
@@ -81,8 +147,8 @@ export const AdminPagosView = {
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
-                            <h3 class="empty-title">No hay reservaciones pendientes</h3>
-                            <p class="empty-text">No se encontraron reservaciones en espera de confirmación o validación en este momento.</p>
+                            <h3 class="empty-title">${tituloVacio}</h3>
+                            <p class="empty-text">${textoVacio}</p>
                         </div>
                     </td>
                 </tr>
@@ -90,20 +156,25 @@ export const AdminPagosView = {
             return;
         }
 
-        tbody.innerHTML = reservas.map(r => {
+        tbody.innerHTML = filtradas.map(r => {
             const codigo = r.reservation_code || `CM-${String(r.id).slice(0, 6).toUpperCase()}`;
             const monto = Number(r.total_amount) || 0;
             const fechaStr = this.formatearFecha(r.tour_date);
             const tieneArchivo = Boolean(r.storage_path);
-            const puedeGestionar = tieneArchivo && r.status === 'en_validacion';
+            const statusLower = String(r.status || '').toLowerCase();
+            const esConfirmada = statusLower === 'confirmada' || statusLower === 'confirmado';
+            const esRechazada = statusLower === 'rechazada' || statusLower === 'rechazado';
+            const puedeGestionar = tieneArchivo && r.status === 'en_validacion' && !esConfirmada && !esRechazada;
 
             let statusBadge = `<span class="badge-status-pen">Pendiente de confirmar</span>`;
             if (r.status === 'en_validacion') {
                 statusBadge = `<span class="badge-status-val">En validación</span>`;
             } else if (r.status === 'pendiente_pago') {
                 statusBadge = `<span class="badge-status-pen">Pendiente de pago</span>`;
-            } else if (r.status === 'confirmada' || r.status === 'Confirmado') {
+            } else if (esConfirmada) {
                 statusBadge = `<span class="badge-status-conf">Confirmada</span>`;
+            } else if (esRechazada) {
+                statusBadge = `<span class="badge-status-rec">Rechazada</span>`;
             }
 
             const comprobanteBoton = tieneArchivo
@@ -122,11 +193,75 @@ export const AdminPagosView = {
                     <span>Sin archivo</span>
                 </button>`;
 
-            const disabledClasses = !puedeGestionar ? 'opacity-50 cursor-not-allowed' : '';
-            const disabledAttr = !puedeGestionar ? 'disabled' : '';
+            let accionesHtml = '';
+
+            if (esConfirmada) {
+                // Para reservas en estado 'confirmada': en la columna ACCIONES mostrar el texto/badge "Aprobada" y deshabilitar los botones de acción para prevenir doble procesamiento
+                accionesHtml = `
+                    <div class="cell-actions">
+                        <span class="badge-action-aprobada">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Aprobada</span>
+                        </span>
+                        <button type="button" class="btn-action btn-aprobar opacity-50 cursor-not-allowed hidden" data-action="aprobar" disabled style="display:none;">Aprobar</button>
+                        <button type="button" class="btn-action btn-rechazar opacity-50 cursor-not-allowed hidden" data-action="rechazar" disabled style="display:none;">Rechazar</button>
+                    </div>
+                `;
+            } else if (esRechazada) {
+                // Para reservas en estado 'rechazada': en la columna ACCIONES mostrar el badge "Rechazada", mostrar el comprobante si existe y permitir ver el motivo de rechazo (rejection_reason)
+                const motivoRechazo = r.rejection_reason || '';
+                const btnMotivo = motivoRechazo
+                    ? `<button type="button" class="btn-action btn-ver-motivo" data-action="ver-motivo" data-motivo="${this.escaparHtml(motivoRechazo)}" title="Ver motivo del rechazo">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>Motivo</span>
+                    </button>`
+                    : '';
+
+                accionesHtml = `
+                    <div class="cell-actions">
+                        <span class="badge-action-rechazada" title="${this.escaparHtml(motivoRechazo || 'Rechazada')}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <span>Rechazada</span>
+                        </span>
+                        ${btnMotivo}
+                        <button type="button" class="btn-action btn-aprobar opacity-50 cursor-not-allowed hidden" data-action="aprobar" disabled style="display:none;">Aprobar</button>
+                        <button type="button" class="btn-action btn-rechazar opacity-50 cursor-not-allowed hidden" data-action="rechazar" disabled style="display:none;">Rechazar</button>
+                    </div>
+                `;
+            } else {
+                const disabledClasses = !puedeGestionar ? 'opacity-50 cursor-not-allowed' : '';
+                const disabledAttr = !puedeGestionar ? 'disabled' : '';
+
+                accionesHtml = `
+                    <div class="cell-actions">
+                        <button type="button" class="btn-action btn-aprobar ${disabledClasses}" data-action="aprobar" ${disabledAttr}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Aprobar</span>
+                        </button>
+                        <button type="button" class="btn-action btn-rechazar ${disabledClasses}" data-action="rechazar" ${disabledAttr}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <span>Rechazar</span>
+                        </button>
+                    </div>
+                `;
+            }
 
             return `
-                <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-status="${r.status || ''}" data-mime="${r.mime_type || ''}">
+                <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-status="${r.status || ''}" data-mime="${r.mime_type || ''}" data-motivo="${this.escaparHtml(r.rejection_reason || '')}">
                     <td class="cell-codigo">${codigo}</td>
                     <td>
                         <div class="cell-turista">
@@ -141,26 +276,47 @@ export const AdminPagosView = {
                     <td class="cell-monto">$${monto.toFixed(2)}</td>
                     <td>${statusBadge}</td>
                     <td>${comprobanteBoton}</td>
-                    <td>
-                        <div class="cell-actions">
-                            <button type="button" class="btn-action btn-aprobar ${disabledClasses}" data-action="aprobar" ${disabledAttr}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                                <span>Aprobar</span>
-                            </button>
-                            <button type="button" class="btn-action btn-rechazar ${disabledClasses}" data-action="rechazar" ${disabledAttr}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                                <span>Rechazar</span>
-                            </button>
-                        </div>
-                    </td>
+                    <td>${accionesHtml}</td>
                 </tr>
             `;
         }).join('');
+    },
+
+    bindFiltros(onCambioFiltro) {
+        const container = this.elements.filtrosContainer || document.getElementById('admin-stats-filtros');
+        if (!container) return;
+
+        container.addEventListener('click', (e) => {
+            const btn = e.target.closest('.stat-chip[data-filtro]');
+            if (!btn) return;
+
+            const nuevoFiltro = btn.dataset.filtro;
+            if (nuevoFiltro === this.filtroActual) return;
+
+            container.querySelectorAll('.stat-chip[data-filtro]').forEach(chip => {
+                const esActivo = chip.dataset.filtro === nuevoFiltro;
+                chip.classList.toggle('active', esActivo);
+                chip.setAttribute('aria-selected', esActivo ? 'true' : 'false');
+            });
+
+            this.filtroActual = nuevoFiltro;
+            this.renderListado(this.todasLasReservas, nuevoFiltro);
+
+            if (typeof onCambioFiltro === 'function') {
+                onCambioFiltro(nuevoFiltro);
+            }
+        });
+    },
+
+    actualizarReservaLocal(reservaId, nuevoStatus, motivo = null) {
+        const index = this.todasLasReservas.findIndex(r => String(r.id) === String(reservaId));
+        if (index !== -1) {
+            this.todasLasReservas[index].status = nuevoStatus;
+            if (motivo !== null) {
+                this.todasLasReservas[index].rejection_reason = motivo;
+            }
+        }
+        this.renderListado(this.todasLasReservas, this.filtroActual);
     },
 
     mostrarModalComprobante(url, mimeType, codigo) {
@@ -227,6 +383,24 @@ export const AdminPagosView = {
         }
     },
 
+    mostrarModalMotivo(codigo, motivo) {
+        const modal = this.elements.modalMotivo;
+        const titulo = this.elements.modalMotivoTitulo;
+        const texto = this.elements.textoMotivoRechazoDetalle;
+
+        if (!modal) return;
+        if (titulo) titulo.textContent = `Motivo de Rechazo - ${codigo || ''}`;
+        if (texto) texto.textContent = motivo || 'No se especificó un motivo para este rechazo.';
+
+        modal.classList.remove('hidden');
+    },
+
+    cerrarModalMotivo() {
+        if (this.elements.modalMotivo) {
+            this.elements.modalMotivo.classList.add('hidden');
+        }
+    },
+
     deshabilitarFilaPorConcurrencia(reservaId, mensaje) {
         const row = document.querySelector(`tr[data-id="${reservaId}"]`);
         if (!row) return;
@@ -251,14 +425,16 @@ export const AdminPagosView = {
             row.style.transform = 'translateX(20px)';
             setTimeout(() => {
                 row.remove();
-                const totalRestantes = document.querySelectorAll('#tabla-reservas-body tr[data-id]').length;
-                if (this.elements.statPendientes) {
-                    this.elements.statPendientes.textContent = String(totalRestantes);
-                }
-                if (totalRestantes === 0) {
-                    this.renderListado([]);
+                this.todasLasReservas = this.todasLasReservas.filter(r => String(r.id) !== String(reservaId));
+                this.actualizarContadores(this.todasLasReservas);
+                const restantesVisibles = document.querySelectorAll('#tabla-reservas-body tr[data-id]').length;
+                if (restantesVisibles === 0) {
+                    this.renderListado(this.todasLasReservas, this.filtroActual);
                 }
             }, 300);
+        } else {
+            this.todasLasReservas = this.todasLasReservas.filter(r => String(r.id) !== String(reservaId));
+            this.renderListado(this.todasLasReservas, this.filtroActual);
         }
     },
 
@@ -284,6 +460,8 @@ export const AdminPagosView = {
         this.elements.btnCerrarComprobanteFooter?.addEventListener('click', () => this.cerrarModalComprobante());
         this.elements.btnCerrarModalRechazo?.addEventListener('click', () => this.cerrarModalRechazo());
         this.elements.btnCancelarRechazo?.addEventListener('click', () => this.cerrarModalRechazo());
+        this.elements.btnCerrarModalMotivo?.addEventListener('click', () => this.cerrarModalMotivo());
+        this.elements.btnCerrarMotivoFooter?.addEventListener('click', () => this.cerrarModalMotivo());
 
         this.elements.modalComprobante?.addEventListener('click', (e) => {
             if (e.target === this.elements.modalComprobante) this.cerrarModalComprobante();
@@ -293,15 +471,20 @@ export const AdminPagosView = {
             if (e.target === this.elements.modalRechazo) this.cerrarModalRechazo();
         });
 
+        this.elements.modalMotivo?.addEventListener('click', (e) => {
+            if (e.target === this.elements.modalMotivo) this.cerrarModalMotivo();
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.cerrarModalComprobante();
                 this.cerrarModalRechazo();
+                this.cerrarModalMotivo();
             }
         });
     },
 
-    bindAccionesTabla({ onVer, onAprobar, onRechazarClick }) {
+    bindAccionesTabla({ onVer, onAprobar, onRechazarClick, onVerMotivo = null }) {
         this.elements.tablaBody?.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-action]');
             if (!btn || btn.disabled || btn.classList.contains('cursor-not-allowed') || btn.hasAttribute('disabled')) return;
@@ -314,6 +497,7 @@ export const AdminPagosView = {
             const storagePath = row.dataset.storage;
             const mimeType = row.dataset.mime;
             const status = row.dataset.status;
+            const motivo = btn.dataset.motivo || row.dataset.motivo || '';
             const action = btn.dataset.action;
 
             if (action === 'ver') {
@@ -325,6 +509,12 @@ export const AdminPagosView = {
             } else if (action === 'rechazar') {
                 if (!storagePath || status !== 'en_validacion') return;
                 onRechazarClick({ reservaId, codigo, btn });
+            } else if (action === 'ver-motivo') {
+                if (typeof onVerMotivo === 'function') {
+                    onVerMotivo({ reservaId, codigo, motivo });
+                } else {
+                    this.mostrarModalMotivo(codigo, motivo);
+                }
             }
         });
     },

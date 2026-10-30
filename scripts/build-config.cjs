@@ -69,6 +69,9 @@ const fileContent = `// Archivo generado automáticamente durante el build.
 export const MAPBOX_TOKEN_B64 = "${encodedMapboxToken}";
 export const SUPABASE_URL_B64 = "${encodedSupabaseUrl}";
 export const SUPABASE_ANON_KEY_B64 = "${encodedAnonKey}";
+export const EMAILJS_SERVICE_ID = "${process.env.EMAILJS_SERVICE_ID || 'service_5fxcq7c'}";
+export const EMAILJS_TEMPLATE_ID = "${process.env.EMAILJS_TEMPLATE_ID || 'template_9uf3e0d'}";
+export const EMAILJS_PUBLIC_KEY = "${process.env.EMAILJS_PUBLIC_KEY || 'acny_NrtqcvTUzgbJ'}";
 `;
 
 // ==================================================

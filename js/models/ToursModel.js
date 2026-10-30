@@ -406,6 +406,42 @@ export async function obtenerLugaresParaFiltro() {
  * @returns {Promise<{ ok: boolean, data?: Object }>}
  * @throws {Error} Si la petición a Supabase falla
  */
+/**
+ * Sanitiza un número de teléfono removiendo cualquier caracter que no sea dígito 0-9.
+ * Cumple estrictamente con la restricción CHECK (tourist_phone ~ '^[0-9]+$').
+ * @param {string|number} phone
+ * @returns {string} Solo dígitos numéricos
+ */
+export function sanitizarTelefono(phone) {
+    if (!phone) return '';
+    return String(phone).replace(/\D/g, ''); // Remueve cualquier caracter que no sea dígito 0-9
+}
+
+/**
+ * Valida los datos del formulario de reserva, incluyendo validación y sanitización estricta de teléfono.
+ * @param {Object} datos
+ * @returns {{ esValido: boolean, error?: string, errores?: Object, telefonoSanitizado?: string }}
+ */
+export function validarFormularioReserva(datos = {}) {
+    const payload = datos && typeof datos === 'object' ? datos : {};
+    const phone = payload.phone ?? payload.telefono ?? payload.tourist_phone;
+    const telefonoLimpio = sanitizarTelefono(phone);
+
+    if (!/^[0-9]{8,15}$/.test(telefonoLimpio)) {
+        return {
+            esValido: false,
+            error: 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)',
+            errores: { phone: 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)' }
+        };
+    }
+
+    return {
+        esValido: true,
+        telefonoSanitizado: telefonoLimpio,
+        errores: {}
+    };
+}
+
 export async function crearReservaTour(datosReserva) {
     const sesion = await AuthModel.obtenerSesionActual();
     if (!sesion || !sesion.user) {
@@ -430,7 +466,7 @@ export async function crearReservaTour(datosReserva) {
         tourist_id: sesion.user.id,
         tourist_name: (datosReserva.nombre || datosReserva.tourist_name || '').trim(),
         tourist_email: (datosReserva.email || datosReserva.tourist_email || '').trim(),
-        tourist_phone: (datosReserva.telefono || datosReserva.tourist_phone || '').trim(),
+        tourist_phone: sanitizarTelefono(datosReserva.telefono ?? datosReserva.tourist_phone ?? datosReserva.phone),
         spots_reserved: Number(datosReserva.cuposReservados ?? datosReserva.spots_reserved),
         reservation_code: datosReserva.reservation_code || datosReserva.codigo || code,
         status: datosReserva.status || 'pendiente_pago',
@@ -708,6 +744,8 @@ export const ToursModel = {
     actualizarCuposTour,
     actualizarCuposFecha,
     crearReservaTour,
+    sanitizarTelefono,
+    validarFormularioReserva,
     filtrarCatalogoTours,
     setTours(tours) {
         todosLosTours = Array.isArray(tours) ? tours : [];
