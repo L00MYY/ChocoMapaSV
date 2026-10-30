@@ -1,14 +1,33 @@
 import {
     SUPABASE_URL_B64,
     SUPABASE_ANON_KEY_B64,
-    EMAILJS_SERVICE_ID,
-    EMAILJS_TEMPLATE_ID,
-    EMAILJS_PUBLIC_KEY
+    EMAILJS_SERVICE_ID_B64,
+    EMAILJS_TEMPLATE_ID_B64,
+    EMAILJS_PUBLIC_KEY_B64
 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
+const decodeB64 = (val) => {
+    if (!val || typeof val !== 'string') return '';
+    try {
+        if (typeof atob === 'function') {
+            return atob(val);
+        }
+        if (typeof Buffer !== 'undefined') {
+            return Buffer.from(val, 'base64').toString('utf-8');
+        }
+    } catch (_) {
+        return val;
+    }
+    return val;
+};
+
 const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
 const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+
+const EMAILJS_SERVICE_ID = decodeB64(EMAILJS_SERVICE_ID_B64);
+const EMAILJS_TEMPLATE_ID = decodeB64(EMAILJS_TEMPLATE_ID_B64);
+const EMAILJS_PUBLIC_KEY = decodeB64(EMAILJS_PUBLIC_KEY_B64);
 
 const DEFAULT_HEADERS = {
     'apikey': SUPABASE_ANON_KEY,

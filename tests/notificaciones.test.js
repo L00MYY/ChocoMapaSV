@@ -11,9 +11,9 @@ import {
     NotificacionesModel
 } from '../js/models/NotificacionesModel.js';
 import {
-    EMAILJS_SERVICE_ID,
-    EMAILJS_TEMPLATE_ID,
-    EMAILJS_PUBLIC_KEY
+    EMAILJS_SERVICE_ID_B64,
+    EMAILJS_TEMPLATE_ID_B64,
+    EMAILJS_PUBLIC_KEY_B64
 } from '../js/config.js';
 
 import { AuthModel } from '../js/models/AuthModel.js';
@@ -333,10 +333,11 @@ describe('Suite de Pruebas: Motor de Notificaciones por Correo Electrónico (Cho
     });
 
     describe('Despacho Físico de Correo vía EmailJS REST API', () => {
-        it('las constantes de EmailJS en config.js deben tener los valores oficiales del proyecto', () => {
-            assert.equal(EMAILJS_SERVICE_ID, 'service_5fxcq7c');
-            assert.equal(EMAILJS_TEMPLATE_ID, 'template_9uf3e0d');
-            assert.equal(EMAILJS_PUBLIC_KEY, 'acny_NrtqcvTUzgbJ');
+        it('las constantes de EmailJS en config.js deben tener los valores oficiales del proyecto (codificadas en Base64)', () => {
+            const decode = (val) => typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf-8');
+            assert.equal(decode(EMAILJS_SERVICE_ID_B64), 'service_5fxcq7c');
+            assert.equal(decode(EMAILJS_TEMPLATE_ID_B64), 'template_9uf3e0d');
+            assert.equal(decode(EMAILJS_PUBLIC_KEY_B64), 'acny_NrtqcvTUzgbJ');
             assert.equal(typeof NotificacionesModel.enviarEmailReal, 'function');
         });
 
