@@ -115,16 +115,7 @@ export async function obtenerReservaPorId(reservaId) {
         }
     } catch (_) { }
 
-    return {
-        id: reservaId,
-        spots_reserved: 1,
-        tour_date: new Date().toISOString().split('T')[0],
-        status: 'Confirmado',
-        status_original: 'Confirmado',
-        reservation_code: `CM-${String(reservaId).slice(0, 6).toUpperCase()}`,
-        total_amount: 0,
-        expires_at: null
-    };
+    return null;
 }
 
 export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
@@ -194,60 +185,7 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
         }
     } catch (_) { }
 
-    try {
-        const localKey = `chocomapa_reserva_${touristId}_${tourId}`;
-        let localData = null;
-        const rawLocal = localStorage.getItem(localKey);
-        if (rawLocal) {
-            localData = JSON.parse(rawLocal);
-        } else {
-            const claves = Object.keys(localStorage);
-            for (const clave of claves) {
-                if (clave.startsWith('chocomapa_reserva_')) {
-                    const itemRaw = localStorage.getItem(clave);
-                    if (itemRaw) {
-                        const parsed = JSON.parse(itemRaw);
-                        if (parsed && (parsed.tour_id === tourId || !parsed.tour_id) && (parsed.tourist_id === touristId || !parsed.tourist_id)) {
-                            localData = parsed;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (localData) {
-            let stOriginal = localData.status || 'Confirmado';
-            const stNorm = String(stOriginal).toLowerCase();
-
-            if (stNorm === 'pendiente_pago') {
-                const expTimestamp = localData.expires_at
-                    ? new Date(localData.expires_at).getTime()
-                    : (localData.created_at ? new Date(localData.created_at).getTime() + 3600000 : null);
-
-                if (expTimestamp && Date.now() >= expTimestamp) {
-                    stOriginal = 'expirada';
-                }
-            }
-
-            return {
-                id: localData.id || 'reserva-local',
-                tour_id: tourId,
-                tour_date_id: localData.tour_date_id || null,
-                tourist_id: touristId,
-                spots_reserved: Number(localData.spots_reserved) || 1,
-                tour_date: localData.tour_date || new Date().toISOString().split('T')[0],
-                status: calcularEstadoVisual(stOriginal, localData.tour_date),
-                status_original: stOriginal,
-                reservation_code: localData.reservation_code || `CM-${String(localData.id || 'LOC001').slice(0, 6).toUpperCase()}`,
-                total_amount: Number(localData.total_amount) || 0,
-                expires_at: localData.expires_at || null,
-                created_at: localData.created_at || new Date().toISOString(),
-                tours: null
-            };
-        }
-    } catch (_) { }
-
+    // Sin reservas en BD: NO recurrir a localStorage ni mock
     return null;
 }
 

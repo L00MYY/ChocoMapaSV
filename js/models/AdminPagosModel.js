@@ -12,13 +12,10 @@ const HEADERS = {
 
 function normalizarRutaStorage(path) {
     if (!path) return '';
-    return String(path)
-        .trim()
-        .replace(/^\/+/, '')
-        .replace(new RegExp('^(receipts|payment_receipts)/'), '');
+    return String(path).trim().replace(/^\/+/, '');
 }
 
-function obtenerSupabaseClient(token) {
+export function obtenerSupabaseClient(token) {
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             global: {
@@ -29,34 +26,10 @@ function obtenerSupabaseClient(token) {
     return null;
 }
 
-function sincronizarEstadoLocalStorage(reservaId, nuevoStatus, motivo = null) {
-    try {
-        const claves = Object.keys(localStorage);
-        for (const clave of claves) {
-            if (clave.startsWith('chocomapa_reserva_')) {
-                const raw = localStorage.getItem(clave);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && (parsed.id === reservaId || parsed.reservation_code === reservaId)) {
-                        parsed.status = nuevoStatus;
-                        if (nuevoStatus === 'confirmada') {
-                            parsed.confirmed_at = new Date().toISOString();
-                        }
-                        if (motivo) {
-                            parsed.rejection_reason = motivo;
-                        }
-                        localStorage.setItem(clave, JSON.stringify(parsed));
-                    }
-                }
-            }
-        }
-    } catch (_) { }
-}
-
 export async function verificarRolAdmin() {
     try {
         const sesion = await AuthModel.obtenerSesionActual();
-        if (!sesion || !sesion.user) {
+        if (!sesion || !sesion.user || !sesion.user.id) {
             return { esAdmin: false, razon: 'no_session', user: null };
         }
 
@@ -66,6 +39,7 @@ export async function verificarRolAdmin() {
             'Authorization': `Bearer ${sesion.access_token || SUPABASE_ANON_KEY}`
         };
 
+        // Validar si el user.id pertenece a la tabla admin_users
         const url = `${SUPABASE_URL}/rest/v1/admin_users?user_id=eq.${encodeURIComponent(userId)}&select=*`;
         const res = await fetch(url, {
             method: 'GET',
@@ -79,14 +53,9 @@ export async function verificarRolAdmin() {
             }
         }
 
-        const userEmail = String(sesion.user.email || '').toLowerCase();
-        if (userEmail.includes('admin') || userEmail.endsWith('@mitur.gob.sv') || userEmail.includes('luismario')) {
-            return { esAdmin: true, user: sesion.user, admin: { user_id: userId, role: 'validador_pagos' } };
-        }
-
         return { esAdmin: false, razon: 'not_admin', user: sesion.user };
     } catch (error) {
-        console.error(error);
+        console.error('Error al verificar admin_users:', error);
         return { esAdmin: false, razon: 'error', error };
     }
 }
@@ -169,12 +138,12 @@ export async function obtenerUrlFirmada(storagePath) {
     const sesion = await AuthModel.obtenerSesionActual();
     const token = sesion?.access_token || SUPABASE_ANON_KEY;
     const client = obtenerSupabaseClient(token);
-    const candidateBuckets = ['receipts', 'payment_receipts'];
+    const candidateBuckets = ['payment_receipts', 'receipts'];
 
     for (const bucket of candidateBuckets) {
         if (client) {
             try {
-                const { data, error } = await client.storage.from(bucket).createSignedUrl(cleanPath, 120);
+                const { data, error } = await client.storage.from(bucket).createSignedUrl(cleanPath, 300);
                 if (!error && data?.signedUrl) {
                     return { ok: true, signedUrl: data.signedUrl };
                 }
@@ -182,7 +151,8 @@ export async function obtenerUrlFirmada(storagePath) {
         }
 
         try {
-            const url = `${SUPABASE_URL}/storage/v1/object/sign/${bucket}/${cleanPath}`;
+            const encodedPath = cleanPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+            const url = `${SUPABASE_URL}/storage/v1/object/sign/${bucket}/${encodedPath}`;
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -190,7 +160,7 @@ export async function obtenerUrlFirmada(storagePath) {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ expiresIn: 120 })
+                body: JSON.stringify({ expiresIn: 300 })
             });
 
             if (res.ok) {
@@ -256,29 +226,6 @@ export async function aprobarReserva(reservaId) {
     };
 
     try {
-        const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/aprobar_reserva_pago`;
-        const resRpc = await fetch(urlRpc, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                p_reservation_id: reservaId
-            })
-        });
-
-        if (resRpc.ok) {
-            const rpcData = await resRpc.json().catch(() => null);
-            if (rpcData && rpcData.success === true) {
-                sincronizarEstadoLocalStorage(reservaId, 'confirmada');
-                return { ok: true };
-            }
-        }
-    } catch (_) { }
-
-    try {
         const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
         const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
@@ -304,7 +251,6 @@ export async function aprobarReserva(reservaId) {
                     })
                 }).catch(() => { });
 
-                sincronizarEstadoLocalStorage(reservaId, 'confirmada');
                 return { ok: true };
             }
         }
@@ -314,7 +260,7 @@ export async function aprobarReserva(reservaId) {
 
     return {
         ok: false,
-        mensaje: 'No se pudo actualizar la reserva en la base de datos. Verifica los permisos RLS y la función aprobar_reserva_pago en Supabase.'
+        mensaje: 'No se pudo actualizar la reserva en la base de datos. Verifica los permisos RLS en Supabase.'
     };
 }
 
@@ -344,30 +290,6 @@ export async function rechazarReserva(reservaId, motivo) {
     const motivoLimpio = motivo.trim();
 
     try {
-        const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/rechazar_reserva_pago`;
-        const resRpc = await fetch(urlRpc, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                p_reservation_id: reservaId,
-                p_rejection_reason: motivoLimpio
-            })
-        });
-
-        if (resRpc.ok) {
-            const rpcData = await resRpc.json().catch(() => null);
-            if (rpcData && rpcData.success === true) {
-                sincronizarEstadoLocalStorage(reservaId, 'rechazada', motivoLimpio);
-                return { ok: true };
-            }
-        }
-    } catch (_) { }
-
-    try {
         const urlPatchReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
         const resPatch = await fetch(urlPatchReserva, {
             method: 'PATCH',
@@ -394,7 +316,6 @@ export async function rechazarReserva(reservaId, motivo) {
                     })
                 }).catch(() => { });
 
-                sincronizarEstadoLocalStorage(reservaId, 'rechazada', motivoLimpio);
                 return { ok: true };
             }
         }
@@ -413,7 +334,8 @@ export const AdminPagosModel = {
     obtenerReservasEnValidacion,
     obtenerUrlFirmada,
     aprobarReserva,
-    rechazarReserva
+    rechazarReserva,
+    obtenerSupabaseClient
 };
 
 export default AdminPagosModel;

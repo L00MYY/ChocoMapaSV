@@ -14,8 +14,14 @@ export const MisToursView = {
     filtroActual: 'todos',
     onVerDetalleHandler: null,
 
+    _container: null,
     get container() {
+        if (this._container) return this._container;
+        if (typeof document === 'undefined') return null;
         return document.getElementById('mis-tours-content') || document.getElementById('mis-tours-container');
+    },
+    set container(val) {
+        this._container = val;
     },
 
     renderLoading() {
@@ -59,9 +65,21 @@ export const MisToursView = {
         }
     },
 
-    renderEstadoVacio() {
+    renderEstadoVacio(alerta) {
         if (!this.container) return;
+        const alertaBanner = alerta ? `
+            <div class="alert-box alert-warning" id="alerta-mis-tours" role="alert" style="margin: 0 auto 24px; padding: 14px 20px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: 12px; color: #92400E; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 12px; max-width: 600px; text-align: left;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="texto-alerta-mis-tours">${alerta}</span>
+            </div>
+        ` : '';
+
         this.container.innerHTML = `
+            ${alertaBanner}
             <div class="state-box empty-state-box">
                 <div class="empty-icon-box" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36" stroke-linecap="round" stroke-linejoin="round">
@@ -69,7 +87,7 @@ export const MisToursView = {
                         <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                     </svg>
                 </div>
-                <h2 class="empty-title">Aún no tienes tours</h2>
+                <h2 class="empty-title">No tienes reservaciones activas</h2>
                 <p class="empty-description">
                     Explora los paquetes guiados del Ministerio de Turismo y reserva tu próxima aventura por El Salvador.
                 </p>
@@ -102,8 +120,31 @@ export const MisToursView = {
                 badgeStyle: '',
                 iconSvg: `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 14 14"></polyline>
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                `
+            };
+        }
+        if (status === 'Cancelado') {
+            return {
+                badgeClass: 'status-badge--cancelado',
+                badgeStyle: '',
+                iconSvg: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                `
+            };
+        }
+        if (status === 'Rechazada' || status === 'Rechazado') {
+            return {
+                badgeClass: 'status-badge--rechazado',
+                badgeStyle: 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.4);',
+                iconSvg: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 `
             };
@@ -111,23 +152,11 @@ export const MisToursView = {
         if (status === 'En validación') {
             return {
                 badgeClass: 'status-badge--validacion',
-                badgeStyle: 'background: rgba(27, 152, 224, 0.92); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35);',
+                badgeStyle: 'background: rgba(27, 152, 224, 0.15); color: #0284c7; border: 1px solid rgba(27, 152, 224, 0.4);',
                 iconSvg: `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 14 14"></polyline>
-                    </svg>
-                `
-            };
-        }
-        if (status === 'Rechazado') {
-            return {
-                badgeClass: 'status-badge--rechazado',
-                badgeStyle: 'background: rgba(231, 76, 60, 0.92); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35);',
-                iconSvg: `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 `
             };
@@ -194,15 +223,26 @@ export const MisToursView = {
         return reservas;
     },
 
-    renderHistorial(reservas) {
+    renderHistorial(reservas, alerta) {
         if (!this.container) return;
 
         if (!reservas || reservas.length === 0) {
-            this.renderEstadoVacio();
+            this.renderEstadoVacio(alerta);
             return;
         }
 
         this.reservasActuales = reservas;
+
+        const alertaBanner = alerta ? `
+            <div class="alert-box alert-warning" id="alerta-mis-tours" role="alert" style="margin: 0 0 24px; padding: 14px 20px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: 12px; color: #92400E; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 12px; text-align: left;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="texto-alerta-mis-tours">${alerta}</span>
+            </div>
+        ` : '';
 
         const conteo = {
             todos: reservas.length,
@@ -212,6 +252,7 @@ export const MisToursView = {
         };
 
         const tabsHtml = `
+            ${alertaBanner}
             <div class="mis-tours-tabs" id="mis-tours-tabs" role="tablist" aria-label="Filtrar reservaciones">
                 <button type="button" class="mis-tours-tab-btn ${this.filtroActual === 'todos' ? 'active' : ''}" data-tab="todos" role="tab" aria-selected="${this.filtroActual === 'todos'}">
                     <span>Todos</span>

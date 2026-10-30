@@ -1,10 +1,10 @@
 import { AuthModel } from '../models/AuthModel.js';
 import { PagoModel } from '../models/PagoModel.js';
 import { PagoView } from '../views/PagoView.js';
+import { NavbarController } from './NavbarController.js';
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 5242880; // 5 MB (5,242,880 bytes)
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf'];
 
 let reservaActual = null;
 let archivoSeleccionado = null;
@@ -13,37 +13,84 @@ let expiresAtTimestamp = 0;
 
 export const PagoController = {
     async init() {
+        // Asegurar inicialización y avatar del Navbar
+        try {
+            await NavbarController.init();
+        } catch (e) {
+            console.warn('NavbarController init warn:', e);
+        }
+
+        // 1. Validar si hay usuario autenticado. Si no hay sesión, redirigir a login.html?redirect=pago-comprobante.html
         const sesion = await AuthModel.obtenerSesionActual();
         if (!sesion || !sesion.user) {
-            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+            window.location.replace('login.html?redirect=pago-comprobante.html');
             return;
         }
 
+        // 2. Obtener el id o reserva desde los parámetros de búsqueda de la URL
         const params = new URLSearchParams(window.location.search);
-        const reservaId = params.get('reservaId') || params.get('id');
+        const reservaId = params.get('id') || params.get('reserva') || params.get('reservaId');
         const codigo = params.get('codigo');
 
-        if (!reservaId) {
-            PagoView.mostrarError('No se encontró el identificador de la reserva.');
+        let reserva = null;
+
+        if (reservaId) {
+            try {
+                reserva = await PagoModel.obtenerDetalleReserva(reservaId);
+            } catch (error) {
+                console.error('Error al cargar datos de reserva:', error);
+            }
+
+            // Verificar en Supabase que la reserva exista y pertenezca al tourist_id actual
+            if (!reserva || (reserva.tourist_id && sesion.user.id && reserva.tourist_id !== sesion.user.id)) {
+                reserva = null;
+            }
+        } else {
+            // Si NO viene un ID en la URL:
+            // Consultar en tour_reservations si el usuario autenticado tiene alguna reserva activa en estado 'pendiente_pago' o 'en_validacion'
+            try {
+                reserva = await PagoModel.obtenerReservaActivaUsuario(sesion.user.id);
+            } catch (error) {
+                console.error('Error al consultar reserva activa:', error);
+            }
+        }
+
+        // Si el usuario no tiene ninguna reserva activa (o el ID de la URL es inválido/inexistente):
+        // Redirigir de inmediato a mis-tours.html con una alerta visible:
+        // "No tienes ninguna reserva pendiente de pago por procesar" (o mostrar un contenedor de estado vacío con botón hacia el catálogo de tours),
+        // eliminando la vista con placeholders ("CARGANDO...", "59:59").
+        if (!reserva) {
+            PagoView.mostrarEstadoVacio('No tienes ninguna reserva pendiente de pago por procesar');
+            try {
+                sessionStorage.setItem('mis_tours_alerta', 'No tienes ninguna reserva pendiente de pago por procesar');
+            } catch (_) {}
+            window.location.replace('mis-tours.html?alerta=' + encodeURIComponent('No tienes ninguna reserva pendiente de pago por procesar'));
             return;
         }
 
-        try {
-            reservaActual = await PagoModel.obtenerDetalleReserva(reservaId);
-        } catch (error) {
-            console.error(error);
-            PagoView.mostrarError('No se pudieron cargar los datos de la reserva.');
-            return;
-        }
-
-        if (codigo && reservaActual && !reservaActual.reservation_code) {
+        reservaActual = reserva;
+        if (codigo && !reservaActual.reservation_code) {
             reservaActual.reservation_code = codigo;
         }
 
         PagoView.renderDetalle(reservaActual);
 
-        if (reservaActual.status === 'en_validacion' || reservaActual.status === 'confirmada') {
-            PagoView.mostrarExito();
+        // Verificar si la reserva ya cuenta con comprobante adjunto
+        let tieneComprobante = false;
+        try {
+            const recibo = await PagoModel.verificarComprobanteExistente(reservaActual.id);
+            if (recibo && recibo.storage_path) {
+                tieneComprobante = true;
+            }
+        } catch (_) {}
+
+        if (reservaActual.status === 'confirmada' || reservaActual.status === 'Confirmado') {
+            PagoView.mostrarReservaConfirmada();
+            return;
+        }
+
+        if (reservaActual.status === 'en_validacion' || tieneComprobante) {
+            PagoView.mostrarComprobanteEnValidacion();
             return;
         }
 
@@ -54,21 +101,28 @@ export const PagoController = {
     configurarTemporizador() {
         if (!reservaActual) return;
 
-        if (reservaActual.expires_at) {
-            expiresAtTimestamp = new Date(reservaActual.expires_at).getTime();
-        } else {
+        // Leer el campo expires_at (timestamptz) directamente desde el registro de la reserva
+        let expiresAtIso = reservaActual.expires_at;
+        if (!expiresAtIso) {
             const baseTime = reservaActual.created_at ? new Date(reservaActual.created_at).getTime() : Date.now();
-            expiresAtTimestamp = baseTime + 60 * 60 * 1000;
+            expiresAtIso = new Date(baseTime + 3600000).toISOString();
+            reservaActual.expires_at = expiresAtIso;
         }
 
-        const ahora = Date.now();
-        if (ahora >= expiresAtTimestamp) {
+        const expDate = new Date(expiresAtIso);
+        const ahora = new Date();
+        const diferenciaMs = expDate.getTime() - ahora.getTime();
+        expiresAtTimestamp = expDate.getTime();
+
+        // Si la diferencia es menor o igual a 0, detener el temporizador, mostrar 00:00,
+        // deshabilitar el botón de adjuntar archivo y mostrar el mensaje: "El tiempo para pagar esta reserva venció"
+        if (diferenciaMs <= 0) {
             expirado = true;
             PagoView.mostrarMensajeExpirado();
             return;
         }
 
-        PagoView.iniciarTemporizador(expiresAtTimestamp, () => {
+        PagoView.iniciarTemporizador(expiresAtIso, () => {
             expirado = true;
             PagoView.mostrarMensajeExpirado();
         });
@@ -104,24 +158,33 @@ export const PagoController = {
 
         PagoView.limpiarErrores();
 
-        if (expirado || Date.now() >= expiresAtTimestamp) {
+        // Validar expiración en el cliente
+        if (expirado || (expiresAtTimestamp && Date.now() >= expiresAtTimestamp)) {
             expirado = true;
             PagoView.mostrarMensajeExpirado();
             return false;
         }
 
-        const ext = '.' + file.name.split('.').pop().toLowerCase();
-        const tipoValido = ALLOWED_MIME_TYPES.includes(file.type) || ALLOWED_EXTENSIONS.includes(ext);
+        // Determinar MIME type
+        let mimeType = file.type;
+        if (!mimeType) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'jpg' || ext === 'jpeg') mimeType = 'image/jpeg';
+            else if (ext === 'png') mimeType = 'image/png';
+            else if (ext === 'pdf') mimeType = 'application/pdf';
+        }
 
-        if (!tipoValido) {
-            PagoView.mostrarError('Formato no permitido. Solo se aceptan archivos JPG, PNG o PDF.');
+        // Validar formato MIME: ['image/jpeg', 'image/png', 'application/pdf']
+        if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+            PagoView.mostrarError('Formato no permitido. Solo se aceptan archivos JPG, PNG o PDF');
             PagoView.limpiarArchivoSeleccionado();
             archivoSeleccionado = null;
             return false;
         }
 
+        // Validar tamaño máximo: 5 MB (5,242,880 bytes)
         if (file.size > MAX_FILE_SIZE_BYTES) {
-            PagoView.mostrarError('El archivo supera el tamaño máximo permitido de 5 MB.');
+            PagoView.mostrarError('El archivo supera el tamaño máximo permitido de 5 MB');
             PagoView.limpiarArchivoSeleccionado();
             archivoSeleccionado = null;
             return false;
@@ -138,7 +201,11 @@ export const PagoController = {
             return;
         }
 
-        if (expirado || Date.now() >= expiresAtTimestamp) {
+        if (!this.validarArchivo(archivoSeleccionado)) {
+            return;
+        }
+
+        if (expirado || (expiresAtTimestamp && Date.now() >= expiresAtTimestamp)) {
             expirado = true;
             PagoView.mostrarMensajeExpirado();
             return;
@@ -148,30 +215,19 @@ export const PagoController = {
         PagoView.setSubiendo(true);
 
         try {
-            const fileHash = await PagoModel.calcularHashArchivo(archivoSeleccionado);
+            const reservationId = reservaActual.id;
 
-            if (Date.now() >= expiresAtTimestamp) {
-                expirado = true;
-                PagoView.mostrarMensajeExpirado();
-                PagoView.setSubiendo(false);
-                return;
-            }
-
-            const storageResult = await PagoModel.subirComprobanteStorage(reservaActual.id, archivoSeleccionado);
+            // 1. Subida a Supabase Storage con SDK oficial
+            const storageResult = await PagoModel.subirComprobanteStorage(reservationId, archivoSeleccionado);
             const storagePath = storageResult.path;
 
-            if (Date.now() >= expiresAtTimestamp) {
-                expirado = true;
-                PagoView.mostrarMensajeExpirado();
-                PagoView.setSubiendo(false);
-                return;
-            }
-
+            // 2. Insertar en payment_receipts y actualizar tour_reservations a 'en_validacion'
+            const fileHash = await PagoModel.calcularHashArchivo(archivoSeleccionado).catch(() => null);
             const mimeType = archivoSeleccionado.type || 'application/octet-stream';
             const fileSize = archivoSeleccionado.size;
 
             await PagoModel.notificarComprobante(
-                reservaActual.id,
+                reservationId,
                 storagePath,
                 fileHash,
                 mimeType,
@@ -179,9 +235,11 @@ export const PagoController = {
             );
 
             reservaActual.status = 'en_validacion';
+
+            // 3. Mostrar estado post-subida
             PagoView.mostrarExito();
         } catch (error) {
-            console.error(error);
+            console.error('Error al procesar subida de comprobante:', error);
             PagoView.mostrarError(error.message || 'Ocurrió un error al subir el comprobante. Intenta nuevamente.');
         } finally {
             PagoView.setSubiendo(false);
@@ -189,10 +247,14 @@ export const PagoController = {
     }
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => PagoController.init(), { once: true });
-} else {
-    PagoController.init();
+export const PagoComprobanteController = PagoController;
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => PagoController.init(), { once: true });
+    } else {
+        PagoController.init();
+    }
 }
 
 export default PagoController;

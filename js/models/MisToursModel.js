@@ -133,28 +133,16 @@ export async function obtenerHistorial(touristId) {
                 datos = json;
             }
         }
-    } catch (_) { }
+    } catch (err) {
+        console.error('Error al consultar tour_reservations:', err);
+    }
 
-    try {
-        const claves = Object.keys(localStorage);
-        for (const clave of claves) {
-            if (clave.startsWith('chocomapa_reserva_')) {
-                const raw = localStorage.getItem(clave);
-                if (raw) {
-                    try {
-                        const parsed = JSON.parse(raw);
-                        if (parsed && (parsed.tourist_id === touristId || !parsed.tourist_id)) {
-                            const idMatch = parsed.id && datos.some(d => d.id === parsed.id);
-                            const codeMatch = parsed.reservation_code && datos.some(d => d.reservation_code === parsed.reservation_code);
-                            if (!idMatch && !codeMatch) {
-                                datos.push(parsed);
-                            }
-                        }
-                    } catch (_) { }
-                }
-            }
-        }
-    } catch (_) { }
+    // ELIMINAR cualquier renderizado de reservas mockeadas o leídas de localStorage
+    // cuando Supabase retorne un arreglo vacío []. Realizar siempre la consulta a
+    // tour_reservations filtrando por el tourist_id autenticado.
+    if (!Array.isArray(datos) || datos.length === 0) {
+        return [];
+    }
 
     datos.sort((a, b) => {
         const fechaA = new Date(a.tour_date || a.created_at || 0);

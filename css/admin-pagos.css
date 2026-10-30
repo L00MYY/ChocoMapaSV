@@ -13,6 +13,12 @@
   --admin-warning: #F59E0B;
 }
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 body.page-admin {
   background: linear-gradient(180deg, #13293D 0%, #0a1926 100%);
   min-height: 100vh;
@@ -20,19 +26,34 @@ body.page-admin {
   flex-direction: column;
 }
 
-.admin-main {
-  flex: 1;
-  padding: 32px 24px 60px;
-  max-width: 1320px;
+.page-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+}
+
+main,
+.admin-main,
+.admin-main-content {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 0 1.5rem;
   box-sizing: border-box;
+}
+
+footer,
+.app-footer {
+  flex-shrink: 0;
 }
 
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-top: 32px;
   margin-bottom: 28px;
   gap: 20px;
   flex-wrap: wrap;
@@ -109,11 +130,14 @@ body.page-admin {
   box-shadow: 0 16px 36px -8px rgba(19, 41, 61, 0.3);
   border: 1px solid var(--border-color);
   overflow: hidden;
+  width: 100%;
+  margin-bottom: 48px;
 }
 
 .table-responsive {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table {
@@ -210,6 +234,24 @@ body.page-admin {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-action svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  vertical-align: middle !important;
+}
+
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed !important;
 }
 
 .btn-ver-comprobante {
@@ -516,94 +558,6 @@ body.page-admin {
   display: none !important;
 }
 
-.cell-qr {
-  text-align: center;
-  width: 56px;
-}
-
-.btn-ver-qr {
-  background: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  padding: 4px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.btn-ver-qr:hover {
-  background: #EDF2F7;
-  border-color: var(--blue-bell);
-  transform: scale(1.05);
-}
-
-.qr-thumbnail {
-  display: block;
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.modal-container-qr {
-  max-width: 440px;
-}
-
-.modal-qr-body {
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  padding: 24px;
-}
-
-.qr-preview-box {
-  background: #FFFFFF;
-  padding: 16px;
-  border-radius: 14px;
-  border: 2px solid #E2E8F0;
-  display: inline-flex;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.qr-details {
-  font-size: 0.95rem;
-  color: #334155;
-  line-height: 1.5;
-}
-
-.qr-details-codigo {
-  margin: 0 0 6px 0;
-  font-weight: 800;
-  font-size: 1.35rem;
-  color: #002B49;
-  letter-spacing: 0.5px;
-}
-
-.qr-details-turista {
-  margin: 0 0 4px 0;
-  font-weight: 700;
-  color: #1E293B;
-}
-
-.qr-details-tour {
-  margin: 0 0 4px 0;
-  color: #64748B;
-  font-weight: 600;
-}
-
-.qr-details-fecha {
-  margin: 0;
-  color: #64748B;
-  font-size: 0.88rem;
-}
-
-.modal-qr-footer {
-  justify-content: center;
-  gap: 12px;
-}
-
 .badge-status-val {
   background: #EFF6FF;
   color: #1D4ED8;
@@ -648,5 +602,77 @@ body.page-admin {
   .cell-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  main,
+  .admin-main,
+  .admin-main-content {
+    width: 96%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .admin-table th {
+    font-size: 0.75rem;
+    letter-spacing: 0.4px;
+  }
+
+  .cell-codigo {
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  .cell-turista {
+    max-width: 180px;
+  }
+
+  .turista-nombre {
+    font-size: 0.88rem;
+    line-height: 1.25;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .turista-email {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cell-tour {
+    max-width: 170px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.25;
+    font-size: 0.85rem;
+  }
+
+  .cell-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .btn-action {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    white-space: nowrap;
   }
 }

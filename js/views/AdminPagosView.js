@@ -1,5 +1,9 @@
 export const AdminPagosView = {
-    elements: {
+    _mockElements: null,
+    get elements() {
+        if (this._mockElements) return this._mockElements;
+        if (typeof document === 'undefined') return this._mockElements || {};
+        return {
         vistaAdmin: document.getElementById('vista-admin'),
         vistaDenegada: document.getElementById('vista-denegada'),
         statPendientes: document.getElementById('stat-pendientes'),
@@ -17,14 +21,46 @@ export const AdminPagosView = {
         btnCerrarModalRechazo: document.getElementById('btn-cerrar-modal-rechazo'),
         btnCancelarRechazo: document.getElementById('btn-cancelar-rechazo'),
         btnConfirmarRechazo: document.getElementById('btn-confirmar-rechazo'),
-        toastContainer: document.getElementById('toast-container')
+        toastContainer: document.getElementById('toast-container'),
+        alertaSesionTurista: (typeof document !== 'undefined' ? document.getElementById('alerta-sesion-activa-turista') : null)
+        };
+    },
+    set elements(val) {
+        this._mockElements = val;
     },
 
     reservaRechazoActualId: null,
 
     mostrarAccesoDenegado() {
-        if (this.elements.vistaAdmin) this.elements.vistaAdmin.classList.add('hidden');
-        if (this.elements.vistaDenegada) this.elements.vistaDenegada.classList.remove('hidden');
+        if (this.elements.vistaAdmin) {
+            this.elements.vistaAdmin.classList.add('hidden');
+            this.elements.vistaAdmin.style.display = 'none';
+        }
+        if (this.elements.vistaDenegada) {
+            this.elements.vistaDenegada.classList.remove('hidden');
+            this.elements.vistaDenegada.style.display = 'flex';
+        }
+    },
+
+    mostrarVistaAdmin() {
+        if (this.elements.vistaDenegada) {
+            this.elements.vistaDenegada.classList.add('hidden');
+            this.elements.vistaDenegada.style.display = 'none';
+        }
+        if (this.elements.vistaAdmin) {
+            this.elements.vistaAdmin.classList.remove('hidden');
+            this.elements.vistaAdmin.style.display = 'block';
+        }
+    },
+
+    mostrarAvisoCerrarSesionTurista() {
+        const alerta = this.elements.alertaSesionTurista || document.getElementById('alerta-sesion-activa-turista');
+        if (alerta) {
+            alerta.classList.remove('hidden');
+            alerta.style.display = 'flex';
+            alerta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        this.mostrarNotificacion('warning', 'Asegúrese de cerrar la sesión actual antes de intentar iniciar sesión como administrador');
     },
 
     renderListado(reservas) {
@@ -59,6 +95,7 @@ export const AdminPagosView = {
             const monto = Number(r.total_amount) || 0;
             const fechaStr = this.formatearFecha(r.tour_date);
             const tieneArchivo = Boolean(r.storage_path);
+            const puedeGestionar = tieneArchivo && r.status === 'en_validacion';
 
             let statusBadge = `<span class="badge-status-pen">Pendiente de confirmar</span>`;
             if (r.status === 'en_validacion') {
@@ -69,8 +106,27 @@ export const AdminPagosView = {
                 statusBadge = `<span class="badge-status-conf">Confirmada</span>`;
             }
 
+            const comprobanteBoton = tieneArchivo
+                ? `<button type="button" class="btn-action btn-ver-comprobante" data-action="ver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Ver</span>
+                </button>`
+                : `<button type="button" class="btn-action btn-ver-comprobante opacity-50 cursor-not-allowed" data-action="ver" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <span>Sin archivo</span>
+                </button>`;
+
+            const disabledClasses = !puedeGestionar ? 'opacity-50 cursor-not-allowed' : '';
+            const disabledAttr = !puedeGestionar ? 'disabled' : '';
+
             return `
-                <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-mime="${r.mime_type || ''}">
+                <tr data-id="${r.id}" data-codigo="${codigo}" data-storage="${r.storage_path || ''}" data-status="${r.status || ''}" data-mime="${r.mime_type || ''}">
                     <td class="cell-codigo">${codigo}</td>
                     <td>
                         <div class="cell-turista">
@@ -84,25 +140,17 @@ export const AdminPagosView = {
                     <td><strong>${r.spots_reserved}</strong></td>
                     <td class="cell-monto">$${monto.toFixed(2)}</td>
                     <td>${statusBadge}</td>
-                    <td>
-                        <button type="button" class="btn-action btn-ver-comprobante" data-action="ver" ${!tieneArchivo ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            <span>${tieneArchivo ? 'Ver' : 'Sin archivo'}</span>
-                        </button>
-                    </td>
+                    <td>${comprobanteBoton}</td>
                     <td>
                         <div class="cell-actions">
-                            <button type="button" class="btn-action btn-aprobar" data-action="aprobar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
+                            <button type="button" class="btn-action btn-aprobar ${disabledClasses}" data-action="aprobar" ${disabledAttr}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="20 6 9 17 4 12"></polyline>
                                 </svg>
                                 <span>Aprobar</span>
                             </button>
-                            <button type="button" class="btn-action btn-rechazar" data-action="rechazar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
+                            <button type="button" class="btn-action btn-rechazar ${disabledClasses}" data-action="rechazar" ${disabledAttr}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
@@ -186,6 +234,7 @@ export const AdminPagosView = {
         const buttons = row.querySelectorAll('button');
         buttons.forEach(btn => {
             btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
         });
 
         row.style.opacity = '0.6';
@@ -255,7 +304,7 @@ export const AdminPagosView = {
     bindAccionesTabla({ onVer, onAprobar, onRechazarClick }) {
         this.elements.tablaBody?.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-action]');
-            if (!btn || btn.disabled) return;
+            if (!btn || btn.disabled || btn.classList.contains('cursor-not-allowed') || btn.hasAttribute('disabled')) return;
 
             const row = btn.closest('tr[data-id]');
             if (!row) return;
@@ -264,13 +313,17 @@ export const AdminPagosView = {
             const codigo = row.dataset.codigo;
             const storagePath = row.dataset.storage;
             const mimeType = row.dataset.mime;
+            const status = row.dataset.status;
             const action = btn.dataset.action;
 
             if (action === 'ver') {
+                if (!storagePath) return;
                 onVer({ reservaId, codigo, storagePath, mimeType });
             } else if (action === 'aprobar') {
+                if (!storagePath || status !== 'en_validacion') return;
                 onAprobar({ reservaId, codigo, btn });
             } else if (action === 'rechazar') {
+                if (!storagePath || status !== 'en_validacion') return;
                 onRechazarClick({ reservaId, codigo, btn });
             }
         });

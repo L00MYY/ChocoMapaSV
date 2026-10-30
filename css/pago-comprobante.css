@@ -620,3 +620,118 @@ body.page-pago {
     justify-content: center;
   }
 }
+
+
+/* Estilos de tarjeta informativa de estado (En validación / Confirmada) */
+.card-estado-info {
+  border-top: 4px solid var(--baltic-blue);
+  background: #FFFFFF;
+  padding: 24px;
+}
+
+.card-estado-info.estado-validacion {
+  border-top-color: #0284C7;
+  background: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%);
+}
+
+.card-estado-info.estado-confirmada {
+  border-top-color: #10B981;
+  background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 100%);
+}
+
+.estado-info-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.estado-info-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.estado-info-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.estado-info-text {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0 0 20px;
+}
+
+.estado-info-footer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Estado Vacío de pago-comprobante */
+.empty-state-box {
+  background: var(--pago-card-bg);
+  border: 1px solid var(--pago-card-border);
+  border-radius: 20px;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 600px;
+  margin: 40px auto;
+  box-shadow: 0 16px 36px -8px rgba(19, 41, 61, 0.25);
+}
+
+.empty-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0, 100, 148, 0.08);
+  color: var(--baltic-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-title {
+  color: var(--deep-space-blue);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.empty-description {
+  color: #556a7d;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.btn-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--baltic-blue);
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  transition: var(--transition-fast);
+}
+
+.btn-explore:hover {
+  background: var(--blue-bell);
+  transform: translateY(-2px);
+}

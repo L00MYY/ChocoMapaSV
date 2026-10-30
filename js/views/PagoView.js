@@ -1,34 +1,50 @@
 let temporizadorId = null;
 
 export const PagoView = {
-    elements: {
-        reservaCodigo: document.getElementById('reserva-codigo'),
-        btnCopiarCodigo: document.getElementById('btn-copiar-codigo'),
-        btnCopiarTexto: document.getElementById('btn-copiar-texto'),
-        resumenTourNombre: document.getElementById('resumen-tour-nombre'),
-        resumenTourFecha: document.getElementById('resumen-tour-fecha'),
-        resumenTourCupos: document.getElementById('resumen-tour-cupos'),
-        resumenTouristaNombre: document.getElementById('resumen-tourista-nombre'),
-        resumenMontoTotal: document.getElementById('resumen-monto-total'),
-        reservaEstadoBadge: document.getElementById('reserva-estado-badge'),
-        timerCard: document.getElementById('card-temporizador'),
-        timerCountdown: document.getElementById('timer-countdown'),
-        timerProgressBar: document.getElementById('timer-progress-bar'),
-        alertaExpirado: document.getElementById('alerta-expirado'),
-        textoAlertaExpirado: document.getElementById('texto-alerta-expirado'),
-        alertaExito: document.getElementById('alerta-exito'),
-        textoAlertaExito: document.getElementById('texto-alerta-exito'),
-        alertaError: document.getElementById('alerta-error'),
-        textoAlertaError: document.getElementById('texto-alerta-error'),
-        cardSubida: document.getElementById('card-subida'),
-        dropzone: document.getElementById('dropzone'),
-        inputArchivo: document.getElementById('input-archivo'),
-        filePreview: document.getElementById('file-preview'),
-        previewNombre: document.getElementById('preview-nombre'),
-        previewTamano: document.getElementById('preview-tamano'),
-        btnRemoverArchivo: document.getElementById('btn-remover-archivo'),
-        btnSubirComprobante: document.getElementById('btn-subir-comprobante'),
-        linkVolver: document.getElementById('link-volver')
+    _mockElements: null,
+    get elements() {
+        if (this._mockElements) return this._mockElements;
+        if (typeof document === 'undefined') return this._mockElements || {};
+        return {
+            reservaCodigo: document.getElementById('reserva-codigo'),
+            btnCopiarCodigo: document.getElementById('btn-copiar-codigo'),
+            btnCopiarTexto: document.getElementById('btn-copiar-texto'),
+            resumenTourNombre: document.getElementById('resumen-tour-nombre'),
+            resumenTourFecha: document.getElementById('resumen-tour-fecha'),
+            resumenTourCupos: document.getElementById('resumen-tour-cupos'),
+            resumenTouristaNombre: document.getElementById('resumen-tourista-nombre'),
+            resumenMontoTotal: document.getElementById('resumen-monto-total'),
+            reservaEstadoBadge: document.getElementById('reserva-estado-badge'),
+            timerCard: document.getElementById('card-temporizador'),
+            timerCountdown: document.getElementById('timer-countdown'),
+            timerProgressBar: document.getElementById('timer-progress-bar'),
+            cardInfoEstado: document.getElementById('card-estado-info'),
+            estadoInfoTitulo: document.getElementById('estado-info-title'),
+            estadoInfoMensaje: document.getElementById('estado-info-mensaje'),
+            estadoInfoBadge: document.getElementById('estado-info-badge'),
+            estadoInfoIconBox: document.getElementById('estado-info-icon-box'),
+            alertaExpirado: document.getElementById('alerta-expirado'),
+            textoAlertaExpirado: document.getElementById('texto-alerta-expirado'),
+            alertaExito: document.getElementById('alerta-exito'),
+            textoAlertaExito: document.getElementById('texto-alerta-exito'),
+            alertaError: document.getElementById('alerta-error'),
+            textoAlertaError: document.getElementById('texto-alerta-error'),
+            cardSubida: document.getElementById('card-subida'),
+            dropzone: document.getElementById('dropzone'),
+            inputArchivo: document.getElementById('input-archivo'),
+            filePreview: document.getElementById('file-preview'),
+            previewNombre: document.getElementById('preview-nombre'),
+            previewTamano: document.getElementById('preview-tamano'),
+            btnRemoverArchivo: document.getElementById('btn-remover-archivo'),
+            btnSubirComprobante: document.getElementById('btn-subir-comprobante'),
+            linkVolver: document.getElementById('link-volver'),
+            pagoGrid: document.getElementById('pago-grid'),
+            pagoVacioContainer: document.getElementById('pago-vacio-container'),
+            pagoVacioMensaje: document.getElementById('pago-vacio-mensaje')
+        };
+    },
+    set elements(val) {
+        this._mockElements = val;
     },
 
     renderDetalle(reserva) {
@@ -58,16 +74,16 @@ export const PagoView = {
         const st = String(status || '').toLowerCase();
 
         if (st === 'en_validacion' || st === 'en validacion') {
-            badge.classList.add('validacion');
+            if (badge.classList?.add) badge.classList.add('validacion');
             badge.textContent = 'En validación';
         } else if (st === 'confirmada' || st === 'confirmado') {
-            badge.classList.add('confirmado');
+            if (badge.classList?.add) badge.classList.add('confirmado');
             badge.textContent = 'Confirmada';
         } else if (st === 'expirado' || st === 'vencido') {
-            badge.classList.add('expirado');
+            if (badge.classList?.add) badge.classList.add('expirado');
             badge.textContent = 'Vencido';
         } else {
-            badge.classList.add('pendiente');
+            if (badge.classList?.add) badge.classList.add('pendiente');
             badge.textContent = 'Pendiente de pago';
         }
     },
@@ -75,12 +91,12 @@ export const PagoView = {
     iniciarTemporizador(expiresAt, onExpire) {
         this.detenerTemporizador();
 
-        const targetTime = typeof expiresAt === 'number' ? expiresAt : new Date(expiresAt).getTime();
+        const expDate = new Date(expiresAt);
         const totalDurationMs = 60 * 60 * 1000;
 
         const tick = () => {
-            const ahora = Date.now();
-            const restanteMs = Math.max(0, targetTime - ahora);
+            const ahora = new Date();
+            const restanteMs = expDate.getTime() - ahora.getTime();
 
             if (restanteMs <= 0) {
                 if (this.elements.timerCountdown) {
@@ -144,16 +160,130 @@ export const PagoView = {
 
         this.actualizarEstadoVisual('expirado');
 
+        // Deshabilitar botón de adjuntar archivo y dropzone
         if (e.btnSubirComprobante) {
             e.btnSubirComprobante.disabled = true;
-            e.btnSubirComprobante.textContent = 'Tiempo vencido';
+            e.btnSubirComprobante.classList.add('opacity-50', 'cursor-not-allowed');
+            e.btnSubirComprobante.textContent = 'El tiempo para pagar esta reserva venció';
         }
 
-        if (e.dropzone) e.dropzone.classList.add('disabled');
-        if (e.inputArchivo) e.inputArchivo.disabled = true;
+        if (e.dropzone) {
+            e.dropzone.classList.add('disabled');
+            e.dropzone.style.pointerEvents = 'none';
+            e.dropzone.style.opacity = '0.5';
+        }
+        if (e.inputArchivo) {
+            e.inputArchivo.disabled = true;
+        }
+    },
+
+    mostrarComprobanteEnValidacion() {
+        this.detenerTemporizador();
+
+        const e = this.elements;
+
+        // Ocultar completamente el contenedor de "Adjuntar Comprobante de Pago"
+        if (e.cardSubida) {
+            e.cardSubida.classList.add('hidden');
+            e.cardSubida.style.display = 'none';
+        }
+
+        // Detener y ocultar el temporizador/cronómetro regresivo
+        if (e.timerCard) {
+            e.timerCard.classList.add('hidden');
+            e.timerCard.style.display = 'none';
+        }
+
+        if (e.alertaExpirado) e.alertaExpirado.classList.add('hidden');
+        if (e.alertaError) e.alertaError.classList.add('hidden');
+
+        // Mostrar tarjeta informativa destacada con el estado de la reserva
+        if (e.cardInfoEstado) {
+            e.cardInfoEstado.classList.remove('hidden');
+            e.cardInfoEstado.style.display = 'block';
+            e.cardInfoEstado.className = 'pago-card card-estado-info estado-validacion';
+        }
+
+        if (e.estadoInfoTitulo) {
+            e.estadoInfoTitulo.textContent = 'Comprobante en Validación';
+        }
+
+        if (e.estadoInfoMensaje) {
+            e.estadoInfoMensaje.textContent = 'Tu comprobante de transferencia ha sido enviado con éxito. El equipo del Ministerio de Turismo está verificando la información. Te notificaremos una vez sea confirmado de forma definitiva.';
+        }
+
+        if (e.estadoInfoBadge) {
+            e.estadoInfoBadge.className = 'badge-estado validacion';
+            e.estadoInfoBadge.textContent = 'En validación';
+        }
+
+        if (e.estadoInfoIconBox) {
+            e.estadoInfoIconBox.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2.5" width="32" height="32" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            `;
+        }
+
+        this.actualizarEstadoVisual('en_validacion');
+    },
+
+    mostrarReservaConfirmada() {
+        this.detenerTemporizador();
+
+        const e = this.elements;
+
+        // Ocultar completamente el contenedor de subida
+        if (e.cardSubida) {
+            e.cardSubida.classList.add('hidden');
+            e.cardSubida.style.display = 'none';
+        }
+
+        // Detener y ocultar temporizador
+        if (e.timerCard) {
+            e.timerCard.classList.add('hidden');
+            e.timerCard.style.display = 'none';
+        }
+
+        if (e.alertaExpirado) e.alertaExpirado.classList.add('hidden');
+        if (e.alertaError) e.alertaError.classList.add('hidden');
+
+        // Mostrar tarjeta de confirmación definitiva
+        if (e.cardInfoEstado) {
+            e.cardInfoEstado.classList.remove('hidden');
+            e.cardInfoEstado.style.display = 'block';
+            e.cardInfoEstado.className = 'pago-card card-estado-info estado-confirmada';
+        }
+
+        if (e.estadoInfoTitulo) {
+            e.estadoInfoTitulo.textContent = 'Reserva Confirmada';
+        }
+
+        if (e.estadoInfoMensaje) {
+            e.estadoInfoMensaje.textContent = '¡Tu reserva ha sido confirmada con éxito por el Ministerio de Turismo! Tus cupos están asegurados oficialmente para la fecha seleccionada.';
+        }
+
+        if (e.estadoInfoBadge) {
+            e.estadoInfoBadge.className = 'badge-estado confirmado';
+            e.estadoInfoBadge.textContent = 'Confirmada';
+        }
+
+        if (e.estadoInfoIconBox) {
+            e.estadoInfoIconBox.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" width="32" height="32" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            `;
+        }
+
+        this.actualizarEstadoVisual('confirmada');
     },
 
     mostrarExito() {
+        this.mostrarComprobanteEnValidacion();
+
         const e = this.elements;
 
         if (e.alertaExito) {
@@ -162,11 +292,6 @@ export const PagoView = {
                 e.textoAlertaExito.textContent = 'Tu comprobante fue enviado y está en validación';
             }
         }
-
-        if (e.alertaExpirado) e.alertaExpirado.classList.add('hidden');
-        if (e.alertaError) e.alertaError.classList.add('hidden');
-
-        this.actualizarEstadoVisual('en_validacion');
 
         if (e.btnSubirComprobante) {
             e.btnSubirComprobante.classList.add('hidden');
@@ -181,8 +306,22 @@ export const PagoView = {
         if (e.filePreview) {
             e.filePreview.classList.add('hidden');
         }
+    },
 
+    mostrarEstadoVacio(mensaje) {
         this.detenerTemporizador();
+        const e = this.elements;
+        if (e.pagoGrid) {
+            e.pagoGrid.classList.add('hidden');
+            e.pagoGrid.style.display = 'none';
+        }
+        if (e.pagoVacioContainer) {
+            e.pagoVacioContainer.classList.remove('hidden');
+            e.pagoVacioContainer.style.display = 'flex';
+        }
+        if (e.pagoVacioMensaje && mensaje) {
+            e.pagoVacioMensaje.textContent = mensaje;
+        }
     },
 
     mostrarError(mensaje) {

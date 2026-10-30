@@ -1,11 +1,46 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
+
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
 
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
     'Content-Type': 'application/json'
 };
+
+export function obtenerSupabaseClient(token) {
+    if (typeof window !== 'undefined' && window.supabase?.createClient) {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            global: {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            }
+        });
+    }
+    return null;
+}
+
+function mapearReserva(item, sesion) {
+    if (!item) return null;
+    return {
+        id: item.id,
+        tour_id: item.tour_id,
+        tour_date_id: item.tour_date_id,
+        tourist_id: item.tourist_id,
+        tourist_name: item.tourist_name || (sesion?.user?.user_metadata?.full_name || 'Turista'),
+        tourist_email: item.tourist_email || (sesion?.user?.email || ''),
+        tourist_phone: item.tourist_phone || '',
+        spots_reserved: Number(item.spots_reserved) || 1,
+        tour_date: item.tour_date,
+        status: item.status || 'pendiente_pago',
+        reservation_code: item.reservation_code || item.code || `CM-${String(item.id).slice(0, 6).toUpperCase()}`,
+        total_amount: Number(item.total_amount) || (Number(item.tours?.final_price || item.tours?.price || 35) * (Number(item.spots_reserved) || 1)),
+        expires_at: item.expires_at || (item.created_at ? new Date(new Date(item.created_at).getTime() + 3600000).toISOString() : new Date(Date.now() + 3600000).toISOString()),
+        created_at: item.created_at || new Date().toISOString(),
+        tours: item.tours || null
+    };
+}
 
 export async function obtenerDetalleReserva(reservaId) {
     if (!reservaId) return null;
@@ -26,84 +61,70 @@ export async function obtenerDetalleReserva(reservaId) {
         if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data) && data.length > 0) {
-                const item = data[0];
-                return {
-                    id: item.id,
-                    tour_id: item.tour_id,
-                    tour_date_id: item.tour_date_id,
-                    tourist_id: item.tourist_id,
-                    tourist_name: item.tourist_name || (sesion?.user?.user_metadata?.full_name || 'Turista'),
-                    tourist_email: item.tourist_email || (sesion?.user?.email || ''),
-                    tourist_phone: item.tourist_phone || '',
-                    spots_reserved: Number(item.spots_reserved) || 1,
-                    tour_date: item.tour_date,
-                    status: item.status || 'pendiente_pago',
-                    reservation_code: item.reservation_code || item.code || `CM-${String(item.id).slice(0, 6).toUpperCase()}`,
-                    total_amount: Number(item.total_amount) || (Number(item.tours?.final_price || item.tours?.price || 35) * (Number(item.spots_reserved) || 1)),
-                    accepts_whatsapp: Boolean(item.accepts_whatsapp),
-                    expires_at: item.expires_at || null,
-                    created_at: item.created_at || new Date().toISOString(),
-                    tours: item.tours || null
-                };
+                return mapearReserva(data[0], sesion);
             }
         }
     } catch (error) {
-        console.warn(error);
+        console.warn('Error al obtener detalle de la reserva en Supabase:', error);
     }
 
+    return null;
+}
+
+export async function obtenerReservaActivaUsuario(touristId) {
+    if (!touristId) return null;
+
     try {
-        const claves = Object.keys(localStorage);
-        for (const clave of claves) {
-            if (clave.startsWith('chocomapa_reserva_')) {
-                const raw = localStorage.getItem(clave);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && (parsed.id === reservaId || parsed.reservation_code === reservaId)) {
-                        return {
-                            id: parsed.id,
-                            tour_id: parsed.tour_id,
-                            tour_date_id: parsed.tour_date_id,
-                            tourist_id: parsed.tourist_id,
-                            tourist_name: parsed.tourist_name || 'Turista',
-                            tourist_email: parsed.tourist_email || '',
-                            tourist_phone: parsed.tourist_phone || '',
-                            spots_reserved: Number(parsed.spots_reserved) || 1,
-                            tour_date: parsed.tour_date,
-                            status: parsed.status || 'pendiente_pago',
-                            reservation_code: parsed.reservation_code || `CM-${String(parsed.id).slice(0, 6).toUpperCase()}`,
-                            total_amount: Number(parsed.total_amount) || 35.00,
-                            accepts_whatsapp: Boolean(parsed.accepts_whatsapp),
-                            expires_at: parsed.expires_at || null,
-                            created_at: parsed.created_at || new Date().toISOString(),
-                            tours: parsed.tours || null
-                        };
-                    }
-                }
+        const sesion = await AuthModel.obtenerSesionActual();
+        const authHeaders = {
+            ...HEADERS,
+            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
+        };
+
+        const url = `${SUPABASE_URL}/rest/v1/tour_reservations?tourist_id=eq.${encodeURIComponent(touristId)}&status=in.(pendiente_pago,en_validacion)&order=created_at.desc&limit=1&select=*,tours(*)`;
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: authHeaders
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                return mapearReserva(data[0], sesion);
+            }
+        }
+    } catch (error) {
+        console.warn('Error al obtener reserva activa en Supabase:', error);
+    }
+
+    return null;
+}
+
+export async function verificarComprobanteExistente(reservaId) {
+    if (!reservaId) return null;
+
+    try {
+        const sesion = await AuthModel.obtenerSesionActual();
+        const authHeaders = {
+            ...HEADERS,
+            'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
+        };
+
+        const url = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}&select=*`;
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: authHeaders
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                return data[0];
             }
         }
     } catch (_) {}
 
-    return {
-        id: reservaId,
-        tour_id: 'a1000000-0000-0000-0000-000000000001',
-        tour_date_id: null,
-        tourist_id: '',
-        tourist_name: 'Turista ChocoMapa',
-        tourist_email: '',
-        tourist_phone: '',
-        spots_reserved: 1,
-        tour_date: new Date().toISOString().split('T')[0],
-        status: 'pendiente_pago',
-        reservation_code: `CM-${String(reservaId).slice(0, 6).toUpperCase()}`,
-        total_amount: 35.00,
-        accepts_whatsapp: false,
-        expires_at: null,
-        created_at: new Date().toISOString(),
-        tours: {
-            name: 'Tour Oficial MITUR',
-            final_price: 35.00
-        }
-    };
+    return null;
 }
 
 export async function calcularHashArchivo(file) {
@@ -119,48 +140,41 @@ export async function subirComprobanteStorage(reservaId, file) {
         throw new Error('Parámetros incompletos para subir comprobante');
     }
 
-    const timestamp = Date.now();
-    const nombreLimpio = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const storagePath = `comprobantes/${reservaId}/${timestamp}_${nombreLimpio}`;
-
     const sesion = await AuthModel.obtenerSesionActual();
     const token = sesion?.access_token || SUPABASE_ANON_KEY;
+    const client = obtenerSupabaseClient(token);
 
-    if (typeof window !== 'undefined' && window.supabase?.createClient) {
-        try {
-            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                global: {
-                    headers: token ? { Authorization: `Bearer ${token}` } : {}
-                }
-            });
-            const { data, error } = await client.storage.from('receipts').upload(storagePath, file, {
-                cacheControl: '3600',
-                upsert: true,
-                contentType: file.type || 'application/octet-stream'
-            });
-            if (!error && data) {
-                return { ok: true, path: storagePath };
-            }
-        } catch (_) {}
+    if (!client) {
+        throw new Error('SDK de Supabase Client no está disponible en la página.');
     }
 
-    const url = `${SUPABASE_URL}/storage/v1/object/receipts/${storagePath}`;
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': file.type || 'application/octet-stream',
-            'x-upsert': 'true'
-        },
-        body: file
-    });
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${reservaId}_${Date.now()}.${fileExt}`;
+    const filePath = `receipts/${fileName}`;
 
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `Error al subir archivo a Storage (${res.status})`);
+    // Usar SDK oficial de Supabase Client (sin fetch directo a Storage para evitar Error 405)
+    let uploadData = null;
+    let uploadError = null;
+
+    const candidateBuckets = ['payment_receipts', 'receipts'];
+    for (const bucket of candidateBuckets) {
+        const res = await client.storage
+            .from(bucket)
+            .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+        if (!res.error) {
+            uploadData = res.data;
+            uploadError = null;
+            break;
+        }
+        uploadError = res.error;
     }
 
+    if (uploadError && !uploadData) {
+        throw new Error(uploadError.message || 'Error al subir el comprobante a Storage');
+    }
+
+    const storagePath = uploadData?.path || filePath;
     return { ok: true, path: storagePath };
 }
 
@@ -171,47 +185,56 @@ export async function notificarComprobante(reservaId, storagePath, fileHash, mim
 
     const sesion = await AuthModel.obtenerSesionActual();
     const token = sesion?.access_token || SUPABASE_ANON_KEY;
+    const client = obtenerSupabaseClient(token);
+
+    if (client) {
+        // 1. Insertar el registro en payment_receipts
+        const { error: insertError } = await client
+            .from('payment_receipts')
+            .insert({
+                reservation_id: reservaId,
+                storage_path: storagePath,
+                mime_type: mimeType,
+                file_size_bytes: fileSize,
+                file_hash: fileHash || null,
+                status: 'en_revision'
+            });
+
+        if (insertError) {
+            console.warn('Advertencia al insertar en payment_receipts con SDK:', insertError);
+        }
+
+        // 2. Actualizar el estado de tour_reservations a 'en_validacion'
+        const { error: updateError } = await client
+            .from('tour_reservations')
+            .update({ status: 'en_validacion' })
+            .eq('id', reservaId);
+
+        if (updateError) {
+            console.warn('Advertencia al actualizar tour_reservations con SDK:', updateError);
+        }
+
+        return {
+            ok: true,
+            message: 'Tu comprobante fue enviado y está en validación'
+        };
+    }
+
+    // Fallback REST si SDK no estuviera disponible
     const authHeaders = {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
     };
 
-    const payload = {
-        p_reservation_id: reservaId,
-        p_storage_path: storagePath,
-        p_file_hash: fileHash,
-        p_mime_type: mimeType,
-        p_file_size_bytes: fileSize
-    };
-
     try {
-        const urlRpc = `${SUPABASE_URL}/rest/v1/rpc/adjuntar_comprobante_pago`;
-        const resRpc = await fetch(urlRpc, {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify(payload)
-        });
-
-        if (resRpc.ok) {
-            const data = await resRpc.json();
-            return {
-                ok: true,
-                message: data?.message || 'Tu comprobante fue enviado y está en validación'
-            };
-        }
-    } catch (_) {}
-
-    try {
-        const urlReserva = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`;
-        await fetch(urlReserva, {
+        await fetch(`${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}`, {
             method: 'PATCH',
             headers: authHeaders,
             body: JSON.stringify({ status: 'en_validacion' })
         });
 
-        const urlReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts`;
-        await fetch(urlReceipt, {
+        await fetch(`${SUPABASE_URL}/rest/v1/payment_receipts`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({
@@ -233,9 +256,12 @@ export async function notificarComprobante(reservaId, storagePath, fileHash, mim
 
 export const PagoModel = {
     obtenerDetalleReserva,
+    obtenerReservaActivaUsuario,
+    verificarComprobanteExistente,
     calcularHashArchivo,
     subirComprobanteStorage,
-    notificarComprobante
+    notificarComprobante,
+    obtenerSupabaseClient
 };
 
 export default PagoModel;

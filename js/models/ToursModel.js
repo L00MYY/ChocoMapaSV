@@ -435,7 +435,6 @@ export async function crearReservaTour(datosReserva) {
         reservation_code: datosReserva.reservation_code || datosReserva.codigo || code,
         status: datosReserva.status || 'pendiente_pago',
         total_amount: Number(datosReserva.total_amount ?? datosReserva.totalAmount) || null,
-        accepts_whatsapp: Boolean(datosReserva.accepts_whatsapp ?? datosReserva.acceptsWhatsapp ?? false),
         expires_at: datosReserva.expires_at || new Date(Date.now() + 60 * 60 * 1000).toISOString()
     };
 

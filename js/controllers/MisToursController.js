@@ -66,12 +66,26 @@ export const MisToursController = {
             MisToursView.renderLoading();
             const reservas = await MisToursModel.obtenerHistorial(this.usuarioActual.id);
 
+            // Extraer posible alerta desde URL (?alerta=...) o sessionStorage
+            let alertaTexto = null;
+            if (typeof window !== 'undefined') {
+                const params = new URLSearchParams(window.location.search);
+                alertaTexto = params.get('alerta');
+                try {
+                    const alertaStorage = sessionStorage.getItem('mis_tours_alerta');
+                    if (alertaStorage) {
+                        alertaTexto = alertaTexto || alertaStorage;
+                        sessionStorage.removeItem('mis_tours_alerta');
+                    }
+                } catch (_) {}
+            }
+
             if (!reservas || reservas.length === 0) {
-                MisToursView.renderEstadoVacio();
+                MisToursView.renderEstadoVacio(alertaTexto);
                 return;
             }
 
-            MisToursView.renderHistorial(reservas);
+            MisToursView.renderHistorial(reservas, alertaTexto);
 
             MisToursView.bindVerDetalleTour((tourId, reservaId) => {
                 const params = new URLSearchParams({
@@ -91,10 +105,12 @@ export const MisToursController = {
     }
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => MisToursController.init(), { once: true });
-} else {
-    MisToursController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => MisToursController.init(), { once: true });
+    } else {
+        MisToursController.init();
+    }
 }
 
 export default MisToursController;

@@ -391,7 +391,6 @@ export const TourDetalleController = {
             cuposReservados: cupos,
             reservation_code: codigoGenerado,
             total_amount: montoTotal,
-            accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked),
             status: 'pendiente_pago',
             expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString()
         };
@@ -434,7 +433,6 @@ export const TourDetalleController = {
                 status: 'pendiente_pago',
                 reservation_code: codigoFinal,
                 total_amount: montoTotal,
-                accepts_whatsapp: Boolean(document.getElementById('accepts_whatsapp')?.checked),
                 expires_at: datosReserva.expires_at
             };
 

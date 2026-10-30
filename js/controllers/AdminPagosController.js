@@ -1,18 +1,79 @@
-import { AdminPagosModel } from '../models/AdminPagosModel.js';
+import { AdminPagosModel, obtenerSupabaseClient } from '../models/AdminPagosModel.js';
 import { AdminPagosView } from '../views/AdminPagosView.js';
+import { AuthModel } from '../models/AuthModel.js';
+import { NavbarController } from './NavbarController.js';
 
 export const AdminPagosController = {
     async init() {
         AdminPagosView.bindEventosModales();
+        this.configurarCierreSesion();
+        this.configurarBotonLoginAdmin();
 
+        try {
+            await NavbarController.init();
+        } catch (_) {}
+
+        // En el arranque (DOMContentLoaded):
+        // Validar si hay sesión activa y si el user.id pertenece a la tabla admin_users.
+        // Si no hay sesión o no es admin, ocultar la tabla, no ejecutar fetch de pagos
+        // y mostrar únicamente la tarjeta de "Acceso Denegado".
         const verificacion = await AdminPagosModel.verificarRolAdmin();
         if (!verificacion.esAdmin) {
             AdminPagosView.mostrarAccesoDenegado();
             return;
         }
 
+        AdminPagosView.mostrarVistaAdmin();
         await this.cargarReservas();
         this.configurarEventos();
+    },
+
+    configurarCierreSesion() {
+        const btnLogout = document.getElementById('nav-btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                try {
+                    const client = obtenerSupabaseClient();
+                    if (client?.auth?.signOut) {
+                        await client.auth.signOut();
+                    } else if (window.supabase?.auth?.signOut) {
+                        await window.supabase.auth.signOut();
+                    }
+                } catch (_) {}
+
+                try {
+                    await AuthModel.cerrarSesion();
+                } catch (_) {}
+
+                try {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                } catch (_) {}
+
+                window.location.replace('login.html');
+            }, true);
+        }
+    },
+
+    configurarBotonLoginAdmin() {
+        const btnLoginAdmin = document.getElementById('btn-login-admin') || document.querySelector('a[href*="admin-pagos.html"].btn-regresar');
+        if (btnLoginAdmin) {
+            btnLoginAdmin.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                // Intercepción ante sesión activa de turista
+                const sesion = await AuthModel.obtenerSesionActual();
+                if (sesion && sesion.user) {
+                    AdminPagosView.mostrarAvisoCerrarSesionTurista();
+                    return;
+                }
+
+                window.location.href = 'login.html?redirect=admin-pagos.html';
+            });
+        }
     },
 
     async cargarReservas() {
@@ -104,10 +165,12 @@ export const AdminPagosController = {
     }
 };
 
-if (document.readyState === 'loading') {
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => AdminPagosController.init(), { once: true });
 } else {
     AdminPagosController.init();
+}
 }
 
 export default AdminPagosController;

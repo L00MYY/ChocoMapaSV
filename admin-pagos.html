@@ -133,7 +133,7 @@
             </div>
         </header>
 
-        <main class="admin-main" id="admin-main-content">
+        <main class="admin-main admin-main-content" id="admin-main-content">
             <div id="vista-denegada" class="acceso-denegado hidden">
                 <div class="denegado-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="48" height="48"
@@ -145,8 +145,16 @@
                 <h1 class="denegado-title">Acceso Denegado</h1>
                 <p class="denegado-text">Este panel de validación está estrictamente restringido al personal
                     administrativo autorizado del Ministerio de Turismo de El Salvador.</p>
+                <div id="alerta-sesion-activa-turista" class="alert-box alert-warning hidden" role="alert" style="margin: 14px auto; padding: 12px 18px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: 10px; color: #92400E; font-size: 0.95rem; font-weight: 600; display: none; align-items: center; gap: 10px; max-width: 500px; text-align: left;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span id="texto-alerta-sesion-activa">Asegúrese de cerrar la sesión actual antes de intentar iniciar sesión como administrador</span>
+                </div>
                 <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                    <a href="login.html?redirect=admin-pagos.html" class="btn-regresar"
+                    <a href="login.html?redirect=admin-pagos.html" class="btn-regresar" id="btn-login-admin"
                         style="background: var(--blue-bell); color: white;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
                             height="18" stroke-linecap="round" stroke-linejoin="round">

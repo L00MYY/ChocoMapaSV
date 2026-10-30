@@ -24,10 +24,12 @@ export const LoginController = {
             const sesion = await AuthModel.obtenerSesionActual();
             if (sesion) {
                 this.redirigirUsuario();
+                return true;
             }
         } catch (error) {
             console.warn('Verificación de sesión previa finalizada sin sesión:', error);
         }
+        return false;
     },
 
     /**
@@ -93,7 +95,16 @@ export const LoginController = {
             // 3. Autenticación con Supabase Auth
             await AuthModel.iniciarSesion(credenciales.email, credenciales.password);
 
-            // 4. Redirección en caso de éxito
+            // 4. Limpieza de formulario y estado de botón antes de la redirección
+            const { form } = LoginView.elements;
+            if (form && typeof form.reset === 'function') {
+                form.reset();
+            } else if (typeof LoginView.limpiarFormulario === 'function') {
+                LoginView.limpiarFormulario();
+            }
+            LoginView.mostrarCargando(false);
+
+            // 5. Redirección en caso de éxito
             this.redirigirUsuario();
         } catch (error) {
             console.error('Error de autenticación:', error);
@@ -113,17 +124,20 @@ export const LoginController = {
         if (redirect) {
             try {
                 const urlDecodificada = decodeURIComponent(redirect);
-                // Validación básica de seguridad para evitar redirecciones abiertas maliciosas
-                if (urlDecodificada.startsWith('http://') || urlDecodificada.startsWith('https://')) {
-                    const destinoUrl = new URL(urlDecodificada);
-                    if (destinoUrl.origin === window.location.origin) {
-                        window.location.href = urlDecodificada;
+                // Si existe un redirect válido y no apunta a login, redirigir inmediatamente a esa URL
+                const esLogin = urlDecodificada.toLowerCase().includes('login.html');
+                if (!esLogin) {
+                    if (urlDecodificada.startsWith('http://') || urlDecodificada.startsWith('https://')) {
+                        const destinoUrl = new URL(urlDecodificada);
+                        if (destinoUrl.origin === window.location.origin) {
+                            window.location.replace(urlDecodificada);
+                            return;
+                        }
+                    } else {
+                        // Es una ruta relativa válida
+                        window.location.replace(urlDecodificada);
                         return;
                     }
-                } else {
-                    // Es una ruta relativa válida
-                    window.location.href = urlDecodificada;
-                    return;
                 }
             } catch (_) {
                 // Si falla la decodificación, se ignora y se redirige a la ruta por defecto
@@ -131,15 +145,27 @@ export const LoginController = {
         }
 
         // Redirección por defecto
-        window.location.href = 'mapa.html';
+        window.location.replace('mapa.html');
     }
 };
 
+// Listener para el evento pageshow que cubre restauraciones desde BFCache del navegador
+if (typeof window !== 'undefined') {
+    window.addEventListener('pageshow', async (event) => {
+        const haySesion = await LoginController.verificarSesionExistente();
+        if (!haySesion) {
+            LoginView.mostrarCargando(false);
+        }
+    });
+}
+
 // Inicialización automática al cargar el DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => LoginController.init(), { once: true });
-} else {
-    LoginController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => LoginController.init(), { once: true });
+    } else {
+        LoginController.init();
+    }
 }
 
 export default LoginController;
