@@ -58,9 +58,16 @@ console.log('Variables de entorno verificadas correctamente.');
 // No incluyas aquí contraseñas ni claves privilegiadas.
 
 
+const emailjsServiceId = process.env.EMAILJS_SERVICE_ID || 'service_5fxcq7c';
+const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID || 'template_9uf3e0d';
+const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY || 'acny_NrtqcvTUzgbJ';
+
 const encodedMapboxToken = Buffer.from(mapboxToken).toString('base64');
 const encodedSupabaseUrl = Buffer.from(supabaseUrl).toString('base64');
 const encodedAnonKey = Buffer.from(supabaseAnonKey).toString('base64');
+const encodedEmailjsServiceId = Buffer.from(emailjsServiceId).toString('base64');
+const encodedEmailjsTemplateId = Buffer.from(emailjsTemplateId).toString('base64');
+const encodedEmailjsPublicKey = Buffer.from(emailjsPublicKey).toString('base64');
 
 const fileContent = `// Archivo generado automáticamente durante el build.
 // No editar manualmente.
@@ -69,9 +76,9 @@ const fileContent = `// Archivo generado automáticamente durante el build.
 export const MAPBOX_TOKEN_B64 = "${encodedMapboxToken}";
 export const SUPABASE_URL_B64 = "${encodedSupabaseUrl}";
 export const SUPABASE_ANON_KEY_B64 = "${encodedAnonKey}";
-export const EMAILJS_SERVICE_ID = "${process.env.EMAILJS_SERVICE_ID || 'service_5fxcq7c'}";
-export const EMAILJS_TEMPLATE_ID = "${process.env.EMAILJS_TEMPLATE_ID || 'template_9uf3e0d'}";
-export const EMAILJS_PUBLIC_KEY = "${process.env.EMAILJS_PUBLIC_KEY || 'acny_NrtqcvTUzgbJ'}";
+export const EMAILJS_SERVICE_ID_B64 = "${encodedEmailjsServiceId}";
+export const EMAILJS_TEMPLATE_ID_B64 = "${encodedEmailjsTemplateId}";
+export const EMAILJS_PUBLIC_KEY_B64 = "${encodedEmailjsPublicKey}";
 `;
 
 // ==================================================
