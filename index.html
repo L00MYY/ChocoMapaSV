@@ -5,15 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Tours y destinos oficiales con descuento en El Salvador, verificados por el Ministerio de Turismo.">
-    <title>Descuentos en Tours | Ministerio de Turismo SV</title>
-    <!-- Fuentes -->
+        content="Portal Oficial de Turismo de El Salvador (MITUR) — Descubre destinos únicos, volcanes, playas de Surf City y reserva tours guiados oficiales con tarifas exclusivas.">
+    <title>El Salvador • Portal Oficial de Turismo | MITUR</title>
+
+    <!-- Fuentes Tipográficas Oficiales -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Caacupe+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <!-- Estilos globales -->
+
+    <!-- Hojas de Estilos del Sistema ChocoMapaSV -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/index-style.css">
     <link rel="stylesheet" href="css/navbar.css">
@@ -21,7 +23,9 @@
 </head>
 
 <body>
-    <!-- Barra de Navegación Institucional Estandarizada -->
+    <!-- ==========================================================================
+         Barra de Navegación Institucional Estandarizada (MITUR SV)
+         ========================================================================== -->
     <header class="navbar app-header">
         <div class="header-container">
             <a href="index.html" class="app-logo-container" aria-label="Inicio - Ministerio de Turismo de El Salvador">
@@ -122,52 +126,458 @@
         </div>
     </header>
 
-    <main class="home-main">
-        <!-- Bienvenida -->
-        <section class="home-hero" aria-labelledby="home-titulo">
-            <span class="home-insignia">Descuentos en tours</span>
-            <h1 class="home-titulo" id="home-titulo">Vive El Salvador con tours oficiales y precios especiales</h1>
-            <p class="home-descripcion">
-                Tours y destinos verificados por el Ministerio de Turismo. Compara, elige y planifica tu visita.
-            </p>
-            <div class="home-acciones">
-                <a href="lugares-turisticos.html" class="btn-primary">Ver lugares turísticos</a>
+    <!-- ==========================================================================
+         Contenido Principal — Portal Rediseñado MITUR SV
+         ========================================================================== -->
+    <main class="home-main" id="main-content">
+
+        <!-- 1. HERO EDITORIAL CON IMPACTO VISUAL -->
+        <section class="hero-editorial" aria-labelledby="hero-title">
+            <div class="hero-backdrop" aria-hidden="true"></div>
+            <div class="hero-container">
+                <div class="hero-badge-wrapper">
+                    <span class="hero-badge">
+                        <span class="hero-badge-dot" aria-hidden="true"></span>
+                        PORTAL OFICIAL DE TURISMO • MITUR
+                    </span>
+                </div>
+
+                <h1 class="hero-title" id="hero-title">
+                    Descubre El Salvador, Tierra de Anfitriones
+                </h1>
+
+                <p class="hero-subtitle">
+                    Explora volcanes legendarios, joyas prehispánicas y las mejores olas de Surf City. Reserva con guías oficiales certificados por el Ministerio de Turismo con tarifas protegidas.
+                </p>
+
+                <!-- Botones de Acción Principales (CTA) -->
+                <div class="hero-actions">
+                    <a href="mapa.html" class="btn-hero btn-hero-primary" id="hero-cta-mapa">
+                        <svg class="btn-hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>Explorar en el Mapa</span>
+                    </a>
+                    <a href="tours.html" class="btn-hero btn-hero-secondary" id="hero-cta-tours">
+                        <svg class="btn-hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        <span>Ver Tours Oficiales</span>
+                    </a>
+                </div>
+
+                <!-- Barra de Búsqueda Rápida Directa -->
+                <form class="hero-search-card" id="hero-search-form" role="search" aria-label="Búsqueda rápida de destinos turísticos">
+                    <div class="hero-search-bar">
+                        <svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="hero-search-input" class="hero-search-input"
+                            placeholder="Escribe un destino, volcán, playa, lago o municipio..."
+                            autocomplete="off" aria-label="Buscar destino turístico en El Salvador">
+                        <button type="submit" class="hero-search-btn" id="hero-search-btn" aria-label="Buscar destino">
+                            <span>Buscar</span>
+                            <svg class="btn-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Etiquetas de Tendencias -->
+                    <div class="hero-trending-tags">
+                        <span class="trending-title">Destinos populares:</span>
+                        <div class="trending-list">
+                            <a href="lugares-turisticos.html?q=Santa%20Ana" class="trending-chip">Volcán de Santa Ana</a>
+                            <a href="lugares-turisticos.html?q=El%20Tunco" class="trending-chip">El Tunco</a>
+                            <a href="lugares-turisticos.html?q=BINAES" class="trending-chip">BINAES</a>
+                            <a href="lugares-turisticos.html?q=Suchitoto" class="trending-chip">Suchitoto</a>
+                            <a href="lugares-turisticos.html?q=Tazumal" class="trending-chip">Tazumal</a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Barra de Confianza y Respaldo Oficial -->
+                <ul class="hero-trust-bar" aria-label="Métricas del sistema oficial">
+                    <li class="trust-stat">
+                        <strong class="trust-stat-number" id="dato-total">28</strong>
+                        <span class="trust-stat-label">Destinos verificados</span>
+                    </li>
+                    <li class="trust-divider" aria-hidden="true"></li>
+                    <li class="trust-stat">
+                        <strong class="trust-stat-number">100%</strong>
+                        <span class="trust-stat-label">Guías certificados</span>
+                    </li>
+                    <li class="trust-divider" aria-hidden="true"></li>
+                    <li class="trust-stat">
+                        <strong class="trust-stat-number">14</strong>
+                        <span class="trust-stat-label">Departamentos</span>
+                    </li>
+                    <li class="trust-divider" aria-hidden="true"></li>
+                    <li class="trust-stat trust-badge-stat">
+                        <div class="trust-mitur-seal">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" class="seal-icon" aria-hidden="true">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                            <span>Garantía MITUR</span>
+                        </div>
+                        <span class="trust-stat-label">Tarifas oficiales</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 2. BENTO GRID DE CATEGORÍAS (Estilo elsalvador.travel) -->
+        <section class="home-section bento-section" aria-labelledby="bento-title">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <span class="section-eyebrow">EXPERIENCIAS HECHAS PARA TI</span>
+                    <h2 class="section-heading" id="bento-title">Explora por Categorías</h2>
+                    <p class="section-subheading">
+                        Cuatro universos para recorrer la riqueza geográfica y humana de nuestra tierra.
+                    </p>
+                </div>
+                <a href="lugares-turisticos.html" class="section-action-link" id="link-todas-categorias">
+                    <span>Ver todo el catálogo</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
             </div>
 
-            <ul class="home-confianza" aria-label="Datos del catálogo">
-                <li><strong id="dato-total">28</strong><span>Destinos oficiales</span></li>
-                <li><strong>Verificados</strong><span>Por el Ministerio</span></li>
-                <li><strong>Descuentos</strong><span>En tours seleccionados</span></li>
-            </ul>
-        </section>
+            <div class="bento-grid">
+                <!-- Tarjeta 1: Principal (Ocupa 2 filas) - Volcanes & Naturaleza -->
+                <a href="lugares-turisticos.html?categoria=miradores" class="bento-card bento-card-featured" id="bento-card-volcanes" aria-label="Ver categoría Volcanes y Naturaleza">
+                    <div class="bento-media">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+                            alt="Volcanes y senderismo natural en El Salvador" class="bento-img" loading="lazy">
+                        <div class="bento-overlay"></div>
+                    </div>
+                    <div class="bento-content">
+                        <div class="bento-badges">
+                            <span class="bento-tag">Ecoturismo & Aventura</span>
+                            <span class="bento-counter" id="bento-counter-volcanes">8 destinos oficiales</span>
+                        </div>
+                        <div class="bento-info">
+                            <h3 class="bento-card-title">Volcanes & Naturaleza</h3>
+                            <p class="bento-card-desc">
+                                Senderos de altura, cráteres activos y lagunas esmeralda en los parques nacionales protegidos.
+                            </p>
+                            <div class="bento-action-pill">
+                                <span>Explorar naturaleza</span>
+                                <span class="bento-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
 
-        <!-- Explorar por tipo -->
-        <section class="home-seccion" aria-labelledby="tipos-titulo">
-            <div class="home-seccion-cabecera">
-                <h2 id="tipos-titulo">Explora por tipo</h2>
+                <!-- Tarjeta 2: Playas & Surf City -->
+                <a href="lugares-turisticos.html?categoria=tours" class="bento-card" id="bento-card-playas" aria-label="Ver categoría Playas y Surf City">
+                    <div class="bento-media">
+                        <img src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=1000&q=80"
+                            alt="Olas y playas en Surf City El Salvador" class="bento-img" loading="lazy">
+                        <div class="bento-overlay"></div>
+                    </div>
+                    <div class="bento-content">
+                        <div class="bento-badges">
+                            <span class="bento-tag">Costa del Pacífico</span>
+                            <span class="bento-counter" id="bento-counter-playas">6 destinos de surf</span>
+                        </div>
+                        <div class="bento-info">
+                            <h3 class="bento-card-title">Playas & Surf City</h3>
+                            <p class="bento-card-desc">
+                                Point breaks de clase mundial, gastronomía costera y atardeceres inolvidables frente al océano.
+                            </p>
+                            <div class="bento-action-pill">
+                                <span>Descubrir costas</span>
+                                <span class="bento-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Tarjeta 3: Historia & Arqueología -->
+                <a href="lugares-turisticos.html?categoria=sitios%20hist%C3%B3ricos" class="bento-card" id="bento-card-historia" aria-label="Ver categoría Historia y Arqueología">
+                    <div class="bento-media">
+                        <img src="https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1000&q=80"
+                            alt="Ruinas mayas y sitios arqueológicos en El Salvador" class="bento-img" loading="lazy">
+                        <div class="bento-overlay"></div>
+                    </div>
+                    <div class="bento-content">
+                        <div class="bento-badges">
+                            <span class="bento-tag">Legado Ancestral</span>
+                            <span class="bento-counter" id="bento-counter-historia">7 sitios patrimoniales</span>
+                        </div>
+                        <div class="bento-info">
+                            <h3 class="bento-card-title">Historia & Arqueología</h3>
+                            <p class="bento-card-desc">
+                                Pirámides prehispánicas como Tazumal y Joya de Cerén, la Pompeya de América.
+                            </p>
+                            <div class="bento-action-pill">
+                                <span>Conocer historia</span>
+                                <span class="bento-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Tarjeta 4: Rutas Culturales & Pueblos Vivos -->
+                <a href="lugares-turisticos.html?categoria=restaurantes" class="bento-card" id="bento-card-cultura" aria-label="Ver categoría Rutas Culturales y Pueblos Vivos">
+                    <div class="bento-media">
+                        <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1000&q=80"
+                            alt="Pueblos vivos y arquitectura colonial en El Salvador" class="bento-img" loading="lazy">
+                        <div class="bento-overlay"></div>
+                    </div>
+                    <div class="bento-content">
+                        <div class="bento-badges">
+                            <span class="bento-tag">Tradición & Café</span>
+                            <span class="bento-counter" id="bento-counter-cultura">7 pueblos vivos</span>
+                        </div>
+                        <div class="bento-info">
+                            <h3 class="bento-card-title">Rutas Culturales & Pueblos Vivos</h3>
+                            <p class="bento-card-desc">
+                                Calles empedradas, añil artesanal, café de alta montaña y calidez humana en cada rincón.
+                            </p>
+                            <div class="bento-action-pill">
+                                <span>Vivir tradiciones</span>
+                                <span class="bento-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
-            <ul class="home-tipos">
-                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=tours"><span class="home-punto"
-                            style="background: var(--color-tours)"></span>Tours</a></li>
-                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=miradores"><span class="home-punto"
-                            style="background: var(--color-miradores)"></span>Miradores</a></li>
-                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=sitios%20hist%C3%B3ricos"><span
-                            class="home-punto" style="background: var(--color-historicos)"></span>Sitios históricos</a>
-                </li>
-                <li><a class="home-tipo" href="lugares-turisticos.html?categoria=restaurantes"><span class="home-punto"
-                            style="background: var(--color-restaurantes)"></span>Restaurantes</a></li>
-            </ul>
         </section>
 
-        <!-- Llamada al mapa -->
-        <section class="home-mapa" aria-labelledby="mapa-titulo">
-            <h2 id="mapa-titulo">Planifica tu próxima aventura</h2>
-            <p>Encuentra tours y destinos cerca de ti en el mapa interactivo.</p>
-            <a href="mapa.html" class="btn-primary btn-claro">Abrir el mapa</a>
+        <!-- 3. CARRUSEL SUAVE DE TOURS DESTACADOS (Estilo Happy Tours limpio) -->
+        <section class="home-section tours-carousel-section" aria-labelledby="tours-carousel-title">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <span class="section-eyebrow">GUIADOS POR EXPERTOS ACREDITADOS</span>
+                    <h2 class="section-heading" id="tours-carousel-title">Tours Guiados Oficiales</h2>
+                    <p class="section-subheading">
+                        Experiencias integrales con transporte coordinado, guías certificados por MITUR y tarifas aseguradas.
+                    </p>
+                </div>
+                <div class="carousel-controls-group">
+                    <div class="carousel-arrows" role="group" aria-label="Controles del carrusel">
+                        <button type="button" class="carousel-arrow-btn" id="carousel-prev-btn" aria-label="Ver tour anterior">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                        </button>
+                        <button type="button" class="carousel-arrow-btn" id="carousel-next-btn" aria-label="Ver siguiente tour">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                    <a href="tours.html" class="btn-tours-view-all" id="btn-ver-todos-tours">
+                        <span>Ver todos los tours</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contenedor Scroll Snap Horizontal -->
+            <div class="carousel-viewport">
+                <div class="tours-carousel-track" id="tours-carousel-track" tabindex="0" role="region"
+                    aria-label="Tours destacados de El Salvador con desplazamiento horizontal">
+                    <!-- Las tarjetas de tour se renderizan dinámicamente mediante InicioView -->
+                    <div class="carousel-loading-placeholder" id="tours-loading-placeholder">
+                        <div class="spinner-inline" aria-hidden="true"></div>
+                        <p>Cargando tours guiados oficiales...</p>
+                    </div>
+                </div>
+            </div>
         </section>
+
+        <!-- 4. DESTINOS IMPERDIBLES (Estilo TravelOnline limpio y simétrico) -->
+        <section class="home-section destinos-section" aria-labelledby="destinos-title">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <span class="section-eyebrow">RECOMENDACIONES DE LA COMUNIDAD</span>
+                    <h2 class="section-heading" id="destinos-title">Destinos Imperdibles</h2>
+                    <p class="section-subheading">
+                        Los sitios turísticos con mejor valoración ciudadana y verificación técnica por el Ministerio.
+                    </p>
+                </div>
+                <a href="lugares-turisticos.html" class="section-action-link" id="link-todos-destinos">
+                    <span>Ver catálogo completo (28)</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Cuadrícula Simétrica de 3 o 4 Columnas -->
+            <div class="destinos-grid" id="destinos-grid">
+                <!-- Se puebla dinámicamente mediante InicioView -->
+                <div class="destinos-loading-placeholder" id="destinos-loading-placeholder">
+                    <div class="spinner-inline" aria-hidden="true"></div>
+                    <p>Obteniendo destinos imperdibles verificados...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. BANNER DE CARTOGRAFÍA MITUR -->
+        <section class="home-section mitur-cartografia-banner" aria-labelledby="cartografia-title">
+            <div class="cartografia-container">
+                <div class="cartografia-info">
+                    <div class="cartografia-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-geo-icon"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <span>SISTEMA DE GEORREFERENCIACIÓN OFICIAL • MAPBOX GL</span>
+                    </div>
+
+                    <h2 class="cartografia-title" id="cartografia-title">
+                        Planifica tus Rutas con la Cartografía Interactiva MITUR
+                    </h2>
+
+                    <p class="cartografia-desc">
+                        Navega en tiempo real a través de los 14 departamentos salvadoreños. Visualiza puntos de interés geocodificados, calcula distancias de viaje y enlaza directamente con los tours guiados de la zona.
+                    </p>
+
+                    <ul class="cartografia-features" aria-label="Ventajas del mapa oficial">
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Coordenadas GPS satelitales verificadas sobre el terreno</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Filtros instantáneos por departamento y categoría</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Fichas emergentes interactivas con acceso directo a reservas</span>
+                        </li>
+                    </ul>
+
+                    <div class="cartografia-cta">
+                        <a href="mapa.html" class="btn-cartografia-launch" id="btn-abrir-mapa-banner">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                <line x1="8" y1="2" x2="8" y2="18"></line>
+                                <line x1="16" y1="6" x2="16" y2="22"></line>
+                            </svg>
+                            <span>Abrir Mapa Interactivo</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="cartografia-visual" aria-hidden="true">
+                    <div class="map-mockup-frame">
+                        <div class="map-mockup-header">
+                            <span class="mockup-indicator dot-close"></span>
+                            <span class="mockup-indicator dot-min"></span>
+                            <span class="mockup-indicator dot-max"></span>
+                            <span class="mockup-status-text">Capas Vectoriales Activas • El Salvador</span>
+                        </div>
+                        <div class="map-mockup-body">
+                            <div class="mockup-grid-lines"></div>
+                            <div class="mockup-radar-pulse"></div>
+
+                            <!-- Puntos de prueba simulados en el mockup -->
+                            <div class="mockup-pin pin-santa-ana">
+                                <span class="pin-beacon"></span>
+                                <div class="pin-tooltip">Volcán Santa Ana</div>
+                            </div>
+                            <div class="mockup-pin pin-san-salvador">
+                                <span class="pin-beacon"></span>
+                                <div class="pin-tooltip">BINAES • Centro</div>
+                            </div>
+                            <div class="mockup-pin pin-la-libertad">
+                                <span class="pin-beacon"></span>
+                                <div class="pin-tooltip">Surf City</div>
+                            </div>
+                            <div class="mockup-pin pin-san-vicente">
+                                <span class="pin-beacon"></span>
+                                <div class="pin-tooltip">Apastepeque</div>
+                            </div>
+
+                            <div class="mockup-legend-box">
+                                <div class="legend-row">
+                                    <span class="legend-dot" style="background:#0096EB"></span>
+                                    <span>Tours Oficiales</span>
+                                </div>
+                                <div class="legend-row">
+                                    <span class="legend-dot" style="background:#73C6B6"></span>
+                                    <span>Sitios Históricos</span>
+                                </div>
+                                <div class="legend-row">
+                                    <span class="legend-dot" style="background:#A9DFBF"></span>
+                                    <span>Miradores & Volcanes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Pie de página institucional -->
+    <!-- ==========================================================================
+         Pie de Página Institucional (MITUR SV)
+         ========================================================================== -->
     <footer class="app-footer">
         <div class="footer-container">
             <p class="footer-copy">
@@ -177,6 +587,7 @@
         </div>
     </footer>
 
+    <!-- Scripts de Controladores de Vista -->
     <script type="module" src="js/controllers/NavbarController.js"></script>
     <script type="module" src="js/controllers/InicioController.js"></script>
 </body>
