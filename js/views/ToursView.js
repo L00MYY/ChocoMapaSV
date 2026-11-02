@@ -107,6 +107,33 @@ function crearTarjetaTour(tour, onSelectTour) {
     action.className = 'tour-card-action';
     action.textContent = 'Ver detalles y fechas';
     footer.appendChild(action);
+
+    const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    arrowSvg.setAttribute('viewBox', '0 0 24 24');
+    arrowSvg.setAttribute('fill', 'none');
+    arrowSvg.setAttribute('stroke', 'currentColor');
+    arrowSvg.setAttribute('stroke-width', '2');
+    arrowSvg.setAttribute('stroke-linecap', 'round');
+    arrowSvg.setAttribute('stroke-linejoin', 'round');
+    arrowSvg.setAttribute('width', '16');
+    arrowSvg.setAttribute('height', '16');
+    arrowSvg.setAttribute('aria-hidden', 'true');
+    arrowSvg.classList.add('place-card-arrow');
+    arrowSvg.classList.add('tour-card-arrow');
+
+    const arrowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    arrowLine.setAttribute('x1', '5');
+    arrowLine.setAttribute('y1', '12');
+    arrowLine.setAttribute('x2', '19');
+    arrowLine.setAttribute('y2', '12');
+
+    const arrowPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    arrowPoly.setAttribute('points', '12 5 19 12 12 19');
+
+    arrowSvg.appendChild(arrowLine);
+    arrowSvg.appendChild(arrowPoly);
+    footer.appendChild(arrowSvg);
+
     card.appendChild(footer);
 
     return card;

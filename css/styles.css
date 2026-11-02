@@ -8,15 +8,29 @@ html{
   font-style: normal;
 }
 
-:root {
+/* Variables base y Tema Oscuro (Estándar del sistema) */
+:root,
+[data-theme="dark"] {
+  --bg-app: #13293D;
+  --bg-surface: #1e3a5f;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.09);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-accent: #38BDF8;
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.2);
+  --table-row-hover: rgba(255, 255, 255, 0.04);
+
   /* Paleta Océano para la Interfaz */
   --deep-space-blue: #13293D;
   --baltic-blue: #006494;
   --cerulean: #247BA0;
   --blue-bell: #1B98E0;
   --alice-blue: #E8F1F2;
-  --surface: #FFFFFF;
-  --border-color: #D1E3E6;
+  --surface: #1e3a5f;
+  --border-color: rgba(255, 255, 255, 0.12);
 
   /* Mapeo UI */
   --primary: var(--baltic-blue);
@@ -42,17 +56,58 @@ html{
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Tema Claro (Inspirado en el diseño limpio de index.html) */
+[data-theme="light"] {
+  --bg-app: #F6FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --text-primary: #13293D;
+  --text-secondary: #64748B;
+  --text-accent: #0284C7;
+  --border-subtle: #E2E8F0;
+  --input-bg: #FFFFFF;
+  --input-border: #CBD5E1;
+  --table-row-hover: #F8FAFC;
+
+  --surface: #FFFFFF;
+  --border-color: #D1E3E6;
+}
+
+/* Blindaje de Elementos Fijos Institucionales */
+.navbar-mitur,
+#navbar,
+.footer-mitur,
+footer,
+.hero-editorial,
+.hero-banner,
+header.navbar,
+header.app-header,
+footer.app-footer,
+.app-footer {
+  --text-primary: #F8FAFC !important;
+  --text-secondary: #94A3B8 !important;
+  --border-subtle: rgba(255, 255, 255, 0.15) !important;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   height: auto !important;
   min-height: 100vh;
   font-family: var(--font-family);
-  background-color: var(--deep-space-blue); /* sin franjas blancas o grises */
-  color: var(--dark);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Vista del mapa (mapa.html) con footer institucional estandarizado */
@@ -69,7 +124,7 @@ body.mapa-body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background-color: var(--deep-space-blue);
+  background-color: var(--bg-app);
   overflow-x: hidden;
 }
 
@@ -2070,3 +2125,36 @@ textarea,
     font-size: 0.95rem !important;
   }
 }
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES - MAPA === */
+/* Tema Oscuro (Defecto) */
+.legend-item,
+.legend-item span {
+  color: #f1f5f9 !important;
+}
+
+#search-input {
+  color: #f8fafc !important;
+}
+
+#search-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .legend-item,
+[data-theme="light"] .legend-item span {
+  color: #13293d !important;
+}
+
+[data-theme="light"] #search-input {
+  color: #13293d !important;
+}
+
+[data-theme="light"] #search-input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES - MAPA === */

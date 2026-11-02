@@ -1,6 +1,6 @@
 import { LugaresModel } from '../models/LugaresModel.js';
 import { LugaresView } from '../views/LugaresView.js';
-import { coincideCategoria, normalizarTexto } from '../utils/textUtils.js';
+import { coincideCategoria, normalizarTexto, generarSlug } from '../utils/textUtils.js';
 
 function redirigirADetalle(id) {
     if (!id || typeof id !== 'string') return;
@@ -23,8 +23,10 @@ export const LugaresController = {
         } = LugaresView.elements;
 
         searchInput?.addEventListener('input', (event) => {
-            LugaresModel.setBusqueda(event.target.value);
+            const termino = event.target.value;
+            LugaresModel.setBusqueda(termino);
             searchClearBtn?.classList.toggle('hidden', LugaresModel.getBusqueda().length === 0);
+            this.actualizarURL({ q: LugaresModel.getBusqueda() });
             this.aplicarFiltros();
         });
 
@@ -33,6 +35,7 @@ export const LugaresController = {
             searchInput.value = '';
             LugaresModel.setBusqueda('');
             searchClearBtn.classList.add('hidden');
+            this.actualizarURL({ q: '' });
             searchInput.focus();
             this.aplicarFiltros();
         });
@@ -50,6 +53,7 @@ export const LugaresController = {
             if (searchInput) searchInput.value = '';
             LugaresModel.setBusqueda('');
             searchClearBtn?.classList.add('hidden');
+            this.actualizarURL({ q: '', categoria: 'todos' });
             const btnTodos = LugaresView.elements.categoryPillsContainer?.querySelector('[data-category="todos"], [data-categoria="todos"]');
             this.seleccionarCategoria('todos', btnTodos, true);
             this.seleccionarRating(0);
@@ -57,8 +61,12 @@ export const LugaresController = {
 
         window.addEventListener('popstate', () => {
             const categoriaURL = this.procesarParametrosURL();
+            this.procesarParametroBusquedaURL();
             const boton = Array.from(LugaresView.elements.categoryPillsContainer?.querySelectorAll('.pill-btn') || [])
-                .find(element => (element.dataset.category || element.dataset.categoria) === categoriaURL);
+                .find(element => {
+                    const cat = element.dataset.category || element.dataset.categoria;
+                    return cat === categoriaURL || coincideCategoria(cat, categoriaURL);
+                });
             this.seleccionarCategoria(categoriaURL, boton, false);
         });
     },
@@ -73,10 +81,15 @@ export const LugaresController = {
                 return;
             }
 
+            // Cargar categorías oficiales de la base de datos
+            const categorias = await LugaresModel.cargarCategorias();
+
             const categoriaActiva = this.procesarParametrosURL();
+            this.procesarParametroBusquedaURL();
+
             LugaresModel.setCategoria(categoriaActiva);
             LugaresView.inicializarFiltrosCategorias(
-                LugaresModel.obtenerCategoriasUnicas(),
+                categorias,
                 categoriaActiva,
                 (categoria, boton, categoriaOriginal) => this.seleccionarCategoria(categoria, boton, true, categoriaOriginal)
             );
@@ -100,8 +113,8 @@ export const LugaresController = {
         LugaresView.actualizarCategoriaActiva(categoria, botonSeleccionado);
 
         if (sincronizarURL) {
-            const valorURL = categoria === 'todos' ? 'todos' : (categoriaOriginal || categoria);
-            this.actualizarURLConCategoria(valorURL);
+            const valorURL = (categoria === 'todos' || categoria === 'todas') ? 'todos' : (categoriaOriginal || categoria);
+            this.actualizarURL({ categoria: valorURL });
         }
 
         this.aplicarFiltros();
@@ -113,29 +126,68 @@ export const LugaresController = {
         this.aplicarFiltros();
     },
 
+    procesarParametroBusquedaURL() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const queryURL = params.get('q');
+            if (queryURL && queryURL.trim().length > 0) {
+                const queryLimpio = queryURL.trim();
+                LugaresModel.setBusqueda(queryLimpio);
+                if (LugaresView.elements.searchInput) {
+                    LugaresView.elements.searchInput.value = queryLimpio;
+                }
+                LugaresView.elements.searchClearBtn?.classList.remove('hidden');
+                return queryLimpio;
+            } else if (LugaresView.elements.searchInput && LugaresModel.getBusqueda().length === 0) {
+                LugaresView.elements.searchInput.value = '';
+                LugaresView.elements.searchClearBtn?.classList.add('hidden');
+            }
+        } catch (error) {
+            console.warn('Error al procesar parámetro de búsqueda en URL:', error);
+        }
+        return '';
+    },
+
     procesarParametrosURL() {
         const categoriaURL = new URLSearchParams(window.location.search).get('categoria');
         if (!categoriaURL) return 'todos';
 
-        const categoriaNormalizada = normalizarTexto(categoriaURL);
-        const coincidencia = LugaresModel.obtenerCategoriasUnicas().keys();
-        for (const categoria of coincidencia) {
-            if (coincideCategoria(categoria, categoriaNormalizada)) {
-                return normalizarTexto(categoria);
+        const categorias = LugaresModel.obtenerCategoriasDisponibles();
+        for (const cat of categorias) {
+            if (
+                coincideCategoria(cat.name, categoriaURL) ||
+                coincideCategoria(cat.slug, categoriaURL) ||
+                generarSlug(cat.name) === generarSlug(categoriaURL)
+            ) {
+                return cat.slug || normalizarTexto(cat.name);
             }
         }
 
-        return 'todos';
+        return normalizarTexto(categoriaURL);
     },
 
-    actualizarURLConCategoria(categoria) {
+    actualizarURL(cambios = {}) {
         try {
             const url = new URL(window.location.href);
-            if (!categoria || categoria === 'todos') {
-                url.searchParams.delete('categoria');
-            } else {
-                url.searchParams.set('categoria', categoria);
+
+            if ('categoria' in cambios) {
+                const valor = cambios.categoria;
+                if (!valor || valor === 'todos' || valor === 'todas') {
+                    url.searchParams.delete('categoria');
+                } else {
+                    url.searchParams.set('categoria', valor);
+                }
             }
+
+            if ('q' in cambios) {
+                const query = (cambios.q || '').trim();
+                if (query.length === 0) {
+                    url.searchParams.delete('q');
+                } else {
+                    url.searchParams.set('q', query);
+                }
+            }
+
             window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
         } catch (error) {
             console.warn('No se pudo actualizar la URL del navegador:', error);

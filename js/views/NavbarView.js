@@ -2,12 +2,12 @@
  * js/views/NavbarView.js
  * Vista del Componente Navbar Institucional para ChocoMapaSV (MITUR)
  * Gestiona la representación del estado de autenticación (Login / Perfil y Dropdown)
- * siguiendo la arquitectura MVC.
+ * y el switch global de Tema (Oscuro / Claro) siguiendo la arquitectura MVC.
  */
 
 export const NavbarView = {
     /**
-     * Getters dinámicos para los elementos del DOM relacionados con autenticación en el navbar
+     * Getters dinámicos para los elementos del DOM relacionados con autenticación y temas en el navbar
      */
     get elements() {
         return {
@@ -20,7 +20,11 @@ export const NavbarView = {
             userEmail: document.getElementById('nav-user-email'),
             btnLogout: document.getElementById('nav-btn-logout'),
             linkHistorial: document.getElementById('nav-link-historial'),
-            navMisTours: document.getElementById('nav-mis-tours')
+            navMisTours: document.getElementById('nav-mis-tours'),
+            btnThemeToggle: document.getElementById('btn-theme-toggle'),
+            themeIconIndicator: document.getElementById('theme-icon-indicator'),
+            themeTextIndicator: document.getElementById('theme-text-indicator'),
+            navThemeItem: document.getElementById('nav-theme-item-wrapper')
         };
     },
 
@@ -55,6 +59,83 @@ export const NavbarView = {
         const archivoActual = path.split('/').pop() || 'index.html';
         const rutaRelativa = `${archivoActual}${window.location.search}${window.location.hash}`;
         return `login.html?redirect=${encodeURIComponent(rutaRelativa)}`;
+    },
+
+    /**
+     * Inyecta el botón de alternancia dentro del dropdown del avatar exclusivamente cuando el usuario está autenticado
+     * @param {string} [tema] Tema actual ('dark' | 'light')
+     */
+    inyectarThemeToggle(tema) {
+        let toggleContainer = document.getElementById('btn-theme-toggle');
+        if (!toggleContainer) {
+            const dropdownUl = document.querySelector('#nav-user-dropdown .nav-dropdown-menu');
+            if (!dropdownUl) return;
+
+            const li = document.createElement('li');
+            li.setAttribute('role', 'none');
+            li.id = 'nav-theme-item-wrapper';
+            li.innerHTML = `
+                <div class="nav-dropdown-divider"></div>
+                <div class="nav-theme-toggle-container" id="btn-theme-toggle" role="button" tabindex="0" aria-label="Cambiar tema">
+                  <div class="theme-label-wrapper">
+                    <span class="theme-icon" id="theme-icon-indicator">🌙</span>
+                    <span class="theme-title" id="theme-text-indicator">Modo Oscuro</span>
+                  </div>
+                  <div class="theme-switch-pill">
+                    <span class="theme-switch-circle"></span>
+                  </div>
+                </div>
+            `;
+
+            const btnLogout = document.getElementById('nav-btn-logout');
+            if (btnLogout) {
+                const logoutLi = btnLogout.closest('li');
+                if (logoutLi && logoutLi.previousElementSibling && logoutLi.previousElementSibling.classList.contains('nav-dropdown-divider')) {
+                    dropdownUl.insertBefore(li, logoutLi.previousElementSibling);
+                } else if (logoutLi) {
+                    dropdownUl.insertBefore(li, logoutLi);
+                } else {
+                    dropdownUl.appendChild(li);
+                }
+            } else {
+                dropdownUl.appendChild(li);
+            }
+        }
+
+        const temaActual = tema || (typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') : null) || 'dark';
+        this.actualizarIndicadorTema(temaActual);
+    },
+
+    /**
+     * Elimina el componente de toggle del DOM al cerrar sesión
+     */
+    removerThemeToggle() {
+        const themeItem = document.getElementById('nav-theme-item-wrapper');
+        if (themeItem) {
+            themeItem.remove();
+        }
+    },
+
+    /**
+     * Actualiza el icono y texto indicador según el tema actual
+     * @param {string} tema ('dark' | 'light')
+     */
+    actualizarIndicadorTema(tema) {
+        const icon = document.getElementById('theme-icon-indicator');
+        const text = document.getElementById('theme-text-indicator');
+        const toggle = document.getElementById('btn-theme-toggle');
+        const esOscuro = tema === 'dark';
+
+        if (icon) {
+            icon.textContent = esOscuro ? '🌙' : '☀️';
+        }
+        if (text) {
+            text.textContent = esOscuro ? 'Modo Oscuro' : 'Modo Claro';
+        }
+        if (toggle) {
+            toggle.setAttribute('aria-label', esOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+            toggle.setAttribute('aria-checked', esOscuro ? 'true' : 'false');
+        }
     },
 
     /**
@@ -104,6 +185,7 @@ export const NavbarView = {
      * - Renderiza la inicial del usuario o icono por defecto
      * - Configura correo en el dropdown
      * - Renderiza el enlace "Mis tours" con href mis-tours.html
+     * - Inyecta el switch de alternancia de tema (Modo Claro / Modo Oscuro)
      * @param {Object} sesion 
      */
     mostrarEstadoAutenticado(sesion) {
@@ -144,6 +226,9 @@ export const NavbarView = {
 
         // Renderizar enlace "Mis tours"
         this.renderizarEnlaceMisTours(true);
+
+        // Inyectar switch de alternancia de tema
+        this.inyectarThemeToggle();
     },
 
     /**
@@ -151,6 +236,7 @@ export const NavbarView = {
      * - Muestra botón "Iniciar sesión" con redirección configurada
      * - Oculta el contenedor de usuario
      * - Oculta la opción "Mis tours"
+     * - Remueve el toggle de tema
      * - Cierra el dropdown si estaba abierto
      */
     mostrarEstadoNoAutenticado() {
@@ -162,6 +248,9 @@ export const NavbarView = {
 
         // Ocultar opción "Mis tours"
         this.renderizarEnlaceMisTours(false);
+
+        // Remover toggle de tema
+        this.removerThemeToggle();
 
         if (btnLogin) {
             btnLogin.classList.remove('hidden');

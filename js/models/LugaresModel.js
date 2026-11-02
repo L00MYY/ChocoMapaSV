@@ -1,5 +1,5 @@
-import { obtenerLugaresTuristicos } from './SupabaseClient.js';
-import { coincideCategoria, normalizarTexto } from '../utils/textUtils.js';
+import { obtenerLugaresTuristicos, obtenerCategorias } from './SupabaseClient.js';
+import { coincideCategoria, normalizarTexto, generarSlug } from '../utils/textUtils.js';
 import {
     calcularPromedioRating,
     validarScoreRating,
@@ -15,6 +15,7 @@ export {
 };
 
 let todosLosLugares = [];
+let categoriasCargadas = [];
 let categoriaActiva = 'todos';
 let terminoBusqueda = '';
 let ratingMinimoActivo = 0;
@@ -49,6 +50,70 @@ export const LugaresModel = {
         return todosLosLugares;
     },
 
+    async cargarCategorias() {
+        try {
+            const respuestaBD = await obtenerCategorias();
+            if (Array.isArray(respuestaBD) && respuestaBD.length > 0) {
+                categoriasCargadas = respuestaBD.map(cat => ({
+                    id: cat.id,
+                    name: cat.name,
+                    slug: cat.slug || generarSlug(cat.name),
+                    color: cat.color || null,
+                    icon: cat.icon || null
+                }));
+                return categoriasCargadas;
+            }
+        } catch (error) {
+            console.warn('No se pudieron obtener las categorías directamente de Supabase. Extrayendo de lugares:', error);
+        }
+
+        // Respaldo dinámico a partir de los lugares cargados
+        const categoriasMap = new Map();
+        todosLosLugares.forEach(lugar => {
+            const nombre = (lugar.category || '').trim();
+            if (nombre && !categoriasMap.has(nombre)) {
+                categoriasMap.set(nombre, {
+                    name: nombre,
+                    slug: lugar.category_slug || generarSlug(nombre),
+                    color: lugar.color || null
+                });
+            }
+        });
+
+        categoriasCargadas = Array.from(categoriasMap.values());
+        return categoriasCargadas;
+    },
+
+    obtenerCategoriasDisponibles() {
+        if (categoriasCargadas.length > 0) {
+            return categoriasCargadas;
+        }
+
+        // Si aún no se llamó a cargarCategorias(), extraer de lugares
+        const categoriasMap = new Map();
+        todosLosLugares.forEach(lugar => {
+            const nombre = (lugar.category || '').trim();
+            if (nombre && !categoriasMap.has(nombre)) {
+                categoriasMap.set(nombre, {
+                    name: nombre,
+                    slug: lugar.category_slug || generarSlug(nombre),
+                    color: lugar.color || null
+                });
+            }
+        });
+
+        return Array.from(categoriasMap.values());
+    },
+
+    obtenerCategoriasUnicas() {
+        const categoriasMap = new Map();
+        const lista = this.obtenerCategoriasDisponibles();
+        lista.forEach(cat => {
+            categoriasMap.set(cat.name, cat.color || null);
+        });
+        return categoriasMap;
+    },
+
     setCategoria(categoria) {
         categoriaActiva = categoria || 'todos';
     },
@@ -80,8 +145,11 @@ export const LugaresModel = {
     getLugaresFiltrados() {
         let filtrados = todosLosLugares;
 
-        if (categoriaActiva && categoriaActiva !== 'todos') {
-            filtrados = filtrados.filter(lugar => coincideCategoria(lugar.category, categoriaActiva));
+        if (categoriaActiva && categoriaActiva !== 'todos' && categoriaActiva !== 'todas') {
+            filtrados = filtrados.filter(lugar =>
+                coincideCategoria(lugar.category, categoriaActiva) ||
+                coincideCategoria(lugar.category_slug, categoriaActiva)
+            );
         }
 
         if (terminoBusqueda.length > 0) {
@@ -90,10 +158,12 @@ export const LugaresModel = {
                 const nombre = normalizarTexto(lugar.name || '');
                 const descripcion = normalizarTexto(lugar.description || '');
                 const categoria = normalizarTexto(lugar.category || '');
+                const depto = normalizarTexto(lugar.department || '');
 
                 return nombre.includes(busquedaNorm) ||
                     descripcion.includes(busquedaNorm) ||
-                    categoria.includes(busquedaNorm);
+                    categoria.includes(busquedaNorm) ||
+                    depto.includes(busquedaNorm);
             });
         }
 
@@ -106,20 +176,5 @@ export const LugaresModel = {
 
     getTotalLugares() {
         return todosLosLugares.length;
-    },
-
-    obtenerCategoriasUnicas() {
-        const categoriasMap = new Map();
-
-        todosLosLugares.forEach(lugar => {
-            if (lugar.category && typeof lugar.category === 'string') {
-                const categoria = lugar.category.trim();
-                if (categoria && !categoriasMap.has(categoria)) {
-                    categoriasMap.set(categoria, lugar.color || null);
-                }
-            }
-        });
-
-        return categoriasMap;
     }
 };

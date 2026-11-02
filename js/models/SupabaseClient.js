@@ -1,4 +1,5 @@
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
+import { generarSlug } from '../utils/textUtils.js';
 
 // Decodificamos en memoria al momento de ejecutar el código
 const SUPABASE_URL = atob(SUPABASE_URL_B64);
@@ -7,7 +8,7 @@ const SUPABASE_ANON_KEY = atob(SUPABASE_ANON_KEY_B64);
 export async function obtenerLugaresTuristicos() {
     try {
         const params = new URLSearchParams({
-            select: 'id,name,description,image_url,opening_days,latitude,longitude,department,region,is_active,categories(name,color),ratings(score)'
+            select: 'id,name,description,image_url,opening_days,latitude,longitude,department,region,is_active,categories(id,name,slug,color),ratings(score)'
         });
 
         const url = `${SUPABASE_URL}/rest/v1/places?${params.toString()}`;
@@ -37,6 +38,7 @@ export async function obtenerLugaresTuristicos() {
             region: lugar.region || '',
             is_active: lugar.is_active,
             category: lugar.categories?.name || 'Turismo',
+            category_slug: lugar.categories?.slug || generarSlug(lugar.categories?.name || 'Turismo'),
             color: lugar.categories?.color || '#FF6B6B',
             coords: [lugar.longitude, lugar.latitude],
             ratings: Array.isArray(lugar.ratings) ? lugar.ratings : []
@@ -44,6 +46,35 @@ export async function obtenerLugaresTuristicos() {
 
     } catch (error) {
         console.error('Fallo al conectarse con Supabase:', error);
+        return [];
+    }
+}
+
+export async function obtenerCategorias() {
+    try {
+        const params = new URLSearchParams({
+            select: 'id,name,slug,color,icon',
+            order: 'name.asc'
+        });
+
+        const url = `${SUPABASE_URL}/rest/v1/categories?${params.toString()}`;
+
+        const respuesta = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!respuesta.ok) {
+            throw new Error(`Error al obtener categorías: ${respuesta.status}`);
+        }
+
+        return await respuesta.json();
+    } catch (error) {
+        console.error('Fallo al consultar categorías de Supabase:', error);
         return [];
     }
 }

@@ -42,7 +42,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+  background: var(--bg-app);
   overflow-x: hidden;
 }
 
@@ -426,9 +426,9 @@ img {
 
 /* Tarjetas y Paneles */
 .card-panel {
-  background: var(--surface);
+  background: var(--bg-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -438,15 +438,15 @@ img {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .panel-icon-wrap {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background-color: var(--alice-blue);
-  color: var(--baltic-blue);
+  background-color: var(--input-bg);
+  color: var(--text-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,13 +461,13 @@ img {
 .panel-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .panel-subtitle {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 
@@ -897,7 +897,7 @@ img {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--alice-blue);
+  background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-primary);
   border-radius: var(--radius-sm);
   margin: 16px 0 20px;
 }
@@ -978,19 +978,19 @@ img {
 .form-label {
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
 }
 
 .form-input,
 .form-select {
   width: 100%;
   padding: 10px 14px;
-  background: var(--surface);
-  border: 1.5px solid var(--border-color);
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
   border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.92rem;
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
 }
 
 .field-error {
@@ -1026,8 +1026,8 @@ img {
 }
 
 .reservation-summary-box {
-  background: var(--alice-blue);
-  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 16px;
   text-align: left;
@@ -1044,6 +1044,7 @@ img {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
+  color: var(--text-primary);
 }
 
 .btn-continue-exploring {
@@ -1583,4 +1584,125 @@ img {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(27, 152, 224, 0.45);
 }
-
+
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Tema Oscuro (Defecto) */
+.panel-title {
+  color: #ffffff !important;
+}
+
+.tour-full-description {
+  color: #cbd5e1 !important;
+}
+
+.panel-subtitle {
+  color: #94a3b8 !important;
+}
+
+.dates-heading {
+  color: #cbd5e1 !important;
+}
+
+.date-chip.date-chip-disabled,
+.date-chip-disabled,
+.date-chip:disabled,
+.date-chip[disabled],
+.date-chip.disabled,
+.date-chip[aria-disabled="true"] {
+  color: #64748b !important;
+  opacity: 0.8 !important;
+}
+
+.pricing-label {
+  color: #94a3b8 !important;
+}
+
+.price-original,
+.price-before,
+.discount-text,
+.pricing-discount-wrapper span {
+  color: #94a3b8 !important;
+  text-decoration: line-through;
+}
+
+.price-discount-tag {
+  color: #f87171 !important; /* Coral suave legible en dark mode */
+  font-weight: 600;
+}
+
+.price-final,
+.price-final-highlight,
+.price-regular-only {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.price-currency-note {
+  color: #94a3b8 !important;
+}
+
+.spots-text {
+  color: #cbd5e1 !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .tour-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .tour-guide-bar span {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .tour-guide-bar strong {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .panel-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .tour-full-description {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .panel-subtitle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .dates-heading {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .pricing-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .price-original,
+[data-theme="light"] .price-before,
+[data-theme="light"] .pricing-discount-wrapper span {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .price-discount-tag {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] .price-final,
+[data-theme="light"] .price-final-highlight,
+[data-theme="light"] .price-regular-only {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="light"] .price-currency-note {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .spots-text {
+  color: #334155 !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES === */

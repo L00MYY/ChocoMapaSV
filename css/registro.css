@@ -11,8 +11,9 @@ body.registro-body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background-color: var(--deep-space-blue, #13293D);
-  color: var(--dark, #13293D);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
   font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
   line-height: 1.5;
   overflow-x: hidden;
@@ -25,7 +26,7 @@ body.registro-body {
   align-items: center;
   justify-content: center;
   padding: 48px 20px;
-  background: radial-gradient(circle at 50% 25%, rgba(36, 123, 160, 0.28) 0%, rgba(19, 41, 61, 0.95) 65%, #08141f 100%);
+  background: var(--bg-app);
   position: relative;
   box-sizing: border-box;
 }
@@ -169,15 +170,15 @@ body.registro-body {
 }
 
 .auth-card {
-  background: var(--surface, #FFFFFF);
+  background: var(--bg-surface);
   border-radius: 20px;
-  border: 1px solid var(--border-color, #D1E3E6);
+  border: 1px solid var(--border-subtle);
   box-shadow: 0 20px 48px -12px rgba(8, 20, 31, 0.4), 0 4px 16px rgba(19, 41, 61, 0.08);
   padding: 38px 34px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  color: var(--deep-space-blue, #13293D);
+  color: var(--text-primary);
   width: 100%;
 }
 
@@ -198,7 +199,7 @@ body.registro-body {
 .form-card-title {
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--deep-space-blue, #13293D);
+  color: var(--text-primary);
   letter-spacing: -0.03em;
   line-height: 1.2;
   margin: 0 0 6px 0;
@@ -206,7 +207,7 @@ body.registro-body {
 
 .form-card-subtitle {
   font-size: 0.92rem;
-  color: #4A6572;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -282,7 +283,7 @@ body.registro-body {
 .form-label {
   font-size: 0.88rem;
   font-weight: 700;
-  color: var(--deep-space-blue, #13293D);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -352,9 +353,9 @@ body.registro-body {
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 500;
-  color: var(--deep-space-blue, #13293D);
-  background-color: var(--surface, #FFFFFF);
-  border: 1.5px solid var(--border-color, #D1E3E6);
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1.5px solid var(--input-border);
   border-radius: 10px;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
@@ -366,12 +367,12 @@ body.registro-body {
 }
 
 .form-control::placeholder {
-  color: #94A3B8;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
 .form-control:focus {
-  background-color: #FFFFFF;
+  background-color: var(--bg-surface);
   border-color: var(--blue-bell, #1B98E0);
   box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
 }
@@ -512,7 +513,7 @@ body.registro-body {
 }
 
 .rule-item.rule-unmet {
-  color: #4A6572;
+  color: var(--text-secondary);
 }
 
 /* Checkbox Términos */
@@ -535,9 +536,9 @@ body.registro-body {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: 1.5px solid var(--border-color, #D1E3E6);
+  border: 1.5px solid var(--input-border);
   border-radius: 6px;
-  background-color: var(--surface, #FFFFFF);
+  background-color: var(--input-bg);
   cursor: pointer;
   flex-shrink: 0;
   margin-top: 2px;
@@ -573,7 +574,7 @@ body.registro-body {
 
 .checkbox-text {
   font-size: 0.84rem;
-  color: #4A6572;
+  color: var(--text-secondary);
   line-height: 1.45;
 }
 
@@ -658,18 +659,18 @@ body.registro-body {
 .auth-card-footer {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-color, #D1E3E6);
+  border-top: 1px solid var(--border-subtle);
   text-align: center;
 }
 
 .login-prompt {
-  color: #4A6572;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin: 0;
 }
 
 .login-link {
-  color: var(--baltic-blue, #006494);
+  color: var(--text-accent);
   font-weight: 700;
   text-decoration: none;
   transition: color 0.18s ease;
@@ -721,3 +722,59 @@ body.registro-body {
     font-size: 0.95rem;
   }
 }
+
+/* Adaptación de columna informativa en tema claro */
+[data-theme="light"] .info-column .info-hero-title {
+  color: var(--text-primary);
+}
+[data-theme="light"] .info-column .info-lead {
+  color: var(--text-secondary);
+}
+[data-theme="light"] .info-column .benefit-name {
+  color: var(--text-primary);
+}
+[data-theme="light"] .info-column .benefit-desc {
+  color: var(--text-secondary);
+}
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Tema Oscuro (Defecto) */
+.auth-title,
+.form-card-title {
+  color: #f8fafc !important;
+}
+
+.auth-subtitle,
+.form-card-subtitle {
+  color: #cbd5e1 !important;
+}
+
+.form-label,
+.form-label span {
+  color: #f8fafc !important;
+}
+
+.password-rules-card p,
+.password-rules-card li,
+.password-rules-card span {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .auth-title,
+[data-theme="light"] .form-card-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .auth-subtitle,
+[data-theme="light"] .form-card-subtitle {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .form-label,
+[data-theme="light"] .form-label span {
+  color: #0f172a !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES === */

@@ -17,9 +17,11 @@
     --border-color: #D1E3E6;
     --border-subtle: rgba(209, 227, 230, 0.6);
 
-    /* Mapeo Semántico */
-    --color-text-main: #13293D;
-    --color-text-muted: #4B6375;
+        /* Mapeo Semántico */
+    --color-text-main: var(--text-primary);
+    --color-text-muted: var(--text-secondary);
+    --surface: var(--bg-surface);
+    --border-color: var(--border-subtle);
     --color-accent-gold: #F7DC6F;
     --color-accent-green: #2ECC71;
     --color-offer-red: #E74C3C;
@@ -59,8 +61,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #F6FAFC;
-    color: var(--color-text-main);
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
     font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
 }
@@ -112,14 +115,14 @@ body {
     font-weight: 800;
     line-height: 1.2;
     letter-spacing: -0.5px;
-    color: var(--deep-space-blue);
+    color: var(--text-primary);
 }
 
 .section-subheading {
     margin: 0;
     font-size: 1rem;
     line-height: 1.55;
-    color: var(--color-text-muted);
+    color: var(--text-secondary);
 }
 
 .section-action-link {
@@ -131,8 +134,9 @@ body {
     color: var(--baltic-blue);
     text-decoration: none;
     padding: 0.5rem 1rem;
-    background: var(--surface);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-accent);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-soft);
     transition: var(--transition-standard);
@@ -317,8 +321,8 @@ body {
 .hero-search-card {
     width: 100%;
     max-width: 720px;
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: 20px;
     padding: 0.75rem 0.85rem;
     box-shadow: 0 14px 36px rgba(11, 34, 57, 0.35);
@@ -330,8 +334,8 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: #F4F8FA;
-    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 14px;
     padding: 0.4rem 0.6rem 0.4rem 1rem;
     transition: var(--transition-standard);
@@ -339,7 +343,7 @@ body {
 
 .hero-search-bar:focus-within {
     border-color: var(--blue-bell);
-    background: #FFFFFF;
+    background: var(--bg-surface);
     box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
 }
 
@@ -356,13 +360,13 @@ body {
     background: transparent;
     font-size: 1rem;
     font-family: inherit;
-    color: var(--deep-space-blue);
+    color: var(--text-primary);
     padding: 0.5rem 0;
     outline: none;
 }
 
 .hero-search-input::placeholder {
-    color: #7A92A3;
+    color: var(--text-secondary);
 }
 
 .hero-search-btn {
@@ -395,34 +399,126 @@ body {
     transform: translateX(3px);
 }
 
-/* Etiquetas de Tendencias */
-.hero-trending-tags {
+.hero-search-btn.opacity-50 {
+    opacity: 0.5;
+}
+
+.hero-search-btn.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
+.hero-search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.hero-search-bar-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.hero-search-card .results-list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: 0 14px 35px -5px rgba(19, 41, 61, 0.25);
+    padding: 6px;
+    margin: 0;
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.hero-search-card .results-list.hidden {
+    display: none !important;
+}
+
+.hero-search-card .result-item {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    margin-top: 0.75rem;
-    padding: 0 0.25rem;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.trending-title {
-    font-size: 0.8rem;
+.hero-search-card .result-item:hover {
+    background-color: var(--bg-card-hover);
+}
+
+.hero-search-card .result-item-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hero-search-card .result-item-category {
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: rgba(19, 41, 61, 0.06);
+    flex-shrink: 0;
+}
+/* Etiquetas de Tendencias — Fila Horizontal Continua */
+.trending-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 0.75rem;
 }
 
-.trending-list {
+.trending-label {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.trending-chips-wrapper {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding: 4px 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.trending-chips-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .trending-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--baltic-blue);
+    color: var(--text-accent);
     text-decoration: none;
-    background: rgba(0, 100, 148, 0.08);
+    background: var(--input-bg);
+    border: 1px solid var(--border-subtle);
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-pill);
     transition: var(--transition-standard);
@@ -431,7 +527,6 @@ body {
 .trending-chip:hover {
     background: var(--baltic-blue);
     color: #FFFFFF;
-    transform: translateY(-1px);
 }
 
 /* Barra de Confianza */
@@ -692,9 +787,10 @@ body {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--surface);
-    border: 1px solid var(--border-color);
-    color: var(--deep-space-blue);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-accent);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -728,7 +824,7 @@ body {
     padding: 0.65rem 1.25rem;
     font-size: 0.95rem;
     font-weight: 700;
-    color: var(--deep-space-blue);
+    color: white;
     text-decoration: none;
     background: var(--surface);
     border: 1.5px solid var(--border-color);
@@ -743,9 +839,8 @@ body {
 }
 
 .btn-tours-view-all:hover {
-    background: var(--deep-space-blue);
-    color: #FFFFFF;
-    border-color: var(--deep-space-blue);
+    background: white;
+    color: black;
 }
 
 .btn-tours-view-all:hover svg {
@@ -778,8 +873,9 @@ body {
     flex: 0 0 340px;
     max-width: 340px;
     scroll-snap-align: start;
-    background: var(--surface);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-accent);
     border-radius: var(--radius-card);
     overflow: hidden;
     display: flex;
@@ -878,7 +974,7 @@ body {
     font-size: 1.15rem;
     font-weight: 800;
     line-height: 1.3;
-    color: var(--deep-space-blue);
+    color: var(--text-primary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -889,7 +985,7 @@ body {
     margin: 0 0 1.25rem;
     font-size: 0.88rem;
     line-height: 1.5;
-    color: var(--color-text-muted);
+    color: var(--text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -914,7 +1010,7 @@ body {
 .tour-pricing-label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: var(--color-text-muted);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -934,7 +1030,7 @@ body {
 .tour-price-amount {
     font-size: 1.35rem;
     font-weight: 800;
-    color: var(--deep-space-blue);
+    color: var(--text-primary);
 }
 
 .tour-price-amount.discounted {
@@ -980,8 +1076,9 @@ body {
 }
 
 .destino-card {
-    background: var(--surface);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-accent);
     border-radius: var(--radius-card);
     overflow: hidden;
     display: flex;
@@ -1299,103 +1396,248 @@ body {
 
 .map-mockup-body {
     position: relative;
-    height: 280px;
-    background: radial-gradient(circle at 60% 40%, #153A5B 0%, #081C30 80%);
+    height: 310px;
+    background: #07192A;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cartografia-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
 }
 
-.mockup-grid-lines {
-    position: absolute;
-    inset: 0;
-    background-image: 
-        linear-gradient(rgba(27, 152, 224, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(27, 152, 224, 0.08) 1px, transparent 1px);
-    background-size: 30px 30px;
+.cartografia-vector-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
 }
 
-.mockup-radar-pulse {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    border: 1px solid rgba(27, 152, 224, 0.25);
-    transform: translate(-50%, -50%);
-    animation: radarRipple 4s infinite linear;
+/* Trazo del territorio salvadoreño */
+.sv-territorio {
+    fill: rgba(2, 132, 199, 0.12);
+    stroke: #0284c7;
+    stroke-width: 1.5;
+    transition: fill 0.3s ease, stroke 0.3s ease;
 }
 
-@keyframes radarRipple {
+.sv-territorio:hover {
+    fill: rgba(2, 132, 199, 0.18);
+    stroke: #38bdf8;
+}
+
+/* Puntos clave georreferenciados mediante círculos pulsantes */
+@keyframes pulse-pin {
     0% {
-        transform: translate(-50%, -50%) scale(0.6);
-        opacity: 0.8;
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    50% {
+        transform: scale(1.6);
+        opacity: 0.35;
     }
     100% {
-        transform: translate(-50%, -50%) scale(1.4);
+        transform: scale(2.4);
         opacity: 0;
     }
 }
 
-/* Pines en el Mockup */
-.mockup-pin {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.pin-pulse {
+    fill: rgba(2, 132, 199, 0.22);
+    stroke: #0284c7;
+    stroke-width: 1.2;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulse-pin 2.5s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+    pointer-events: none;
 }
 
-.pin-beacon {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--blue-bell);
-    box-shadow: 0 0 12px var(--blue-bell);
-    border: 2px solid #FFFFFF;
+.pin-pulse-delayed {
+    animation-delay: 1.25s;
 }
 
-.pin-tooltip {
-    margin-top: 4px;
-    font-size: 0.7rem;
+.pin-ring {
+    fill: rgba(2, 132, 199, 0.25);
+    stroke: #38bdf8;
+    stroke-width: 1;
+    pointer-events: none;
+}
+
+.pin-core {
+    fill: #38bdf8;
+    stroke: #ffffff;
+    stroke-width: 1.5;
+    transition: transform 0.25s ease, fill 0.25s ease;
+    cursor: pointer;
+}
+
+.pin-tag {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.pin-tag-bg {
+    fill: rgba(7, 25, 42, 0.92);
+    stroke: rgba(2, 132, 199, 0.55);
+    stroke-width: 0.9;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: stroke 0.25s ease, fill 0.25s ease;
+}
+
+.pin-tag-text {
+    fill: #e2e8f0;
+    font-size: 9.5px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.25px;
+    user-select: none;
+    transition: fill 0.25s ease;
+}
+
+/* Micro-interacciones accesibles en Pines */
+.cartografia-pin {
+    cursor: pointer;
+}
+
+.cartografia-pin:hover .pin-core,
+.cartografia-pin:focus .pin-core {
+    fill: #ffffff;
+    transform: scale(1.4);
+}
+
+.cartografia-pin:hover .pin-tag-bg,
+.cartografia-pin:focus .pin-tag-bg {
+    fill: rgba(14, 39, 64, 0.98);
+    stroke: #38bdf8;
+}
+
+.cartografia-pin:hover .pin-tag-text,
+.cartografia-pin:focus .pin-tag-text {
+    fill: #ffffff;
     font-weight: 700;
-    color: #FFFFFF;
-    background: rgba(11, 34, 57, 0.9);
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    white-space: nowrap;
 }
 
-.pin-santa-ana { top: 28%; left: 24%; }
-.pin-san-salvador { top: 48%; left: 52%; }
-.pin-la-libertad { top: 68%; left: 45%; }
-.pin-san-vicente { top: 56%; left: 74%; }
+.cartografia-pin:focus {
+    outline: none;
+}
 
+/* Leyenda Lateral de Capas Vectoriales Activas */
 .mockup-legend-box {
     position: absolute;
-    bottom: 12px;
+    top: 12px;
     right: 12px;
-    background: rgba(7, 25, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    border-radius: 8px;
-    padding: 0.4rem 0.6rem;
+    background: rgba(7, 25, 42, 0.92);
+    border: 1px solid rgba(2, 132, 199, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.35rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.legend-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.legend-radar-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2ECC71;
+    box-shadow: 0 0 8px #2ECC71;
+    animation: radarBlink 1.8s infinite ease-in-out;
+}
+
+@keyframes radarBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.legend-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #e2e8f0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 .legend-row {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.65rem;
-    color: rgba(232, 241, 242, 0.85);
+    gap: 0.5rem;
+    font-size: 0.64rem;
+    color: rgba(226, 232, 240, 0.85);
+    white-space: nowrap;
 }
 
-.legend-dot {
-    width: 6px;
-    height: 6px;
+.legend-sym {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.legend-sym.sym-sv {
+    background: rgba(2, 132, 199, 0.35);
+    border: 1px solid #0284c7;
+}
+
+.legend-sym.sym-nodes {
+    background: #38bdf8;
     border-radius: 50%;
+    box-shadow: 0 0 6px #38bdf8;
+}
+
+.legend-sym.sym-grid {
+    background: transparent;
+    border: 1px dashed rgba(56, 189, 248, 0.6);
+}
+
+.legend-label {
+    flex: 1;
+}
+
+.legend-status {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(2, 132, 199, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(2, 132, 199, 0.3);
+}
+
+@media (max-width: 640px) {
+    .map-mockup-body {
+        height: 260px;
+    }
+    .mockup-legend-box {
+        padding: 0.4rem 0.5rem;
+        gap: 0.25rem;
+    }
+    .legend-status {
+        display: none;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -1411,7 +1653,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    color: var(--color-text-muted);
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 
@@ -1511,3 +1753,93 @@ body {
         transition: none !important;
     }
 }
+
+/* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Tema Oscuro (Defecto) - Destinos Imperdibles */
+.destinos-imperdibles .place-card-title,
+.featured-places .place-card-title,
+.imperdibles-card h3,
+.imperdibles-card-title,
+.destino-card .destino-title,
+.destino-title {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.destinos-imperdibles .place-card-description,
+.featured-places .place-card-description,
+.imperdibles-card p,
+.imperdibles-card-description,
+.destino-card .destino-desc,
+.destino-desc {
+  color: #cbd5e1 !important;
+  line-height: 1.5;
+}
+
+.destinos-imperdibles .place-card-rating-text,
+.destinos-imperdibles .rating-count,
+.imperdibles-rating-label,
+.destino-rating-text,
+.destino-rating-count {
+  color: #94a3b8 !important;
+}
+
+.destinos-imperdibles .place-card-link,
+.imperdibles-card-action,
+.imperdibles-card-action span,
+.destino-link,
+.destino-link span {
+  color: #38bdf8 !important;
+  font-weight: 600;
+}
+
+.destinos-imperdibles .place-card-link svg,
+.imperdibles-card-action svg,
+.destino-link svg {
+  stroke: #38bdf8 !important;
+}
+
+/* Tema Claro - Destinos Imperdibles */
+[data-theme="light"] .destinos-imperdibles .place-card-title,
+[data-theme="light"] .featured-places .place-card-title,
+[data-theme="light"] .imperdibles-card h3,
+[data-theme="light"] .imperdibles-card-title,
+[data-theme="light"] .destino-card .destino-title,
+[data-theme="light"] .destino-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .destinos-imperdibles .place-card-description,
+[data-theme="light"] .featured-places .place-card-description,
+[data-theme="light"] .imperdibles-card p,
+[data-theme="light"] .imperdibles-card-description,
+[data-theme="light"] .destino-card .destino-desc,
+[data-theme="light"] .destino-desc {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .destinos-imperdibles .place-card-rating-text,
+[data-theme="light"] .destino-rating-text {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .destinos-imperdibles .rating-count,
+[data-theme="light"] .imperdibles-rating-label,
+[data-theme="light"] .destino-rating-count {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .destinos-imperdibles .place-card-link,
+[data-theme="light"] .imperdibles-card-action,
+[data-theme="light"] .imperdibles-card-action span,
+[data-theme="light"] .destino-link,
+[data-theme="light"] .destino-link span {
+  color: #006494 !important;
+}
+
+[data-theme="light"] .destinos-imperdibles .place-card-link svg,
+[data-theme="light"] .imperdibles-card-action svg,
+[data-theme="light"] .destino-link svg {
+  stroke: #006494 !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES === */

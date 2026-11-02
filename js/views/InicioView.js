@@ -9,6 +9,9 @@ export const InicioView = {
         totalLugares: document.getElementById('dato-total'),
         heroSearchForm: document.getElementById('hero-search-form'),
         heroSearchInput: document.getElementById('hero-search-input'),
+        heroSearchBtn: document.getElementById('hero-search-btn'),
+        heroSearchResults: document.getElementById('hero-search-results'),
+        popularDestinations: document.getElementById('popular-destinations'),
         toursTrack: document.getElementById('tours-carousel-track'),
         carouselPrevBtn: document.getElementById('carousel-prev-btn'),
         carouselNextBtn: document.getElementById('carousel-next-btn'),
@@ -29,22 +32,214 @@ export const InicioView = {
     },
 
     /**
-     * Vincula el evento de búsqueda del hero para redirigir con el parámetro de consulta.
+     * Modifica el estado activo/deshabilitado del botón de búsqueda del Hero.
+     * @param {boolean} habilitado 
+     */
+    actualizarEstadoBotonBuscar(habilitado) {
+        const btn = document.getElementById('hero-search-btn') || this.elements.heroSearchBtn;
+        if (!btn) return;
+
+        btn.disabled = !habilitado;
+        if (habilitado) {
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    },
+
+    /**
+     * Renderiza el menú flotante desplegable de sugerencias de búsqueda predictiva.
+     * @param {Array<Object>} lugares
+     * @param {Function} onSelectLugar
+     */
+    renderizarResultadosHero(lugares, onSelectLugar) {
+        const results = document.getElementById('hero-search-results') || this.elements.heroSearchResults;
+        if (!results) return;
+
+        results.replaceChildren();
+
+        if (!Array.isArray(lugares) || lugares.length === 0) {
+            results.classList.add('hidden');
+            return;
+        }
+
+        results.classList.remove('hidden');
+        const fragment = document.createDocumentFragment();
+
+        lugares.forEach(lugar => {
+            const item = document.createElement('li');
+            item.className = 'result-item';
+            item.setAttribute('role', 'option');
+
+            const title = document.createElement('span');
+            title.className = 'result-item-title';
+            title.textContent = lugar.name || 'Sitio turístico';
+
+            const category = document.createElement('span');
+            category.className = 'result-item-category';
+            category.style.color = lugar.color || '#FF6B6B';
+            category.textContent = lugar.category || 'Turismo';
+
+            item.append(title, category);
+            item.addEventListener('click', () => {
+                if (typeof onSelectLugar === 'function') {
+                    onSelectLugar(lugar);
+                }
+            });
+            fragment.appendChild(item);
+        });
+
+        results.appendChild(fragment);
+    },
+
+    /**
+     * Oculta el menú flotante de resultados predictivos.
+     */
+    ocultarResultadosHero() {
+        const results = document.getElementById('hero-search-results') || this.elements.heroSearchResults;
+        results?.classList.add('hidden');
+    },
+
+    /**
+     * Renderiza dinámicamente los chips de destinos populares (Top 5 Mejor Calificados).
+     * @param {Array<Object>} lugaresTop5 
+     */
+    renderizarDestinosPopulares(lugaresTop5) {
+        const container = document.getElementById('popular-destinations') || this.elements.popularDestinations;
+        if (!container) return;
+
+        container.replaceChildren();
+
+        if (!Array.isArray(lugaresTop5) || lugaresTop5.length === 0) return;
+
+        const fragment = document.createDocumentFragment();
+        lugaresTop5.forEach(lugar => {
+            const chip = document.createElement('a');
+            chip.className = 'trending-chip';
+            chip.href = `detalle-lugar.html?id=${encodeURIComponent(lugar.id || '')}`;
+            chip.textContent = lugar.name || 'Destino popular';
+            chip.setAttribute('aria-label', `Ver detalles de ${lugar.name}`);
+            fragment.appendChild(chip);
+        });
+
+        container.appendChild(fragment);
+    },
+
+    /**
+     * Inicializa el buscador predictivo del Hero con autocompletado, debounce y botón reactivo.
+     * @param {Object} handlers
+     * @param {Function} handlers.onSearch
+     * @param {Function} handlers.onInput
+     * @param {Function} handlers.onSelectSuggestion
+     */
+    inicializarBuscadorHero({ onSearch, onInput, onSelectSuggestion }) {
+        const form = document.getElementById('hero-search-form') || this.elements.heroSearchForm;
+        const input = document.getElementById('hero-search-input') || this.elements.heroSearchInput;
+        const results = document.getElementById('hero-search-results') || this.elements.heroSearchResults;
+
+        if (!input) return;
+
+        // Estado inicial de botón (deshabilitado al estar vacío)
+        this.actualizarEstadoBotonBuscar(input.value.trim().length > 0);
+
+        let debounceTimer = null;
+
+        input.addEventListener('input', (e) => {
+            const queryLimpio = e.target.value.trim();
+
+            // Reactividad inmediata en botón Buscar
+            this.actualizarEstadoBotonBuscar(queryLimpio.length > 0);
+
+            if (debounceTimer) clearTimeout(debounceTimer);
+
+            debounceTimer = setTimeout(() => {
+                if (queryLimpio.length === 0) {
+                    this.ocultarResultadosHero();
+                } else if (typeof onInput === 'function') {
+                    onInput(queryLimpio);
+                }
+            }, 180);
+        });
+
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const query = input.value.trim();
+                if (query.length > 0 && typeof onSearch === 'function') {
+                    this.ocultarResultadosHero();
+                    onSearch(query);
+                }
+            });
+        }
+
+        // Ocultar al hacer clic fuera del input y del desplegable
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !results?.contains(e.target)) {
+                this.ocultarResultadosHero();
+            }
+        });
+
+        // Ocultar con tecla Escape
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.ocultarResultadosHero();
+            }
+        });
+    },
+
+    /**
+     * Vincula el evento de búsqueda del hero para redirigir con el parámetro de consulta (compatibilidad).
      * @param {Function} onSearch - Callback ejecutado con el término de búsqueda
      */
     inicializarBuscador(onSearch) {
-        const form = document.getElementById('hero-search-form') || this.elements.heroSearchForm;
-        const input = document.getElementById('hero-search-input') || this.elements.heroSearchInput;
-
-        if (!form || !input) return;
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const query = input.value.trim();
-            if (typeof onSearch === 'function') {
-                onSearch(query);
+        this.inicializarBuscadorHero({
+            onSearch,
+            onInput: () => {},
+            onSelectSuggestion: (lugar) => {
+                if (lugar?.id) {
+                    window.location.href = `detalle-lugar.html?id=${encodeURIComponent(lugar.id)}`;
+                }
             }
         });
+    },
+
+    /**
+     * Vincula los listeners de clic en las tarjetas del Bento Grid de categorías.
+     * @param {Function} onSelectCategory 
+     */
+    inicializarBentoGrid(onSelectCategory) {
+        const bentoCards = document.querySelectorAll('.bento-card[data-category-slug]');
+        bentoCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const slug = card.dataset.categorySlug;
+                if (slug && typeof onSelectCategory === 'function') {
+                    e.preventDefault();
+                    onSelectCategory(slug);
+                }
+            });
+        });
+    },
+
+    /**
+     * Actualiza los contadores dinámicos de destinos dentro del Bento Grid.
+     * @param {Object} conteosPorSlug 
+     */
+    actualizarContadoresBento(conteosPorSlug = {}) {
+        const mapeo = {
+            'volcanes-naturaleza': { id: 'bento-counter-volcanes', singular: 'destino oficial', plural: 'destinos oficiales' },
+            'playas-surf-city': { id: 'bento-counter-playas', singular: 'destino de surf', plural: 'destinos de surf' },
+            'historia-arqueologia': { id: 'bento-counter-historia', singular: 'sitio patrimonial', plural: 'sitios patrimoniales' },
+            'rutas-culturales-pueblos-vivos': { id: 'bento-counter-cultura', singular: 'pueblo vivo', plural: 'pueblos vivos' }
+        };
+
+        for (const [slug, config] of Object.entries(mapeo)) {
+            const el = document.getElementById(config.id);
+            if (el && typeof conteosPorSlug[slug] === 'number') {
+                const total = conteosPorSlug[slug];
+                const etiqueta = total === 1 ? config.singular : config.plural;
+                el.textContent = `${total} ${etiqueta}`;
+            }
+        }
     },
 
     /**
