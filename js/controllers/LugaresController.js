@@ -2,17 +2,36 @@ import { LugaresModel } from '../models/LugaresModel.js';
 import { LugaresView } from '../views/LugaresView.js';
 import { coincideCategoria, normalizarTexto, generarSlug } from '../utils/textUtils.js';
 
+/**
+ * @description Redirige a la página de detalle del sitio turístico seleccionado.
+ * @param {string} id - Identificador único UUID del lugar turístico.
+ * @returns {void}
+ */
 function redirigirADetalle(id) {
     if (!id || typeof id !== 'string') return;
     window.location.href = `detalle-lugar.html?id=${encodeURIComponent(id)}`;
 }
 
+/**
+ * @namespace LugaresController
+ * @description Controlador del catálogo de lugares turísticos.
+ * Maneja la reactividad de filtros por categoría, búsqueda textual predictiva,
+ * calificación mínima por estrellas y sincronización bidireccional con la URL.
+ */
 export const LugaresController = {
+    /**
+     * @description Inicializa los manejadores de eventos y dispara la carga de datos.
+     * @returns {void}
+     */
     init() {
         this.inicializarEventos();
         this.cargarLugares();
     },
 
+    /**
+     * @description Vincula los escuchadores de eventos del DOM para inputs de búsqueda, botones de filtro y popstate.
+     * @returns {void}
+     */
     inicializarEventos() {
         const {
             searchInput,
@@ -71,6 +90,10 @@ export const LugaresController = {
         });
     },
 
+    /**
+     * @description Carga lugares y categorías desde Supabase PostgREST, renderizando la vista inicial.
+     * @returns {Promise<void>}
+     */
     async cargarLugares() {
         LugaresView.mostrarCargando();
 
@@ -100,6 +123,10 @@ export const LugaresController = {
         }
     },
 
+    /**
+     * @description Aplica los filtros combinados actuales (búsqueda, categoría, calificación) en la vista.
+     * @returns {void}
+     */
     aplicarFiltros() {
         LugaresView.renderizarGridLugares(
             LugaresModel.getLugaresFiltrados(),
@@ -108,6 +135,14 @@ export const LugaresController = {
         );
     },
 
+    /**
+     * @description Selecciona una categoría turística y refresca la vista y la URL.
+     * @param {string} categoria - Slug o nombre normalizado de la categoría.
+     * @param {HTMLElement|null} [botonSeleccionado=null] - Botón de la pill pulsada en la interfaz.
+     * @param {boolean} [sincronizarURL=true] - Si se debe actualizar la URL en el historial del navegador.
+     * @param {string} [categoriaOriginal=''] - Nombre textual original de la categoría.
+     * @returns {void}
+     */
     seleccionarCategoria(categoria, botonSeleccionado = null, sincronizarURL = true, categoriaOriginal = '') {
         LugaresModel.setCategoria(categoria);
         LugaresView.actualizarCategoriaActiva(categoria, botonSeleccionado);
@@ -120,12 +155,21 @@ export const LugaresController = {
         this.aplicarFiltros();
     },
 
+    /**
+     * @description Selecciona la calificación mínima por estrellas (1 a 5) y actualiza el catálogo.
+     * @param {number} minRating - Calificación mínima entre 0 y 5.
+     * @returns {void}
+     */
     seleccionarRating(minRating) {
         LugaresModel.setRatingMinimo(minRating);
         LugaresView.actualizarRatingActivo(minRating);
         this.aplicarFiltros();
     },
 
+    /**
+     * @description Lee y aplica el parámetro `q` de la URL al input de búsqueda.
+     * @returns {string} El término de búsqueda recuperado o cadena vacía.
+     */
     procesarParametroBusquedaURL() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -148,6 +192,10 @@ export const LugaresController = {
         return '';
     },
 
+    /**
+     * @description Extrae y normaliza el parámetro `categoria` desde los searchParams de la URL.
+     * @returns {string} Slug o nombre de categoría normalizado, o 'todos'.
+     */
     procesarParametrosURL() {
         const categoriaURL = new URLSearchParams(window.location.search).get('categoria');
         if (!categoriaURL) return 'todos';
@@ -166,6 +214,11 @@ export const LugaresController = {
         return normalizarTexto(categoriaURL);
     },
 
+    /**
+     * @description Sincroniza los parámetros de filtrado actuales con la barra de direcciones del navegador.
+     * @param {Object} [cambios={}] - Objeto con claves a actualizar (categoria, q).
+     * @returns {void}
+     */
     actualizarURL(cambios = {}) {
         try {
             const url = new URL(window.location.href);

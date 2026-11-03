@@ -958,4 +958,32 @@ input[type="date"] {
     stroke: #006494 !important;
 }
 
+/* Corrección de fondo y contraste en las opciones del selector (Tema Oscuro) */
+.filter-select,
+.filters-card select {
+  color-scheme: dark; /* Fuerza al navegador a desplegar el menú nativo con fondo oscuro */
+  color: #f8fafc !important;
+  background-color: var(--input-bg, #1e3a5f) !important;
+}
+
+.filter-select option,
+.filters-card select option {
+  background-color: #13293D !important; /* Fondo marino para navegadores que estilizan options */
+  color: #f8fafc !important;            /* Texto claro */
+}
+
+/* En Tema Claro se revierte al esquema claro */
+[data-theme="light"] .filter-select,
+[data-theme="light"] .filters-card select {
+  color-scheme: light;
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .filter-select option,
+[data-theme="light"] .filters-card select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
 /* END === WCAG AA CONTRAST AUDIT FIXES === */

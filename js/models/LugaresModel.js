@@ -1,3 +1,9 @@
+/**
+ * js/models/LugaresModel.js
+ * Modelo para el catálogo y filtrado multidimensional de lugares turísticos (MITUR).
+ * Integra filtros combinados por búsqueda de texto, categoría y puntuación de rating.
+ */
+
 import { obtenerLugaresTuristicos, obtenerCategorias } from './SupabaseClient.js';
 import { coincideCategoria, normalizarTexto, generarSlug } from '../utils/textUtils.js';
 import {
@@ -20,6 +26,11 @@ let categoriaActiva = 'todos';
 let terminoBusqueda = '';
 let ratingMinimoActivo = 0;
 
+/**
+ * @description Elimina duplicados de una lista de lugares basándose en su ID único.
+ * @param {Array<Object>} lista - Lista de lugares con posibles duplicados.
+ * @returns {Array<Object>} Lista filtrada de lugares únicos.
+ */
 function desduplicarLugares(lista) {
     if (!Array.isArray(lista)) return [];
 
@@ -39,17 +50,33 @@ function desduplicarLugares(lista) {
     return resultado;
 }
 
+/**
+ * Objeto LugaresModel que encapsula la gestión de estado y persistencia del catálogo
+ */
 export const LugaresModel = {
+    /**
+     * @description Consulta la lista de lugares en Supabase y desduplica los registros en memoria.
+     * @returns {Promise<Array<Object>>} Colección desduplicada de lugares.
+     * @throws {Error} Si la respuesta de Supabase no es un arreglo válido.
+     */
     async cargarLugares() {
-        const respuesta = await obtenerLugaresTuristicos();
-        if (!Array.isArray(respuesta)) {
-            throw new Error('La respuesta de Supabase no tiene el formato esperado.');
+        try {
+            const respuesta = await obtenerLugaresTuristicos();
+            if (!Array.isArray(respuesta)) {
+                throw new Error('La respuesta de Supabase no tiene el formato esperado.');
+            }
+            todosLosLugares = desduplicarLugares(respuesta);
+            return todosLosLugares;
+        } catch (error) {
+            console.error('Error al cargar lugares en LugaresModel:', error);
+            throw error;
         }
-
-        todosLosLugares = desduplicarLugares(respuesta);
-        return todosLosLugares;
     },
 
+    /**
+     * @description Obtiene las categorías desde Supabase o genera un respaldo dinámico desde los lugares.
+     * @returns {Promise<Array<{id?: string, name: string, slug: string, color?: string, icon?: string}>>}
+     */
     async cargarCategorias() {
         try {
             const respuestaBD = await obtenerCategorias();
@@ -84,12 +111,15 @@ export const LugaresModel = {
         return categoriasCargadas;
     },
 
+    /**
+     * @description Retorna las categorías disponibles ya cargadas o extraídas dinámicamente.
+     * @returns {Array<{name: string, slug: string, color?: string}>}
+     */
     obtenerCategoriasDisponibles() {
         if (categoriasCargadas.length > 0) {
             return categoriasCargadas;
         }
 
-        // Si aún no se llamó a cargarCategorias(), extraer de lugares
         const categoriasMap = new Map();
         todosLosLugares.forEach(lugar => {
             const nombre = (lugar.category || '').trim();
@@ -105,6 +135,10 @@ export const LugaresModel = {
         return Array.from(categoriasMap.values());
     },
 
+    /**
+     * @description Retorna un mapa asociativo de nombres de categorías y sus colores.
+     * @returns {Map<string, string|null>}
+     */
     obtenerCategoriasUnicas() {
         const categoriasMap = new Map();
         const lista = this.obtenerCategoriasDisponibles();
@@ -114,22 +148,42 @@ export const LugaresModel = {
         return categoriasMap;
     },
 
+    /**
+     * @description Asigna la categoría activa para el filtrado.
+     * @param {string} categoria
+     */
     setCategoria(categoria) {
         categoriaActiva = categoria || 'todos';
     },
 
+    /**
+     * @description Obtiene la categoría activa actual.
+     * @returns {string}
+     */
     getCategoria() {
         return categoriaActiva;
     },
 
+    /**
+     * @description Asigna el término de búsqueda normalizado.
+     * @param {string} termino
+     */
     setBusqueda(termino) {
         terminoBusqueda = (termino || '').toLowerCase().trim();
     },
 
+    /**
+     * @description Obtiene el término de búsqueda actual.
+     * @returns {string}
+     */
     getBusqueda() {
         return terminoBusqueda;
     },
 
+    /**
+     * @description Asigna el rating mínimo filtrable.
+     * @param {number|string} minRating
+     */
     setRatingMinimo(minRating) {
         if (minRating === 'Todas' || minRating === 'todas') {
             ratingMinimoActivo = 0;
@@ -138,10 +192,18 @@ export const LugaresModel = {
         }
     },
 
+    /**
+     * @description Obtiene el rating mínimo activo.
+     * @returns {number}
+     */
     getRatingMinimo() {
         return ratingMinimoActivo;
     },
 
+    /**
+     * @description Retorna el conjunto de lugares filtrados según categoría, búsqueda y rating.
+     * @returns {Array<Object>} Lugares que cumplen con todos los criterios activos.
+     */
     getLugaresFiltrados() {
         let filtrados = todosLosLugares;
 
@@ -174,7 +236,13 @@ export const LugaresModel = {
         return filtrados;
     },
 
+    /**
+     * @description Retorna el total general de lugares cargados en memoria.
+     * @returns {number}
+     */
     getTotalLugares() {
         return todosLosLugares.length;
     }
 };
+
+export default LugaresModel;

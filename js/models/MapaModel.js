@@ -1,12 +1,18 @@
+/**
+ * js/models/MapaModel.js
+ * Modelo de datos para la vista cartográfica interactiva de ChocoMapaSV (MITUR).
+ * Provee filtrado reactivo por categorías y búsqueda predictiva de lugares.
+ */
+
 import { obtenerLugaresTuristicos } from './SupabaseClient.js';
 import { normalizarTexto, generarSlug, coincideCategoria } from '../utils/textUtils.js';
 
 let lugaresDisponibles = [];
 
 /**
- * Extrae la lista única de categorías reales a partir de los lugares cargados.
- * @param {Array<Object>} lugares
- * @returns {Array<{name: string, slug: string, color: string}>}
+ * @description Extrae la lista única de categorías reales a partir de los lugares cargados.
+ * @param {Array<Object>} [lugares=lugaresDisponibles] - Colección de lugares a procesar.
+ * @returns {Array<{name: string, slug: string, color: string}>} Lista de categorías con metadatos.
  */
 export function extraerCategorias(lugares = lugaresDisponibles) {
     const lista = Array.isArray(lugares) ? lugares : [];
@@ -27,10 +33,11 @@ export function extraerCategorias(lugares = lugaresDisponibles) {
 }
 
 /**
- * Filtra los lugares por categoría (soporta nombre exacto, slug, alias y comodín 'todos').
- * @param {Array<Object>} lugares
- * @param {string} categoria
- * @returns {Array<Object>}
+ * @description Filtra los lugares turísticos por categoría, soportando coincidencias
+ * por nombre exacto, slug, alias y comodines universales ('todos'/'todas').
+ * @param {Array<Object>} [lugares=lugaresDisponibles] - Colección de lugares turísticos.
+ * @param {string} [categoria='todos'] - Nombre, slug o alias de la categoría a filtrar.
+ * @returns {Array<Object>} Subconjunto de lugares coincidentes.
  */
 export function filtrarLugaresPorCategoria(lugares = lugaresDisponibles, categoria = 'todos') {
     const lista = Array.isArray(lugares) ? lugares : [];
@@ -43,30 +50,69 @@ export function filtrarLugaresPorCategoria(lugares = lugaresDisponibles, categor
     );
 }
 
+/**
+ * Objeto MapaModel que expone la API pública del modelo del mapa interactivo
+ */
 export const MapaModel = {
+    /**
+     * @description Carga la colección de lugares turísticos desde el cliente de Supabase.
+     * @returns {Promise<Array<Object>>} Lista de lugares disponibles.
+     */
     async cargarLugares() {
-        const respuesta = await obtenerLugaresTuristicos();
-        lugaresDisponibles = Array.isArray(respuesta) ? respuesta : [];
-        return lugaresDisponibles;
+        try {
+            const respuesta = await obtenerLugaresTuristicos();
+            lugaresDisponibles = Array.isArray(respuesta) ? respuesta : [];
+            return lugaresDisponibles;
+        } catch (error) {
+            console.error('Error al cargar lugares en MapaModel:', error);
+            lugaresDisponibles = [];
+            return [];
+        }
     },
 
+    /**
+     * @description Retorna una copia de la lista en memoria de lugares disponibles.
+     * @returns {Array<Object>}
+     */
     obtenerLugares() {
         return [...lugaresDisponibles];
     },
 
+    /**
+     * @description Asigna la colección de lugares en memoria (útil para pruebas y sincronización).
+     * @param {Array<Object>} lugares - Arreglo de lugares a asignar.
+     * @returns {Array<Object>}
+     */
     setLugares(lugares) {
         lugaresDisponibles = Array.isArray(lugares) ? [...lugares] : [];
         return lugaresDisponibles;
     },
 
+    /**
+     * @description Extrae categorías únicas de la colección de lugares.
+     * @param {Array<Object>} [lugares=lugaresDisponibles]
+     * @returns {Array<{name: string, slug: string, color: string}>}
+     */
     extraerCategorias(lugares = lugaresDisponibles) {
         return extraerCategorias(lugares);
     },
 
+    /**
+     * @description Filtra lugares por categoría delegando en filtrarLugaresPorCategoria.
+     * @param {string} categoria
+     * @param {Array<Object>} [lugares=lugaresDisponibles]
+     * @returns {Array<Object>}
+     */
     filtrarPorCategoria(categoria, lugares = lugaresDisponibles) {
         return filtrarLugaresPorCategoria(lugares, categoria);
     },
 
+    /**
+     * @description Realiza una búsqueda predictiva filtrando por término y categoría.
+     * @param {string} termino - Término de búsqueda.
+     * @param {string} [categoria='todos'] - Categoría activa para restringir la búsqueda.
+     * @returns {Array<Object>} Lugares que coinciden con el criterio de búsqueda.
+     */
     buscarLugares(termino, categoria = 'todos') {
         const busqueda = normalizarTexto(termino);
         if (!busqueda) return [];
@@ -77,3 +123,5 @@ export const MapaModel = {
         );
     }
 };
+
+export default MapaModel;

@@ -7,13 +7,14 @@ import { NavbarController } from './NavbarController.js';
 const DEFAULT_FALLBACK_ID = '9506d663-3b09-4430-860d-dbb336c18295';
 
 /**
- * Función dedicada y desacoplada para renderizar el bloque de calificación (CA-05).
+ * @description Función desacoplada para renderizar el bloque de calificación (CA-05).
  * Si no hay usuario autenticado (!usuarioActual), limpia inmediatamente los textos
  * y badges previos (como "Ya has calificado este lugar") y renderiza el componente
  * en modo bloqueado para invitados, invitando a iniciar sesión.
  * 
- * @param {string} placeId - Identificador del sitio turístico
- * @param {Object|null} usuarioActual - Datos del usuario autenticado o null si es invitado
+ * @param {string} placeId - Identificador UUID del sitio turístico.
+ * @param {Object|null} usuarioActual - Datos del usuario autenticado o null si es invitado.
+ * @returns {Promise<void>}
  */
 export async function renderizarSeccionCalificacion(placeId, usuarioActual) {
     if (!placeId) return;
@@ -86,13 +87,26 @@ export async function renderizarSeccionCalificacion(placeId, usuarioActual) {
     }
 }
 
+/**
+ * @namespace LugarDetalleController
+ * @description Controlador para la ficha detallada de un sitio turístico.
+ * Administra el desglose de información, carrusel de imágenes, tours vinculados y módulo de calificación de usuarios.
+ */
 export const LugarDetalleController = {
+    /** @type {string|null} */
     placeIdActual: null,
+    /** @type {Object|null} */
     lugarActual: null,
+    /** @type {Function|null} */
     unsubscribeAuth: null,
+    /** @type {Function|null} */
     unsubscribeNavbar: null,
     renderizarSeccionCalificacion,
 
+    /**
+     * @description Inicializa la carga del detalle del lugar, vincula filtros de fecha y listeners de autenticación.
+     * @returns {Promise<void>}
+     */
     async init() {
         const { returnButton, dateFilter, clearDate } = LugarDetalleView.elements;
         returnButton?.addEventListener('click', event => {
@@ -143,6 +157,11 @@ export const LugarDetalleController = {
         renderTours();
     },
 
+    /**
+     * @description Inicializa y renderiza el componente interactivo de estrellas según la sesión del usuario.
+     * @param {Object} lugar - Entidad del sitio turístico actual.
+     * @returns {Promise<void>}
+     */
     async inicializarModuloCalificacion(lugar) {
         const id = lugar?.id || this.placeIdActual;
         if (!id) return;
@@ -159,8 +178,9 @@ export const LugarDetalleController = {
     },
 
     /**
-     * Escucha los eventos de cambio de sesión (AuthModel, NavbarController y eventos DOM)
+     * @description Escucha los eventos de cambio de sesión (AuthModel, NavbarController y eventos DOM)
      * para reaccionar inmediatamente limpiando el estado de calificación si el usuario cierra sesión.
+     * @returns {void}
      */
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {

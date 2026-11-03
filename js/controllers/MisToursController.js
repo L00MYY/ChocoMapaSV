@@ -2,10 +2,22 @@ import { AuthModel } from '../models/AuthModel.js';
 import { MisToursModel } from '../models/MisToursModel.js';
 import { MisToursView } from '../views/MisToursView.js';
 
+/**
+ * @namespace MisToursController
+ * @description Controlador para el historial personal de reservaciones de tours del turista autenticado.
+ * Supervisa el ciclo de vida de la sesión, consulta de reservas por estado y navegación hacia el detalle.
+ */
 export const MisToursController = {
+    /** @type {Object|null} */
     usuarioActual: null,
+    /** @type {Function|null} */
     unsubscribeAuth: null,
 
+    /**
+     * @description Inicializa la suscripción a eventos de autenticación, verifica la sesión del usuario
+     * y dispara la carga del historial de tours.
+     * @returns {Promise<void>}
+     */
     async init() {
         this.inicializarSuscripcionAuth();
 
@@ -37,6 +49,10 @@ export const MisToursController = {
         }
     },
 
+    /**
+     * @description Configura la reactividad ante cambios de sesión, expulsando a login si se cierra la sesión.
+     * @returns {void}
+     */
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {
             this.unsubscribeAuth();
@@ -51,6 +67,10 @@ export const MisToursController = {
         });
     },
 
+    /**
+     * @description Limpia de forma segura el contenedor del historial en la vista.
+     * @returns {void}
+     */
     limpiarVista() {
         if (typeof MisToursView.limpiar === 'function') {
             MisToursView.limpiar();
@@ -59,6 +79,10 @@ export const MisToursController = {
         }
     },
 
+    /**
+     * @description Recupera el listado de reservas del usuario y renderiza las tarjetas de historial o estados vacíos.
+     * @returns {Promise<void>}
+     */
     async cargarHistorial() {
         if (!this.usuarioActual) return;
 
@@ -77,7 +101,9 @@ export const MisToursController = {
                         alertaTexto = alertaTexto || alertaStorage;
                         sessionStorage.removeItem('mis_tours_alerta');
                     }
-                } catch (_) {}
+                } catch (error) {
+                    console.warn('Error al leer alerta de sessionStorage:', error);
+                }
             }
 
             if (!reservas || reservas.length === 0) {

@@ -1,4 +1,4 @@
-html{
+html {
   overflow-y: scroll !important;
 }
 
@@ -41,7 +41,8 @@ html{
   --font-family: 'Plus Jakarta Sans', sans-serif;
 
   /* Distribución institucional: marino (header) → azul institucional (campo) → marino (base) */
-  --gutter: 32px; /* margen exterior único: alinea header, buscador y mapa */
+  --gutter: 32px;
+  /* margen exterior único: alinea header, buscador y mapa */
   --field-gradient: linear-gradient(180deg, var(--baltic-blue) 0%, var(--deep-space-blue) 100%);
 
   /* Constantes de color para leyendas */
@@ -96,7 +97,8 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: auto !important;
@@ -133,7 +135,8 @@ body.mapa-body .app-layout {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  min-height: 0;
+  /* Vital para permitir que flexbox no desborde */
   width: 100%;
 }
 
@@ -150,7 +153,9 @@ main,
   overflow: visible;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
 }
 
@@ -167,8 +172,10 @@ main,
   max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
-  background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
-  border-bottom: 2px solid var(--cerulean); /* Línea divisoria */
+  background-color: var(--deep-space-blue);
+  /* Fondo azul marino institucional */
+  border-bottom: 2px solid var(--cerulean);
+  /* Línea divisoria */
   box-shadow: 0 4px 14px rgba(19, 41, 61, 0.25);
 }
 
@@ -204,7 +211,8 @@ main,
   font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: var(--alice-blue); /* Texto del título contrastante */
+  color: var(--alice-blue);
+  /* Texto del título contrastante */
 }
 
 /* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
@@ -232,7 +240,8 @@ main,
   gap: 8px 10px;
   max-width: 100%;
   box-sizing: border-box;
-  padding-right: 4px; /* Margen de seguridad derecho para evitar recorte */
+  padding-right: 4px;
+  /* Margen de seguridad derecho para evitar recorte */
 }
 
 .nav-link {
@@ -278,16 +287,20 @@ main,
 .search-filter-bar,
 .search-section {
   position: relative;
-  z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
+  z-index: 15;
+  /* Los resultados de búsqueda quedan por encima del mapa */
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center; /* Alineación limpia y centrada mediante Flexbox */
+  justify-content: center;
+  /* Alineación limpia y centrada mediante Flexbox */
   flex-wrap: wrap;
   gap: 14px 20px;
   padding: 12px var(--gutter);
-  flex-shrink: 0; /* Mantiene su altura calculada sin comprimir el layout */
-  background-color: rgba(19, 41, 61, 0.65); /* Consistencia visual con el fondo */
+  flex-shrink: 0;
+  /* Mantiene su altura calculada sin comprimir el layout */
+  background-color: rgba(19, 41, 61, 0.65);
+  /* Consistencia visual con el fondo */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(209, 227, 230, 0.15);
@@ -307,7 +320,8 @@ main,
 #search-input {
   width: 100%;
   padding: 10px 20px;
-  border-radius: 9999px; /* Forma de píldora armónica con los filtros */
+  border-radius: 9999px;
+  /* Forma de píldora armónica con los filtros */
   border: 2px solid var(--border-color);
   background: var(--surface);
   font-family: var(--font-family);
@@ -364,7 +378,7 @@ main,
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: .5rem;
 }
 
 .legend-item,
@@ -375,7 +389,8 @@ button.legend-item {
   padding: 7px 16px;
   background: var(--surface, #1e3a5f);
   border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.15));
-  border-radius: 9999px; /* Diseño tipo píldora */
+  border-radius: 9999px;
+  /* Diseño tipo píldora */
   font-family: inherit;
   font-size: 0.85rem;
   font-weight: 700;
@@ -420,7 +435,8 @@ button.legend-item.active {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  min-height: 0;
+  /* Vital para permitir que flexbox no desborde */
   width: 100%;
   padding: 16px var(--gutter) 20px var(--gutter);
   box-sizing: border-box;
@@ -434,10 +450,12 @@ button.legend-item.active {
   min-height: calc(100vh - 180px);
   position: relative;
   border-radius: 16px;
-  border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
+  border: 3px solid var(--alice-blue);
+  /* Marco claro que separa el mapa del campo azul */
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(19, 41, 61, 0.35);
-  background-color: var(--alice-blue); /* Fondo mientras cargan los tiles */
+  background-color: var(--alice-blue);
+  /* Fondo mientras cargan los tiles */
 }
 
 .mapboxgl-canvas {
@@ -600,17 +618,21 @@ button.legend-item.active {
   :root {
     --gutter: 24px;
   }
+
   .app-logo {
     height: 48px;
   }
+
   .app-header h1 {
     font-size: 1.25rem;
   }
+
   .search-filter-bar,
   .search-section {
     gap: 12px 18px;
     padding: 10px var(--gutter);
   }
+
   .info-sidebar {
     width: 300px;
   }
@@ -725,7 +747,8 @@ button.legend-item.active {
   .map-container,
   #map {
     width: 100%;
-    height: calc(100vh - 70px); /* 70px del navbar */
+    height: calc(100vh - 70px);
+    /* 70px del navbar */
     min-height: calc(100dvh - 70px);
     position: relative;
     border-radius: 0;
@@ -740,7 +763,8 @@ button.legend-item.active {
     position: absolute;
     z-index: 10;
     top: 16px;
-    top: calc(58px + 14px); /* 14px por debajo del navbar en móvil */
+    top: calc(58px + 14px);
+    /* 14px por debajo del navbar en móvil */
     left: 16px;
     right: 16px;
     background: transparent;
@@ -809,40 +833,42 @@ button.legend-item.active {
     pointer-events: auto;
   }
 
-  /* 3. Filtros de categoría con scroll horizontal fluido */
-  .legend-box {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    gap: 8px;
-    width: 100%;
-    padding: 2px 2px 6px 2px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    pointer-events: auto;
+  /* 3. Filtros de categoría con scroll horizontal fluido en móvil */
+  .legend-box,
+  #map-category-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    /* Anula el wrap de escritorio gracias al ID y al !important */
+    overflow-x: auto !important;
+    /* Habilita el desplazamiento lateral con el dedo */
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 2px 2px 8px 2px !important;
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE / Edge */
+    pointer-events: auto !important;
+    box-sizing: border-box !important;
   }
 
-  .legend-box::-webkit-scrollbar {
-    display: none;
+  .legend-box::-webkit-scrollbar,
+  #map-category-filters::-webkit-scrollbar {
+    display: none !important;
+    /* Oculta la barra en Chrome/Safari */
   }
 
-  .legend-item {
-    flex-shrink: 0;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 14px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    background-color: var(--surface);
-    border: 1.5px solid var(--border-color);
-    border-radius: var(--radius-pill);
-    box-shadow: 0 2px 8px rgba(19, 41, 61, 0.12);
-    color: var(--deep-space-blue);
-    user-select: none;
+  .legend-box .legend-item,
+  #map-category-filters .legend-item,
+  #map-category-filters button {
+    flex-shrink: 0 !important;
+    /* Evita que los botones se compriman */
+    white-space: nowrap !important;
+    pointer-events: auto !important;
   }
 
   .color-dot {
@@ -1040,6 +1066,7 @@ body.registro-body {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1292,6 +1319,7 @@ body.registro-body {
     opacity: 0;
     transform: scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -1746,16 +1774,22 @@ body.registro-body {
    ========================================================================== */
 
 /* 1. Configuración Base Universal Anti-Desbordamiento */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   max-width: 100%;
   overflow-x: hidden !important;
 }
 
-img, svg, video, canvas {
+img,
+svg,
+video,
+canvas {
   max-width: 100%;
 }
 
@@ -2037,6 +2071,7 @@ textarea,
    PANTALLAS ANGOSTAS Y CELULARES (@media max-width: 600px)
    ========================================================================== */
 @media (max-width: 600px) {
+
   /* Cuadrículas y Catálogos: Transición a 1 columna completa con márgenes */
   .places-grid,
   .tours-grid,
@@ -2079,6 +2114,7 @@ textarea,
    CELULARES COMPACTOS (@media max-width: 480px)
    ========================================================================== */
 @media (max-width: 480px) {
+
   header.navbar,
   header.app-header {
     padding: 0 8px !important;
@@ -2126,7 +2162,8 @@ textarea,
 
   .form-input,
   .form-control {
-    font-size: 16px !important; /* evita auto-zoom en iOS Safari */
+    font-size: 16px !important;
+    /* evita auto-zoom en iOS Safari */
     height: 46px !important;
   }
 
@@ -2331,4 +2368,5 @@ button.legend-item.active,
   color: #64748b !important;
   opacity: 1 !important;
 }
+
 /* END === WCAG AA CONTRAST AUDIT FIXES - MAPA === */

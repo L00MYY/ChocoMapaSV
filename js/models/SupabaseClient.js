@@ -1,10 +1,24 @@
+/**
+ * js/models/SupabaseClient.js
+ * Cliente de consulta desacoplado para recursos públicos de Supabase PostgREST (MITUR)
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { generarSlug } from '../utils/textUtils.js';
 
-// Decodificamos en memoria al momento de ejecutar el código
-const SUPABASE_URL = atob(SUPABASE_URL_B64);
-const SUPABASE_ANON_KEY = atob(SUPABASE_ANON_KEY_B64);
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
+/**
+ * @description Obtiene el listado completo de lugares turísticos activos desde Supabase PostgREST,
+ * incluyendo categorías y ratings asociados, transformándolos a la entidad estandarizada del modelo.
+ * @returns {Promise<Array<Object>>} Promesa que resuelve al catálogo de lugares turísticos mapeados.
+ */
 export async function obtenerLugaresTuristicos() {
     try {
         const params = new URLSearchParams({
@@ -23,7 +37,7 @@ export async function obtenerLugaresTuristicos() {
         });
 
         if (!respuesta.ok) {
-            throw new Error(`Error de red o permisos: ${respuesta.status}`);
+            throw new Error(`Error de red o permisos al consultar lugares: ${respuesta.status}`);
         }
 
         const datos = await respuesta.json();
@@ -45,11 +59,15 @@ export async function obtenerLugaresTuristicos() {
         }));
 
     } catch (error) {
-        console.error('Fallo al conectarse con Supabase:', error);
+        console.error('Fallo al conectarse con Supabase en obtenerLugaresTuristicos:', error);
         return [];
     }
 }
 
+/**
+ * @description Consulta el listado de categorías turísticas oficiales registradas en Supabase PostgREST.
+ * @returns {Promise<Array<Object>>} Promesa que resuelve a la lista de categorías ordenadas por nombre.
+ */
 export async function obtenerCategorias() {
     try {
         const params = new URLSearchParams({

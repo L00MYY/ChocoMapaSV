@@ -1,3 +1,10 @@
+/**
+ * js/models/NotificacionesModel.js
+ * Modelo para el envío y registro de notificaciones y confirmaciones de tours (MITUR SV).
+ * Provee desduplicación de correos entre auth.users y tour_reservations,
+ * persistencia en confirmation_messages y despacho real mediante EmailJS REST API.
+ */
+
 import {
     SUPABASE_URL_B64,
     SUPABASE_ANON_KEY_B64,
@@ -7,6 +14,11 @@ import {
 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
+/**
+ * @description Decodifica de forma segura cadenas base64 en entornos navegador y Node.js.
+ * @param {string} val - Cadena en base64.
+ * @returns {string} Cadena decodificada en UTF-8.
+ */
 const decodeB64 = (val) => {
     if (!val || typeof val !== 'string') return '';
     try {
@@ -16,14 +28,19 @@ const decodeB64 = (val) => {
         if (typeof Buffer !== 'undefined') {
             return Buffer.from(val, 'base64').toString('utf-8');
         }
-    } catch (_) {
+    } catch (error) {
+        console.warn('Advertencia al decodificar base64 en NotificacionesModel:', error);
         return val;
     }
     return val;
 };
 
-const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
-const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 const EMAILJS_SERVICE_ID = decodeB64(EMAILJS_SERVICE_ID_B64);
 const EMAILJS_TEMPLATE_ID = decodeB64(EMAILJS_TEMPLATE_ID_B64);
@@ -36,15 +53,14 @@ const DEFAULT_HEADERS = {
 };
 
 /**
- * Función pura que determina y desduplica los correos electrónicos de destino
+ * @description Función pura que determina y desduplica los correos electrónicos de destino
  * comparando el correo autenticado del usuario (auth.users) con el correo registrado en la reserva.
  * Si emailAuth es null o igual a emailReserva, retorna [emailReserva].
  * Si ambos existen y son distintos, retorna [emailAuth, emailReserva].
- *
  * @param {Object} params
- * @param {string|null} params.emailAuth - Correo de la sesión / auth.users
- * @param {string|null} params.emailReserva - Correo indicado en la reserva del tour
- * @returns {string[]} Lista de correos únicos y normalizados
+ * @param {string|null} params.emailAuth - Correo de la sesión / auth.users.
+ * @param {string|null} params.emailReserva - Correo indicado en la reserva del tour.
+ * @returns {string[]} Lista de correos únicos y normalizados.
  */
 export function determinarDestinatariosNotificacion({ emailAuth, emailReserva }) {
     const normalizar = (email) => String(email || '').trim().toLowerCase();
@@ -75,20 +91,20 @@ export function determinarDestinatariosNotificacion({ emailAuth, emailReserva })
 }
 
 /**
- * Construye y valida el payload de datos para el mensaje de notificación.
+ * @description Construye y valida el payload de datos para el mensaje de notificación.
  * En caso de rechazo, exige obligatoriamente rejection_reason.
- *
- * @param {Object} params
- * @param {'confirmacion_tour' | 'rechazo_tour'} params.tipo
- * @param {string} [params.nombreTour]
- * @param {string} [params.fechaTour]
- * @param {string} [params.horaTour]
- * @param {number} [params.cupos]
- * @param {number} [params.montoTotal]
- * @param {string} [params.motivoRechazo]
- * @param {string} [params.rejection_reason]
- * @param {string} [params.motivo]
- * @returns {Object} Payload estructurado del mensaje
+ * @param {Object} [params={}]
+ * @param {'confirmacion_tour' | 'rechazo_tour'} [params.tipo='confirmacion_tour'] - Tipo de notificación.
+ * @param {string} [params.nombreTour=''] - Nombre del paquete turístico.
+ * @param {string} [params.fechaTour=''] - Fecha de salida.
+ * @param {string} [params.horaTour=''] - Hora de reunión.
+ * @param {number} [params.cupos=1] - Cupos reservados.
+ * @param {number} [params.montoTotal=0] - Monto total de la reserva.
+ * @param {string|null} [params.motivoRechazo=null] - Motivo en caso de rechazo.
+ * @param {string|null} [params.rejection_reason=null] - Motivo alternativo de rechazo.
+ * @param {string|null} [params.motivo=null] - Motivo alternativo de rechazo.
+ * @returns {Object} Payload estructurado del mensaje.
+ * @throws {Error} Si el tipo es rechazo_tour y no se suministra rejection_reason.
  */
 export function construirPayloadNotificacion({
     tipo = 'confirmacion_tour',
@@ -126,23 +142,15 @@ export function construirPayloadNotificacion({
 }
 
 /**
- * Crea la estructura oficial del registro que se almacena en la tabla public.confirmation_messages
- * alineada estrictamente al esquema DDL de la base de datos:
- * - reservation_id (uuid)
- * - channel (text)
- * - message_type (text)
- * - status (text)
- * - attempts (integer)
- * - sent_at (timestamp with time zone)
- * - created_at (timestamp with time zone)
- * La tabla no posee columnas payload ni recipient.
- *
- * @param {Object} params
- * @param {string} params.reservaId
- * @param {'confirmacion_tour' | 'rechazo_tour'} [params.tipo='confirmacion_tour']
- * @param {string} [params.status='enviado']
- * @param {Object} [params.payload=null]
- * @returns {Object}
+ * @description Crea la estructura oficial del registro que se almacena en la tabla public.confirmation_messages
+ * alineada estrictamente al esquema DDL de la base de datos (reservation_id, channel, message_type, status, attempts, sent_at, created_at).
+ * @param {Object} [params={}]
+ * @param {string} params.reservaId - UUID de la reservación.
+ * @param {'confirmacion_tour' | 'rechazo_tour'} [params.tipo='confirmacion_tour'] - Tipo de mensaje.
+ * @param {string} [params.status='enviado'] - Estado de envío.
+ * @param {Object|null} [params.payload=null] - Payload de la notificación para validación previa.
+ * @returns {Object} Registro estructurado para confirmation_messages.
+ * @throws {Error} Si es rechazo_tour y no incluye rejection_reason en payload.
  */
 export function crearRegistroConfirmacionMessage({
     reservaId,
@@ -169,14 +177,11 @@ export function crearRegistroConfirmacionMessage({
 }
 
 /**
- * Consulta el correo del usuario registrado consultando la sesión activa de forma segura
+ * @description Consulta el correo del usuario registrado consultando la sesión activa de forma segura
  * o invocando la función RPC get_tourist_auth_email de Supabase.
- * No realiza llamadas no autorizadas al endpoint administrativo /auth/v1/admin/users/
- * ni a tablas inexistentes /rest/v1/users o /rest/v1/profiles.
- *
- * @param {string} touristId - ID del turista (auth.users.id)
- * @param {Object} [authHeaders]
- * @returns {Promise<string|null>}
+ * @param {string} touristId - ID del turista (auth.users.id).
+ * @param {Object|null} [authHeaders=null] - Cabeceras de autenticación opcionales.
+ * @returns {Promise<string|null>} Correo del usuario autenticado o null.
  */
 export async function obtenerEmailUsuarioAuth(touristId, authHeaders = null) {
     if (!touristId) return null;
@@ -187,7 +192,9 @@ export async function obtenerEmailUsuarioAuth(touristId, authHeaders = null) {
         if (sesion?.user?.id === touristId && sesion.user.email) {
             return sesion.user.email;
         }
-    } catch (_) {}
+    } catch (error) {
+        console.warn('Advertencia al consultar sesión activa en obtenerEmailUsuarioAuth:', error);
+    }
 
     // 2. Si se ejecuta desde el panel de admin para otra persona:
     // Llamar a la RPC get_tourist_auth_email si está disponible
@@ -210,16 +217,17 @@ export async function obtenerEmailUsuarioAuth(touristId, authHeaders = null) {
                 if (data.email) return data.email;
             }
         }
-    } catch (_) {}
+    } catch (error) {
+        console.warn('Advertencia al invocar RPC get_tourist_auth_email:', error);
+    }
 
     return null;
 }
 
 /**
- * Inserta un registro en la tabla public.confirmation_messages
- *
- * @param {Object} registro - Objeto estructurado para confirmation_messages
- * @param {Object} [authHeaders]
+ * @description Inserta un registro en la tabla public.confirmation_messages de Supabase.
+ * @param {Object} registro - Objeto estructurado para confirmation_messages.
+ * @param {Object|null} [authHeaders=null] - Cabeceras de autenticación opcionales.
  * @returns {Promise<{ ok: boolean, data?: Object, error?: any }>}
  */
 export async function registrarMensajeConfirmacion(registro, authHeaders = null) {
@@ -237,7 +245,10 @@ export async function registrarMensajeConfirmacion(registro, authHeaders = null)
         });
 
         if (res.ok) {
-            const data = await res.json().catch(() => null);
+            const data = await res.json().catch((jsonErr) => {
+                console.warn('Advertencia al parsear data en registrarMensajeConfirmacion:', jsonErr);
+                return null;
+            });
             return { ok: true, data: Array.isArray(data) ? data[0] : data };
         }
 
@@ -251,19 +262,18 @@ export async function registrarMensajeConfirmacion(registro, authHeaders = null)
 }
 
 /**
- * Envía un correo electrónico real a la bandeja de entrada mediante la API REST de EmailJS.
- * Captura excepciones de red para no interrumpir el flujo administrativo si falla el proveedor de correo.
- *
- * @param {Object} params
- * @param {string} params.to_email - Dirección de correo electrónico del destinatario
- * @param {string} [params.to_name='Turista'] - Nombre del destinatario
- * @param {string} params.asunto - Asunto del correo electrónico
- * @param {string} params.mensaje - Cuerpo principal del mensaje
- * @param {string} [params.tour_name] - Nombre del tour
- * @param {string} [params.fecha] - Fecha del tour
- * @param {number|string} [params.cupos] - Cantidad de cupos reservados
- * @param {number|string} [params.monto] - Monto total de la reserva
- * @param {string} [params.motivo_rechazo] - Motivo de rechazo si aplica
+ * @description Envía un correo electrónico real a la bandeja de entrada mediante la API REST de EmailJS.
+ * Captura excepciones de red retornando { ok: false, status: 0, error } para no interrumpir el flujo administrativo.
+ * @param {Object} [params={}]
+ * @param {string} params.to_email - Dirección de correo electrónico del destinatario.
+ * @param {string} [params.to_name='Turista'] - Nombre del destinatario.
+ * @param {string} params.asunto - Asunto del correo electrónico.
+ * @param {string} params.mensaje - Cuerpo principal del mensaje.
+ * @param {string} [params.tour_name] - Nombre del tour.
+ * @param {string} [params.fecha] - Fecha del tour.
+ * @param {number|string} [params.cupos] - Cantidad de cupos reservados.
+ * @param {number|string} [params.monto] - Monto total de la reserva.
+ * @param {string} [params.motivo_rechazo] - Motivo de rechazo si aplica.
  * @returns {Promise<{ ok: boolean, status: number, error?: any }>}
  */
 export async function enviarEmailReal({
@@ -319,14 +329,13 @@ export async function enviarEmailReal({
 }
 
 /**
- * Orquesta la resolución de correos y el registro de notificaciones para una reserva.
- *
+ * @description Orquesta la resolución de correos, persistencia de auditoría y despacho vía EmailJS para una reserva.
  * @param {Object} params
- * @param {string} params.reservaId
- * @param {'confirmacion_tour' | 'rechazo_tour'} params.tipo
- * @param {Object} params.reserva
- * @param {string} [params.motivoRechazo]
- * @param {Object} [params.authHeaders]
+ * @param {string} params.reservaId - UUID de la reservación.
+ * @param {'confirmacion_tour' | 'rechazo_tour'} params.tipo - Tipo de evento.
+ * @param {Object} params.reserva - Datos de la reserva.
+ * @param {string|null} [params.motivoRechazo=null] - Motivo de rechazo.
+ * @param {Object|null} [params.authHeaders=null] - Cabeceras de autenticación.
  * @returns {Promise<{ ok: boolean, destinatarios: string[], mensajes: Object[] }>}
  */
 export async function enviarNotificacionesReserva({
@@ -429,6 +438,9 @@ export async function enviarNotificacionesReserva({
     };
 }
 
+/**
+ * Objeto NotificacionesModel agrupando la API del modelo de notificaciones
+ */
 export const NotificacionesModel = {
     determinarDestinatariosNotificacion,
     construirPayloadNotificacion,

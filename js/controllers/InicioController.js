@@ -1,3 +1,10 @@
+/**
+ * js/controllers/InicioController.js
+ * Controlador principal de la Página de Inicio (Home) de ChocoMapaSV (MITUR).
+ * Orquesta el Buscador predictivo del Hero, Bento Grid de categorías,
+ * carrusel de paquetes turísticos oficiales y destinos mejor calificados.
+ */
+
 import { obtenerLugaresTuristicos } from '../models/SupabaseClient.js';
 import { obtenerToursActivos, TOURS_DEMO } from '../models/ToursModel.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
@@ -8,7 +15,7 @@ let lugaresDisponibles = [];
 
 /**
  * Catálogo de respaldo para destinos turísticos cuando no hay conexión
- * a Supabase o la red está inaccesible (Modo Offline 100% resiliente).
+ * a Supabase o la red está inaccesible (Modo Offline resiliente).
  */
 const DESTINOS_RESPALDO = [
     {
@@ -101,7 +108,15 @@ const DESTINOS_RESPALDO = [
     }
 ];
 
+/**
+ * Objeto controlador que gestiona la carga y presentación de la página de inicio
+ */
 export const InicioController = {
+    /**
+     * @description Inicializa los componentes interactivos de la página de inicio,
+     * consulta concurrentemente lugares y tours y renderiza las secciones de la vista.
+     * @returns {Promise<void>}
+     */
     async init() {
         // 1. Inicializar interactividad del Buscador del Hero
         InicioView.inicializarBuscadorHero({
@@ -152,10 +167,8 @@ export const InicioController = {
 
             lugaresDisponibles = lugares;
 
-            // Actualizar contador total de destinos oficiales en el Hero
             InicioView.actualizarTotalLugares(lugares.length);
 
-            // Ordenar por calificación promedio real y cantidad de reseñas
             const lugaresOrdenados = [...lugares].sort((a, b) => {
                 const infoA = calcularPromedioRating(a.ratings);
                 const infoB = calcularPromedioRating(b.ratings);
@@ -165,14 +178,10 @@ export const InicioController = {
                 return infoB.total - infoA.total;
             });
 
-            // Top 5 destinos mejor calificados para los chips dinámicos del Hero
             const top5Populares = lugaresOrdenados.slice(0, 5);
             InicioView.renderizarDestinosPopulares(top5Populares);
-
-            // Renderizar hasta 8 destinos imperdibles en la cuadrícula
             InicioView.renderizarDestinosImperdibles(lugaresOrdenados);
 
-            // Actualizar contadores del Bento Grid de categorías dinámicamente
             const conteosBento = {
                 'volcanes-naturaleza': 0,
                 'playas-surf-city': 0,
@@ -220,9 +229,9 @@ export const InicioController = {
     },
 
     /**
-     * Búsqueda predictiva de lugares en memoria
-     * @param {string} termino
-     * @returns {Array<Object>}
+     * @description Realiza una búsqueda predictiva en la memoria local de lugares disponibles.
+     * @param {string} termino - Texto a buscar en nombre, categoría o departamento.
+     * @returns {Array<Object>} Sugerencias coincidentes.
      */
     buscarLugares(termino) {
         const busqueda = normalizarTexto(termino);
@@ -237,8 +246,12 @@ export const InicioController = {
 };
 
 // Auto-inicialización según el estado del documento DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => InicioController.init(), { once: true });
-} else {
-    InicioController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => InicioController.init(), { once: true });
+    } else {
+        InicioController.init();
+    }
 }
+
+export default InicioController;

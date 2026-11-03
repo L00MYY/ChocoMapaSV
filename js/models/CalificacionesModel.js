@@ -1,3 +1,9 @@
+/**
+ * js/models/CalificacionesModel.js
+ * Modelo para la gestión y validación de calificaciones y reseñas (MITUR SV).
+ * Implementa las reglas de elegibilidad por visita confirmada y voto único inmutable.
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
@@ -6,20 +12,23 @@ let supabaseAnonKey = '';
 
 try {
     if (typeof SUPABASE_URL_B64 === 'string' && SUPABASE_URL_B64.length > 0) {
-        supabaseUrl = atob(SUPABASE_URL_B64);
+        supabaseUrl = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+            ? atob(SUPABASE_URL_B64)
+            : SUPABASE_URL_B64;
     }
     if (typeof SUPABASE_ANON_KEY_B64 === 'string' && SUPABASE_ANON_KEY_B64.length > 0) {
-        supabaseAnonKey = atob(SUPABASE_ANON_KEY_B64);
+        supabaseAnonKey = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+            ? atob(SUPABASE_ANON_KEY_B64)
+            : SUPABASE_ANON_KEY_B64;
     }
-} catch (e) {
-    // Entorno sin atob o claves vacías en tests
+} catch (error) {
+    console.warn('Advertencia al decodificar credenciales en CalificacionesModel:', error);
 }
 
 /**
- * CA-01: Calcula el promedio y total de calificaciones de una lista de ratings.
- * Función pura desacoplada sin dependencias de red ni DOM.
- * 
- * @param {Array<Object|number>} ratingsList - Lista de objetos { score } o números
+ * @description Calcula el promedio y total de calificaciones a partir de una colección de puntuaciones.
+ * Función pura desacoplada sin dependencias de red ni del DOM (CA-01).
+ * @param {Array<Object|number>} ratingsList - Lista de objetos { score } o números de calificación.
  * @returns {{ promedio: number, total: number, texto: string, tieneCalificaciones: boolean }}
  */
 export function calcularPromedioRating(ratingsList) {
@@ -68,9 +77,8 @@ export function calcularPromedioRating(ratingsList) {
 }
 
 /**
- * CA-04: Valida que la puntuación enviada sea un entero estricto entre 1 y 5.
- * 
- * @param {*} score - Puntuación a validar
+ * @description Valida que la puntuación enviada sea un entero estricto entre 1 y 5 (CA-04).
+ * @param {*} score - Puntuación a validar.
  * @returns {{ esValido: boolean, error?: string }}
  */
 export function validarScoreRating(score) {
@@ -86,17 +94,15 @@ export function validarScoreRating(score) {
 }
 
 /**
- * CA-04 y CA-05: Evalúa si un usuario tiene permitido calificar un sitio turístico.
- * Reglas de negocio:
- * 1. Usuario debe estar autenticado (sesión activa).
- * 2. Voto único / inmutabilidad: Si ya calificó, no puede enviar otra ni modificar.
- * 3. Visita confirmada: Debe existir una reserva con status 'confirmada' que incluya el placeId.
- * 
- * @param {Object} params
- * @param {Object|null} params.usuario - Datos del usuario autenticado
- * @param {Array<Object>} params.reservacionesConfirmadas - Reservas confirmadas del usuario
- * @param {string} params.placeId - Identificador del sitio turístico
- * @param {boolean} params.yaCalifico - Si el usuario ya calificó previamente este lugar
+ * @description Evalúa si un usuario tiene permitido calificar un sitio turístico según reglas de negocio:
+ * 1. Usuario autenticado con sesión activa.
+ * 2. Voto único / inmutabilidad (no haber calificado antes).
+ * 3. Visita confirmada: reserva confirmada que incluya el placeId especificado.
+ * @param {Object} [params={}]
+ * @param {Object|null} [params.usuario] - Datos del usuario autenticado.
+ * @param {Array<Object>} [params.reservacionesConfirmadas] - Reservas confirmadas del usuario.
+ * @param {string} [params.placeId] - Identificador del sitio turístico.
+ * @param {boolean} [params.yaCalifico] - Indica si el usuario ya calificó previamente este lugar.
  * @returns {{ puede: boolean, razon?: string, mensaje?: string }}
  */
 export function evaluarElegibilidadCalificacion(params = {}) {
@@ -176,12 +182,10 @@ export function evaluarElegibilidadCalificacion(params = {}) {
 }
 
 /**
- * CA-02 y CA-03: Filtra un catálogo de lugares por calificación mínima promedio.
- * Se combina limpiamente con filtros existentes de búsqueda y categoría.
- * 
- * @param {Array<Object>} lugares - Arreglo de lugares turísticos
- * @param {number|string} minRating - Calificación mínima (ej. 4, 3, 0 o 'Todas')
- * @returns {Array<Object>} Lugares que cumplen el criterio de puntuación
+ * @description Filtra un catálogo de lugares turísticos según una calificación mínima promedio (CA-02 y CA-03).
+ * @param {Array<Object>} lugares - Arreglo de lugares turísticos.
+ * @param {number|string} minRating - Calificación mínima (ej. 4, 3, 0 o 'Todas').
+ * @returns {Array<Object>} Lugares que satisfacen el criterio de puntuación.
  */
 export function filtrarLugaresPorRating(lugares, minRating) {
     if (!Array.isArray(lugares)) return [];
@@ -214,7 +218,7 @@ export function filtrarLugaresPorRating(lugares, minRating) {
 }
 
 /**
- * Modelo con métodos integrados de acceso a datos para lugares turísticos y calificaciones
+ * Objeto CalificacionesModel que expone la gestión de ratings en la base de datos
  */
 export const CalificacionesModel = {
     calcularPromedioRating,
@@ -223,8 +227,9 @@ export const CalificacionesModel = {
     filtrarLugaresPorRating,
 
     /**
-     * Consulta con Supabase si el usuario actual tiene derecho a calificar el lugar especificado.
-     * @param {string} placeId - UUID del lugar turístico
+     * @description Consulta con Supabase si el usuario actual tiene derecho a calificar el lugar especificado.
+     * @param {string} placeId - UUID del lugar turístico.
+     * @param {Object} [usuarioEspecifico=undefined] - Usuario particular a evaluar.
      * @returns {Promise<{ puede: boolean, razon?: string, mensaje?: string, yaCalifico?: boolean, calificacionPrevia?: number|null, usuario?: Object|null }>}
      */
     async verificarElegibilidad(placeId, usuarioEspecifico = undefined) {
@@ -318,7 +323,7 @@ export const CalificacionesModel = {
                 usuario
             };
         } catch (error) {
-            console.error('Error al verificar elegibilidad de calificación:', error);
+            console.error('Error al verificar elegibilidad de calificación en Supabase:', error);
             return {
                 puede: false,
                 razon: 'ERROR_CONEXION',
@@ -328,10 +333,10 @@ export const CalificacionesModel = {
     },
 
     /**
-     * Guarda la calificación en la tabla ratings de Supabase.
+     * @description Registra de forma inmutable una calificación en la tabla ratings de Supabase.
      * @param {Object} params
-     * @param {string} params.placeId - UUID del lugar turístico
-     * @param {number} params.score - Puntuación entera del 1 al 5
+     * @param {string} params.placeId - UUID del lugar turístico.
+     * @param {number} params.score - Puntuación entera del 1 al 5.
      * @returns {Promise<{ ok: boolean, data?: Object, error?: string }>}
      */
     async guardarCalificacion({ placeId, score }) {
@@ -366,16 +371,24 @@ export const CalificacionesModel = {
             });
 
             if (!respuesta.ok) {
-                const errorData = await respuesta.json().catch(() => ({}));
+                const errorData = await respuesta.json().catch((jsonErr) => {
+                    console.warn('Error al deserializar error en guardarCalificacion:', jsonErr);
+                    return {};
+                });
                 return { ok: false, error: errorData.message || `Error del servidor: ${respuesta.status}` };
             }
 
-            const data = await respuesta.json().catch(() => ({}));
+            const data = await respuesta.json().catch((jsonErr) => {
+                console.warn('Error al deserializar respuesta en guardarCalificacion:', jsonErr);
+                return {};
+            });
             const resultado = Array.isArray(data) ? data[0] : data;
             return { ok: true, data: resultado };
         } catch (error) {
-            console.error('Error al guardar calificación:', error);
+            console.error('Error de red al guardar calificación en Supabase:', error);
             return { ok: false, error: 'Error al enviar calificación a Supabase.' };
         }
     }
 };
+
+export default CalificacionesModel;

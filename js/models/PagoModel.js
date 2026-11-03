@@ -1,8 +1,19 @@
+/**
+ * js/models/PagoModel.js
+ * Modelo de datos para la gestión y carga de comprobantes de pago (MITUR).
+ * Integra Supabase Storage y persistencia en payment_receipts y tour_reservations.
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
-const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
-const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
@@ -10,6 +21,11 @@ const HEADERS = {
     'Content-Type': 'application/json'
 };
 
+/**
+ * @description Obtiene una instancia del cliente de Supabase desde window.supabase si está disponible.
+ * @param {string} [token] - Token JWT del usuario autenticado.
+ * @returns {Object|null} Instancia del cliente de Supabase o null.
+ */
 export function obtenerSupabaseClient(token) {
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -21,6 +37,12 @@ export function obtenerSupabaseClient(token) {
     return null;
 }
 
+/**
+ * @description Mapea un registro de reservación con sus atributos calculados.
+ * @param {Object} item - Fila de tour_reservations.
+ * @param {Object|null} sesion - Sesión activa del usuario.
+ * @returns {Object|null} Reservación mapeada.
+ */
 function mapearReserva(item, sesion) {
     if (!item) return null;
     return {
@@ -42,6 +64,11 @@ function mapearReserva(item, sesion) {
     };
 }
 
+/**
+ * @description Consulta el detalle completo de una reserva por su ID único.
+ * @param {string} reservaId - UUID de la reservación.
+ * @returns {Promise<Object|null>} Detalle de la reserva o null.
+ */
 export async function obtenerDetalleReserva(reservaId) {
     if (!reservaId) return null;
 
@@ -71,6 +98,11 @@ export async function obtenerDetalleReserva(reservaId) {
     return null;
 }
 
+/**
+ * @description Obtiene la reserva activa más reciente del turista ('pendiente_pago' o 'en_validacion').
+ * @param {string} touristId - UUID del turista.
+ * @returns {Promise<Object|null>} Reserva activa encontrada o null.
+ */
 export async function obtenerReservaActivaUsuario(touristId) {
     if (!touristId) return null;
 
@@ -100,6 +132,11 @@ export async function obtenerReservaActivaUsuario(touristId) {
     return null;
 }
 
+/**
+ * @description Verifica si ya existe un comprobante registrado en payment_receipts para la reserva.
+ * @param {string} reservaId - UUID de la reservación.
+ * @returns {Promise<Object|null>} Registro del comprobante si existe o null.
+ */
 export async function verificarComprobanteExistente(reservaId) {
     if (!reservaId) return null;
 
@@ -122,11 +159,19 @@ export async function verificarComprobanteExistente(reservaId) {
                 return data[0];
             }
         }
-    } catch (_) {}
+    } catch (error) {
+        console.warn('Error al verificar comprobante existente en Supabase:', error);
+    }
 
     return null;
 }
 
+/**
+ * @description Calcula el hash criptográfico SHA-256 de un archivo para integridad de auditoría.
+ * @param {File|Blob} file - Archivo del comprobante.
+ * @returns {Promise<string>} Cadena hexadecimal del hash SHA-256.
+ * @throws {Error} Si el archivo no está presente.
+ */
 export async function calcularHashArchivo(file) {
     if (!file) throw new Error('Archivo no proporcionado');
     const buffer = await file.arrayBuffer();
@@ -135,6 +180,13 @@ export async function calcularHashArchivo(file) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * @description Sube el archivo físico del comprobante a Supabase Storage mediante el SDK cliente oficial.
+ * @param {string} reservaId - UUID de la reservación.
+ * @param {File} file - Archivo del comprobante.
+ * @returns {Promise<{ ok: boolean, path: string }>} Ruta relativa del archivo en el bucket.
+ * @throws {Error} Si faltan parámetros o la subida a Storage falla.
+ */
 export async function subirComprobanteStorage(reservaId, file) {
     if (!reservaId || !file) {
         throw new Error('Parámetros incompletos para subir comprobante');
@@ -152,7 +204,6 @@ export async function subirComprobanteStorage(reservaId, file) {
     const fileName = `${reservaId}_${Date.now()}.${fileExt}`;
     const filePath = `receipts/${fileName}`;
 
-    // Usar SDK oficial de Supabase Client (sin fetch directo a Storage para evitar Error 405)
     let uploadData = null;
     let uploadError = null;
 
@@ -178,6 +229,16 @@ export async function subirComprobanteStorage(reservaId, file) {
     return { ok: true, path: storagePath };
 }
 
+/**
+ * @description Registra el comprobante en payment_receipts y transiciona la reserva a 'en_validacion'.
+ * @param {string} reservaId - UUID de la reservación.
+ * @param {string} storagePath - Ruta del archivo en Storage.
+ * @param {string|null} fileHash - Hash SHA-256 de verificación.
+ * @param {string} mimeType - Tipo MIME del archivo.
+ * @param {number} fileSize - Tamaño del archivo en bytes.
+ * @returns {Promise<{ ok: boolean, message: string }>}
+ * @throws {Error} Si el ID de reserva es omitido.
+ */
 export async function notificarComprobante(reservaId, storagePath, fileHash, mimeType, fileSize) {
     if (!reservaId) {
         throw new Error('ID de reserva obligatorio');
@@ -246,7 +307,9 @@ export async function notificarComprobante(reservaId, storagePath, fileHash, mim
                 status: 'en_revision'
             })
         });
-    } catch (_) {}
+    } catch (fallbackError) {
+        console.warn('Advertencia en fallback REST de notificarComprobante:', fallbackError);
+    }
 
     return {
         ok: true,
@@ -254,6 +317,9 @@ export async function notificarComprobante(reservaId, storagePath, fileHash, mim
     };
 }
 
+/**
+ * Objeto PagoModel agrupando la API del modelo de pagos
+ */
 export const PagoModel = {
     obtenerDetalleReserva,
     obtenerReservaActivaUsuario,

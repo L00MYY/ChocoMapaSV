@@ -1,9 +1,22 @@
 import { MapaModel } from '../models/MapaModel.js';
 import { MapaView, map, openPopupAndFly, renderizarMarcadores, filtrarMarcadores } from '../views/MapaView.js';
 
+/**
+ * @namespace MapaController
+ * @description Controlador para el mapa interactivo de sitios turísticos (MITUR).
+ * Orquesta la carga de marcadores georreferenciados, filtrado por categorías y búsqueda predictiva.
+ */
 export const MapaController = {
+    /**
+     * @type {string}
+     * @description Identificador o slug de la categoría turística activa en el filtro del mapa.
+     */
     categoriaActiva: 'todos',
 
+    /**
+     * @description Inicializa la carga del mapa Mapbox, suscripción a eventos de filtrado y búsqueda.
+     * @returns {void}
+     */
     init() {
         const { searchInput, searchResults, closeSidebar, sidebar } = MapaView.elements;
 

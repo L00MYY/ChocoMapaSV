@@ -1,3 +1,9 @@
+/**
+ * js/models/TourDetalleModel.js
+ * Modelo para la vista detallada de paquetes turísticos (MITUR).
+ * Orquesta la consulta de información del tour, reservaciones activas y estado cronológico de fechas.
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 import {
@@ -14,8 +20,13 @@ import {
     validarFormularioReserva
 } from './ToursModel.js';
 
-const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
-const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 export {
     TOURS_DEMO,
@@ -31,6 +42,10 @@ export {
     validarFormularioReserva
 };
 
+/**
+ * @description Retorna la fecha actual local en formato 'YYYY-MM-DD'.
+ * @returns {string} Fecha local formateada.
+ */
 export function obtenerFechaHoyLocal() {
     const hoy = new Date();
     const anio = hoy.getFullYear();
@@ -45,6 +60,12 @@ const HEADERS = {
     'Content-Type': 'application/json'
 };
 
+/**
+ * @description Calcula la etiqueta legible del estado de la reserva considerando si la fecha ya expiró.
+ * @param {string|null} status - Estado en base de datos.
+ * @param {string|null} tourDate - Fecha programada del tour.
+ * @returns {string} Etiqueta visual para el usuario.
+ */
 export function calcularEstadoVisual(status, tourDate) {
     const hoyStr = obtenerFechaHoyLocal();
     const fechaTourLimpia = tourDate ? String(tourDate).split('T')[0] : '';
@@ -79,6 +100,11 @@ export function calcularEstadoVisual(status, tourDate) {
     return 'Pendiente de pago';
 }
 
+/**
+ * @description Consulta una reserva por su ID en Supabase PostgREST.
+ * @param {string} reservaId - UUID de la reservación.
+ * @returns {Promise<Object|null>} Objeto mapeado de la reservación o null si falla.
+ */
 export async function obtenerReservaPorId(reservaId) {
     if (!reservaId) return null;
 
@@ -117,11 +143,19 @@ export async function obtenerReservaPorId(reservaId) {
                 };
             }
         }
-    } catch (_) { }
+    } catch (error) {
+        console.warn('Error al obtener reserva por ID en Supabase:', error);
+    }
 
     return null;
 }
 
+/**
+ * @description Consulta si el turista autenticado posee una reserva activa para el tour especificado.
+ * @param {string} touristId - UUID del turista.
+ * @param {string} tourId - UUID del tour.
+ * @returns {Promise<Object|null>} Registro de la reserva activa o null.
+ */
 export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
     if (!touristId || !tourId) return null;
 
@@ -187,12 +221,16 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
                 }
             }
         }
-    } catch (_) { }
+    } catch (error) {
+        console.warn('Error al obtener reserva de usuario por tour en Supabase:', error);
+    }
 
-    // Sin reservas en BD: NO recurrir a localStorage ni mock
     return null;
 }
 
+/**
+ * Objeto TourDetalleModel agrupando la API del detalle del tour
+ */
 export const TourDetalleModel = {
     obtenerPorId,
     obtenerTourPorId,
