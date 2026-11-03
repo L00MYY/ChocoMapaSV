@@ -2370,3 +2370,58 @@ button.legend-item.active,
 }
 
 /* END === WCAG AA CONTRAST AUDIT FIXES - MAPA === */
+
+
+/* ==========================================================================
+   TOOLTIPS / POPUPS DE MAPBOX GL JS (ACCESIBILIDAD WCAG AA)
+   ========================================================================== */
+
+/* 1. Tema Oscuro (Defecto / data-theme="dark"): fondo marino y texto blanco */
+.mapboxgl-popup-content {
+  background-color: var(--bg-surface, #13293D) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 10px !important;
+  padding: 8px 14px !important;
+  box-shadow: 0 8px 24px rgba(11, 34, 57, 0.45) !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Flechas indicadoras (Tip) en Tema Oscuro */
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: var(--bg-surface, #13293D) !important;
+}
+
+/* 2. Tema Claro (data-theme="light"): fondo blanco y texto oscuro */
+[data-theme="light"] .mapboxgl-popup-content {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Flechas indicadoras (Tip) en Tema Claro */
+[data-theme="light"] .mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: #ffffff !important;
+}
