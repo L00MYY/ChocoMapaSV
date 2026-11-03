@@ -150,6 +150,24 @@ main,
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+[data-theme="light"] .filter-select {
+  color: #0f172a !important;
+}
+
+/* 2. Ícono de calendario nativo claro en tema oscuro */
+.filter-date,
+input[type="date"] {
+  color-scheme: dark; /* Adapta el ícono del navegador a blanco en fondo oscuro */
+  color: #f8fafc !important;
+}
+
+/* En tema claro, vuelve a su esquema claro normal */
+[data-theme="light"] .filter-date,
+[data-theme="light"] input[type="date"] {
+  color-scheme: light;
+  color: #0f172a !important;
+}
+
 .filters-header {
     display: flex;
     align-items: center;
@@ -221,7 +239,7 @@ main,
     width: 100%;
     padding: 10px 14px;
     background: var(--input-bg);
-    color: var(--text-primary);
+    color: #f8fafc;
     border: 1.5px solid var(--input-border);
     border-radius: var(--radius-sm);
     font-family: inherit;
@@ -794,7 +812,7 @@ main,
 .filters-card label,
 .filters-card select,
 .filters-card input {
-    color: #f1f5f9 !important;
+    color: #f8fafc !important;
 }
 
 .filters-card-title,

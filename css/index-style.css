@@ -369,6 +369,20 @@ body {
     color: var(--text-secondary);
 }
 
+/* Forzar texto oscuro al escribir dentro del buscador en tema claro */
+[data-theme="light"] #hero-search-input,
+[data-theme="light"] .hero-search-input,
+[data-theme="light"] .search-bar-input {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #hero-search-input::placeholder,
+[data-theme="light"] .hero-search-input::placeholder,
+[data-theme="light"] .search-bar-input::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+
 .hero-search-btn {
     display: inline-flex;
     align-items: center;
@@ -1842,4 +1856,38 @@ body {
 [data-theme="light"] .destino-link svg {
   stroke: #006494 !important;
 }
+
+/* Buscador Predictivo en Modo Claro */
+[data-theme="light"] .search-suggestions-container,
+[data-theme="light"] .hero-search-suggestions,
+[data-theme="light"] #hero-search-results,
+[data-theme="light"] .hero-search-card .results-list {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .hero-search-suggestions .suggestion-item,
+[data-theme="light"] .hero-search-suggestions .result-item,
+[data-theme="light"] .hero-search-card .result-item,
+[data-theme="light"] #hero-search-results .result-item {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .hero-search-suggestions .suggestion-item-title,
+[data-theme="light"] .hero-search-suggestions .result-item-title,
+[data-theme="light"] .hero-search-suggestions strong,
+[data-theme="light"] .hero-search-card .result-item-title,
+[data-theme="light"] #hero-search-results .result-item-title {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .hero-search-suggestions .suggestion-item:hover,
+[data-theme="light"] .hero-search-suggestions .result-item:hover,
+[data-theme="light"] .hero-search-card .result-item:hover,
+[data-theme="light"] #hero-search-results .result-item:hover {
+  background: #f1f5f9 !important;
+}
+
 /* END === WCAG AA CONTRAST AUDIT FIXES === */
