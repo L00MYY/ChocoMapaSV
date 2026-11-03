@@ -1,15 +1,38 @@
 import { MapaModel } from '../models/MapaModel.js';
-import { MapaView, map, openPopupAndFly, renderizarMarcadores } from '../views/MapaView.js';
+import { MapaView, map, openPopupAndFly, renderizarMarcadores, filtrarMarcadores } from '../views/MapaView.js';
 
+/**
+ * @namespace MapaController
+ * @description Controlador para el mapa interactivo de sitios turísticos (MITUR).
+ * Orquesta la carga de marcadores georreferenciados, filtrado por categorías y búsqueda predictiva.
+ */
 export const MapaController = {
+    /**
+     * @type {string}
+     * @description Identificador o slug de la categoría turística activa en el filtro del mapa.
+     */
+    categoriaActiva: 'todos',
+
+    /**
+     * @description Inicializa la carga del mapa Mapbox, suscripción a eventos de filtrado y búsqueda.
+     * @returns {void}
+     */
     init() {
         const { searchInput, searchResults, closeSidebar, sidebar } = MapaView.elements;
 
         map.on('load', async () => {
             try {
                 const lugares = await MapaModel.cargarLugares();
-                if (lugares.length > 0) renderizarMarcadores(lugares);
-                else console.warn('La base de datos de Supabase está vacía o no retornó lugares.');
+                if (lugares.length > 0) {
+                    renderizarMarcadores(lugares);
+                    const categorias = MapaModel.extraerCategorias(lugares);
+                    MapaView.renderizarCategorias(categorias, (categoria) => {
+                        this.categoriaActiva = categoria;
+                        filtrarMarcadores(categoria);
+                    });
+                } else {
+                    console.warn('La base de datos de Supabase está vacía o no retornó lugares.');
+                }
             } catch (error) {
                 console.error('No se pudieron cargar los lugares del mapa:', error);
             }

@@ -11,7 +11,18 @@ let archivoSeleccionado = null;
 let expirado = false;
 let expiresAtTimestamp = 0;
 
+/**
+ * @namespace PagoController
+ * @description Controlador para el flujo de pago y adjunción de comprobantes de reserva.
+ * Valida formatos (JPG, PNG, PDF), límites de peso (5MB), calcula hashes SHA-256
+ * y gestiona el temporizador de cuenta regresiva de 60 minutos con protección de sesión.
+ */
 export const PagoController = {
+    /**
+     * @description Inicializa la verificación de autenticación, carga la reserva activa o por URL,
+     * y configura el temporizador de pago y eventos del DOM.
+     * @returns {Promise<void>}
+     */
     async init() {
         // Configurar protección inmediata ante cierre de sesión
         this.configurarProteccionCierreSesion();
@@ -60,13 +71,15 @@ export const PagoController = {
 
         // Si el usuario no tiene ninguna reserva activa (o el ID de la URL es inválido/inexistente):
         // Redirigir de inmediato a mis-tours.html con una alerta visible:
-        // "No tienes ninguna reserva pendiente de pago por procesar" (o mostrar un contenedor de estado vacío con botón hacia el catálogo de tours),
+        // "No tienes ninguna reserva pendiente de pago por procesar",
         // eliminando la vista con placeholders ("CARGANDO...", "59:59").
         if (!reserva) {
             PagoView.mostrarEstadoVacio('No tienes ninguna reserva pendiente de pago por procesar');
             try {
                 sessionStorage.setItem('mis_tours_alerta', 'No tienes ninguna reserva pendiente de pago por procesar');
-            } catch (_) {}
+            } catch (error) {
+                console.warn('No se pudo guardar alerta en sessionStorage:', error);
+            }
             window.location.replace('mis-tours.html?alerta=' + encodeURIComponent('No tienes ninguna reserva pendiente de pago por procesar'));
             return;
         }
@@ -85,7 +98,9 @@ export const PagoController = {
             if (recibo && recibo.storage_path) {
                 tieneComprobante = true;
             }
-        } catch (_) {}
+        } catch (error) {
+            console.warn('Error al verificar comprobante existente:', error);
+        }
 
         if (reservaActual.status === 'confirmada' || reservaActual.status === 'Confirmado') {
             PagoView.mostrarReservaConfirmada();
@@ -101,13 +116,20 @@ export const PagoController = {
         this.configurarEventos();
     },
 
+    /**
+     * @description Vincula protecciones reactivas en múltiples canales para cerrar la vista
+     * y limpiar sesiones si el usuario activa el cierre de sesión en otra pestaña o en el Navbar.
+     * @returns {void}
+     */
     configurarProteccionCierreSesion() {
         const expulsarUsuario = () => {
             try {
                 if (typeof sessionStorage !== 'undefined') {
                     sessionStorage.clear();
                 }
-            } catch (_) {}
+            } catch (error) {
+                console.warn('No se pudo limpiar sessionStorage:', error);
+            }
             if (typeof window !== 'undefined' && window.location?.replace) {
                 window.location.replace('login.html');
             }
@@ -121,7 +143,9 @@ export const PagoController = {
                         expulsarUsuario();
                     }
                 });
-            } catch (_) {}
+            } catch (error) {
+                console.warn('Error al suscribir a Supabase onAuthStateChange:', error);
+            }
         }
 
         if (AuthModel.onCambioEstadoAuth) {
@@ -131,7 +155,9 @@ export const PagoController = {
                         expulsarUsuario();
                     }
                 });
-            } catch (_) {}
+            } catch (error) {
+                console.warn('Error al suscribir a AuthModel.onCambioEstadoAuth:', error);
+            }
         }
 
         if (NavbarController?.onLogout) {
@@ -139,7 +165,9 @@ export const PagoController = {
                 NavbarController.onLogout(() => {
                     expulsarUsuario();
                 });
-            } catch (_) {}
+            } catch (error) {
+                console.warn('Error al registrar listener onLogout de NavbarController:', error);
+            }
         }
 
         if (typeof window !== 'undefined' && window.addEventListener) {
@@ -147,7 +175,9 @@ export const PagoController = {
                 window.addEventListener('auth:logout', () => {
                     expulsarUsuario();
                 });
-            } catch (_) {}
+            } catch (error) {
+                console.warn('Error al escuchar evento auth:logout:', error);
+            }
         }
 
         // 2. En el manejador del botón #nav-btn-logout (o enlace de cerrar sesión en el Navbar):
@@ -167,11 +197,15 @@ export const PagoController = {
                         if (typeof window !== 'undefined' && window.supabase?.auth?.signOut) {
                             await window.supabase.auth.signOut();
                         }
-                    } catch (_) {}
+                    } catch (error) {
+                        console.warn('Error en supabase.auth.signOut:', error);
+                    }
 
                     try {
                         await AuthModel.cerrarSesion();
-                    } catch (_) {}
+                    } catch (error) {
+                        console.warn('Error en AuthModel.cerrarSesion:', error);
+                    }
 
                     expulsarUsuario();
                 }, true);
@@ -190,7 +224,9 @@ export const PagoController = {
                 if (!sesion || !sesion.user) {
                     expulsarUsuario();
                 }
-            } catch (_) {}
+            } catch (error) {
+                console.warn('Error al verificar sesión en ciclo de vida:', error);
+            }
         };
 
         if (typeof document !== 'undefined' && document.addEventListener) {
@@ -211,6 +247,10 @@ export const PagoController = {
         }
     },
 
+    /**
+     * @description Calcula el tiempo restante según el campo `expires_at` de la reserva y activa la cuenta regresiva.
+     * @returns {void}
+     */
     configurarTemporizador() {
         if (!reservaActual) return;
 
@@ -241,6 +281,10 @@ export const PagoController = {
         });
     },
 
+    /**
+     * @description Enlaza los callbacks de interacción de la vista para subida, eliminación y copia de código.
+     * @returns {void}
+     */
     configurarEventos() {
         PagoView.bindArchivoSeleccionado((file) => {
             this.validarArchivo(file);
@@ -257,7 +301,9 @@ export const PagoController = {
             if (codigo && navigator.clipboard?.writeText) {
                 navigator.clipboard.writeText(codigo).then(() => {
                     PagoView.mostrarCopiadoExitoso();
-                }).catch(() => {});
+                }).catch(error => {
+                    console.warn('No se pudo copiar código al portapapeles:', error);
+                });
             }
         });
 
@@ -266,6 +312,11 @@ export const PagoController = {
         });
     },
 
+    /**
+     * @description Valida si el archivo provisto cumple los requerimientos de formato, peso y no expiración.
+     * @param {File} file - Objeto de archivo capturado por el input o drag-and-drop.
+     * @returns {boolean} `true` si el archivo es aceptado, `false` en caso contrario.
+     */
     validarArchivo(file) {
         if (!file) return false;
 
@@ -308,6 +359,10 @@ export const PagoController = {
         return true;
     },
 
+    /**
+     * @description Orquesta la subida física del comprobante a Supabase Storage y el registro del recibo en PostgreSQL.
+     * @returns {Promise<void>}
+     */
     async procesarSubidaComprobante() {
         if (!archivoSeleccionado || !reservaActual) {
             PagoView.mostrarError('Por favor selecciona un archivo de comprobante válido.');

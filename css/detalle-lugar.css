@@ -63,8 +63,9 @@ html, body {
   overflow-y: auto !important;
   overflow-x: hidden;
   font-family: var(--font-family);
-  background-color: var(--deep-space-blue);
+  background-color: var(--bg-app);
   color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -78,7 +79,7 @@ html, body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0d1e2e 100%);
+  background: var(--bg-app);
   box-sizing: border-box;
 }
 
@@ -629,10 +630,10 @@ main,
 
 /* Tarjetas y Paneles Blancos (Shared Panel Rules) */
 .card-panel {
-  background: var(--surface);
+  background: var(--bg-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
   overflow: hidden;
   transition: var(--transition);
   width: 100%;
@@ -650,7 +651,7 @@ main,
   display: flex;
   align-items: center;
   gap: 14px;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-subtle);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -660,8 +661,8 @@ main,
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background-color: var(--alice-blue);
-  color: var(--baltic-blue);
+  background-color: var(--input-bg);
+  color: var(--text-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -682,7 +683,7 @@ main,
 }
 
 .panel-title {
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
   font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   font-weight: 800;
   line-height: 1.25;
@@ -1030,7 +1031,7 @@ main,
   margin: 0 0 8px 0;
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
   line-height: 1.3;
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -1097,8 +1098,8 @@ main,
 
 .place-tours-grid .tour-card-footer {
   padding: 10px 16px;
-  background: #F8FBFB;
-  border-top: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1174,10 +1175,10 @@ main,
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  background-color: var(--surface-subtle);
+  background-color: var(--bg-card);
   padding: 16px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border-subtle);
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -1216,7 +1217,7 @@ main,
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   word-break: break-word;
   overflow-wrap: anywhere;
 }
@@ -1224,15 +1225,15 @@ main,
 .schedule-item-value {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--deep-space-blue);
+  color: var(--text-primary);
   word-break: break-word;
   overflow-wrap: anywhere;
   hyphens: auto;
 }
 
 .schedule-note-box {
-  background-color: #F8FAFC;
-  border-left: 3px solid var(--baltic-blue);
+  background-color: var(--bg-card);
+  border-left: 3px solid var(--text-accent);
   padding: 12px 14px;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   width: 100%;
@@ -1287,14 +1288,14 @@ main,
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  background-color: var(--surface-subtle);
-  color: var(--baltic-blue);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 0.92rem;
   font-weight: 700;
   padding: 12px 18px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border-subtle);
   transition: var(--transition);
   width: 100%;
   max-width: 100%;
@@ -2143,3 +2144,93 @@ main,
   color: #991B1B;
   border: 1px solid #FCA5A5;
 }
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Tema Oscuro (Defecto) */
+.panel-title {
+  color: #ffffff !important;
+}
+
+.place-full-description {
+  color: #cbd5e1 !important;
+  line-height: 1.6 !important;
+}
+
+.attribute-pill .attribute-label {
+  color: #0f2942 !important;
+  font-weight: 700 !important;
+}
+
+.panel-subtitle {
+  color: #94a3b8 !important;
+}
+
+.schedule-item-card p,
+.schedule-item-card span,
+.schedule-item-card div {
+  color: #f8fafc !important;
+}
+
+.schedule-item-card svg {
+  stroke: #38bdf8 !important;
+}
+
+.schedule-note-box,
+.schedule-note-box p,
+.schedule-note-box span {
+  color: #cbd5e1 !important;
+}
+
+.guidelines-list li,
+.guidelines-list li span {
+  color: #cbd5e1 !important;
+}
+
+.btn-secondary-explore span {
+  color: #f8fafc !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .place-official-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .place-location-text,
+[data-theme="light"] #place-location-text {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .panel-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .place-full-description {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .panel-subtitle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .schedule-item-card p,
+[data-theme="light"] .schedule-item-card span,
+[data-theme="light"] .schedule-item-card div {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .schedule-note-box,
+[data-theme="light"] .schedule-note-box p,
+[data-theme="light"] .schedule-note-box span {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .guidelines-list li,
+[data-theme="light"] .guidelines-list li span {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .btn-secondary-explore span {
+  color: #006494 !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES === */

@@ -1,9 +1,21 @@
+/**
+ * js/models/AdminPagosModel.js
+ * Modelo administrativo de conciliación y validación de pagos (MITUR SV).
+ * Orquesta la verificación de roles administrativos, aprobación, rechazo,
+ * reincorporación atómica de cupos y generación de URLs firmadas temporales.
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 import { enviarNotificacionesReserva } from './NotificacionesModel.js';
 
-const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
-const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
@@ -11,11 +23,21 @@ const HEADERS = {
     'Content-Type': 'application/json'
 };
 
+/**
+ * @description Normaliza la ruta de almacenamiento eliminando barras iniciales redundantes.
+ * @param {string|null} path - Ruta en Storage.
+ * @returns {string} Ruta normalizada.
+ */
 function normalizarRutaStorage(path) {
     if (!path) return '';
     return String(path).trim().replace(/^\/+/, '');
 }
 
+/**
+ * @description Crea una instancia del cliente Supabase con token de autorización si aplica.
+ * @param {string} [token] - Token JWT.
+ * @returns {Object|null}
+ */
 export function obtenerSupabaseClient(token) {
     if (typeof window !== 'undefined' && window.supabase?.createClient) {
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -27,6 +49,10 @@ export function obtenerSupabaseClient(token) {
     return null;
 }
 
+/**
+ * @description Verifica si el usuario autenticado tiene rol de administrador en la tabla admin_users.
+ * @returns {Promise<{ esAdmin: boolean, user?: Object|null, admin?: Object, razon?: string, error?: * }>}
+ */
 export async function verificarRolAdmin() {
     try {
         const sesion = await AuthModel.obtenerSesionActual();
@@ -40,7 +66,6 @@ export async function verificarRolAdmin() {
             'Authorization': `Bearer ${sesion.access_token || SUPABASE_ANON_KEY}`
         };
 
-        // Validar si el user.id pertenece a la tabla admin_users
         const url = `${SUPABASE_URL}/rest/v1/admin_users?user_id=eq.${encodeURIComponent(userId)}&select=*`;
         const res = await fetch(url, {
             method: 'GET',
@@ -62,7 +87,8 @@ export async function verificarRolAdmin() {
 }
 
 /**
- * Consulta todas las reservas históricas relevantes (pendiente_pago, en_validacion, confirmada, rechazada).
+ * @description Consulta todas las reservas históricas relevantes (pendiente_pago, en_validacion, confirmada, rechazada).
+ * @returns {Promise<Array<Object>>} Lista de reservas enriquecidas con metadatos del comprobante.
  */
 export async function obtenerReservasEnValidacion() {
     try {
@@ -72,7 +98,6 @@ export async function obtenerReservasEnValidacion() {
             'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
         };
 
-        // Consulta de todas las reservas históricas relevantes según requerimiento
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?status=in.(pendiente_pago,en_validacion,confirmada,rechazada)&select=*,tours(*),tour_dates(*)&order=created_at.desc`;
         const res = await fetch(url, {
             method: 'GET',
@@ -101,7 +126,9 @@ export async function obtenerReservasEnValidacion() {
                     });
                 }
             }
-        } catch (_) { }
+        } catch (error) {
+            console.warn('Advertencia al consultar payment_receipts en lote:', error);
+        }
 
         return (reservas || []).map(r => {
             const recibo = recibosMap.get(r.id);
@@ -131,13 +158,18 @@ export async function obtenerReservasEnValidacion() {
             };
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error al obtener reservas históricas en AdminPagosModel:', error);
         return [];
     }
 }
 
 export const obtenerReservasHistoricas = obtenerReservasEnValidacion;
 
+/**
+ * @description Genera una URL firmada de descarga temporal (300s) para visualizar el comprobante en Storage.
+ * @param {string} storagePath - Ruta del archivo en Storage.
+ * @returns {Promise<{ ok: boolean, signedUrl?: string, error?: string }>}
+ */
 export async function obtenerUrlFirmada(storagePath) {
     const cleanPath = normalizarRutaStorage(storagePath);
     if (!cleanPath) {
@@ -156,7 +188,9 @@ export async function obtenerUrlFirmada(storagePath) {
                 if (!error && data?.signedUrl) {
                     return { ok: true, signedUrl: data.signedUrl };
                 }
-            } catch (_) { }
+            } catch (error) {
+                console.warn('Advertencia al generar signedUrl con SDK:', error);
+            }
         }
 
         try {
@@ -179,7 +213,9 @@ export async function obtenerUrlFirmada(storagePath) {
                     : `${SUPABASE_URL}/storage/v1${data.signedURL}`;
                 return { ok: true, signedUrl: signed };
             }
-        } catch (_) { }
+        } catch (error) {
+            console.warn('Advertencia en fallback REST de signedUrl:', error);
+        }
     }
 
     return {
@@ -188,6 +224,11 @@ export async function obtenerUrlFirmada(storagePath) {
     };
 }
 
+/**
+ * @description Consulta los datos detallados de una reserva individual para el panel de administración.
+ * @param {string} reservaId - UUID de la reservación.
+ * @returns {Promise<Object|null>}
+ */
 export async function obtenerReservaParaAdmin(reservaId) {
     if (!reservaId) return null;
     try {
@@ -215,10 +256,19 @@ export async function obtenerReservaParaAdmin(reservaId) {
                 };
             }
         }
-    } catch (_) { }
+    } catch (error) {
+        console.warn('Advertencia al consultar reserva en obtenerReservaParaAdmin:', error);
+    }
     return null;
 }
 
+/**
+ * @description Reincorpora los cupos reservados a la tabla tour_dates cuando una reserva es rechazada.
+ * @param {string} tourDateId - UUID de la fecha del tour.
+ * @param {number} spotsReserved - Cantidad de cupos a reintegrar.
+ * @param {Object|null} [authHeadersCustom=null] - Cabeceras de autenticación opcionales.
+ * @returns {Promise<{ ok: boolean, available_spots?: number, data?: Object, error?: * }>}
+ */
 export async function reincorporarCuposTour(tourDateId, spotsReserved, authHeadersCustom = null) {
     if (!tourDateId || !spotsReserved || Number(spotsReserved) <= 0) {
         return { ok: false, error: 'Parámetros inválidos' };
@@ -271,7 +321,10 @@ export async function reincorporarCuposTour(tourDateId, spotsReserved, authHeade
             return { ok: false, error: 'Error al actualizar available_spots en tour_dates' };
         }
 
-        const dataUpdated = await resPatchDate.json().catch(() => null);
+        const dataUpdated = await resPatchDate.json().catch((jsonErr) => {
+            console.warn('Advertencia al parsear dataUpdated en reincorporarCuposTour:', jsonErr);
+            return null;
+        });
         return {
             ok: true,
             available_spots: nuevoAvailableSpots,
@@ -283,11 +336,22 @@ export async function reincorporarCuposTour(tourDateId, spotsReserved, authHeade
     }
 }
 
+/**
+ * @description Verifica el estado actual de una reserva en Supabase.
+ * @param {string} reservaId
+ * @returns {Promise<string|null>} Estado actual de la reserva.
+ */
 export async function verificarEstadoReserva(reservaId) {
     const reserva = await obtenerReservaParaAdmin(reservaId);
     return reserva?.status || null;
 }
 
+/**
+ * @description Aprueba la reserva, actualiza el recibo y envía la notificación por correo al turista.
+ * @param {string} reservaId - UUID de la reservación.
+ * @returns {Promise<{ ok: boolean, concurrencia?: boolean, mensaje?: string, reserva?: Object }>}
+ * @throws {Error} Si el ID de reserva es omitido.
+ */
 export async function aprobarReserva(reservaId) {
     if (!reservaId) throw new Error('ID de reserva obligatorio');
 
@@ -324,7 +388,10 @@ export async function aprobarReserva(reservaId) {
         });
 
         if (resPatch.ok) {
-            const filasActualizadas = await resPatch.json().catch(() => []);
+            const filasActualizadas = await resPatch.json().catch((jsonErr) => {
+                console.warn('Advertencia al parsear filas en aprobarReserva:', jsonErr);
+                return [];
+            });
             if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
                 const fila = filasActualizadas[0];
                 const urlPatchReceipt = `${SUPABASE_URL}/rest/v1/payment_receipts?reservation_id=eq.${encodeURIComponent(reservaId)}`;
@@ -336,9 +403,10 @@ export async function aprobarReserva(reservaId) {
                         reviewed_at: new Date().toISOString(),
                         reviewed_by: sesion?.user?.id || null
                     })
-                }).catch(() => { });
+                }).catch((receiptErr) => {
+                    console.warn('Advertencia al actualizar payment_receipts en aprobación:', receiptErr);
+                });
 
-                // Motor de Notificación por Correo con desduplicación de destinatarios
                 const datosReservaCompleta = {
                     ...(reserva || {}),
                     ...fila
@@ -359,7 +427,7 @@ export async function aprobarReserva(reservaId) {
             }
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error al aprobar reserva en Supabase:', error);
     }
 
     return {
@@ -368,6 +436,13 @@ export async function aprobarReserva(reservaId) {
     };
 }
 
+/**
+ * @description Rechaza la reserva, reincorpora cupos a tour_dates y envía notificación con el motivo del rechazo.
+ * @param {string} reservaId - UUID de la reservación.
+ * @param {string} motivo - Razón explicativa del rechazo del comprobante.
+ * @returns {Promise<{ ok: boolean, concurrencia?: boolean, mensaje?: string, reserva?: Object }>}
+ * @throws {Error} Si falta el ID de reserva o el motivo de rechazo.
+ */
 export async function rechazarReserva(reservaId, motivo) {
     if (!reservaId) throw new Error('ID de reserva obligatorio');
     if (!motivo || !String(motivo).trim()) throw new Error('El motivo de rechazo es obligatorio');
@@ -410,7 +485,10 @@ export async function rechazarReserva(reservaId, motivo) {
         });
 
         if (resPatch.ok) {
-            const filasActualizadas = await resPatch.json().catch(() => []);
+            const filasActualizadas = await resPatch.json().catch((jsonErr) => {
+                console.warn('Advertencia al parsear filas en rechazarReserva:', jsonErr);
+                return [];
+            });
             if (Array.isArray(filasActualizadas) && filasActualizadas.length > 0) {
                 const fila = filasActualizadas[0];
                 const finalTourDateId = tourDateId || fila.tour_date_id;
@@ -426,14 +504,14 @@ export async function rechazarReserva(reservaId, motivo) {
                         reviewed_at: new Date().toISOString(),
                         reviewed_by: sesion?.user?.id || null
                     })
-                }).catch(() => { });
+                }).catch((receiptErr) => {
+                    console.warn('Advertencia al actualizar payment_receipts en rechazo:', receiptErr);
+                });
 
-                // Reincorporación de cupos a tour_dates al rechazar una reserva
                 if (finalTourDateId && finalSpotsReserved > 0) {
                     await reincorporarCuposTour(finalTourDateId, finalSpotsReserved, authHeaders);
                 }
 
-                // Motor de Notificación por Correo con desduplicación de destinatarios
                 const datosReservaCompleta = {
                     ...(reserva || {}),
                     ...fila,
@@ -456,7 +534,7 @@ export async function rechazarReserva(reservaId, motivo) {
             }
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error al rechazar reserva en Supabase:', error);
     }
 
     return {
@@ -465,6 +543,9 @@ export async function rechazarReserva(reservaId, motivo) {
     };
 }
 
+/**
+ * Objeto AdminPagosModel agrupando la API del modelo administrativo
+ */
 export const AdminPagosModel = {
     verificarRolAdmin,
     obtenerReservasEnValidacion,

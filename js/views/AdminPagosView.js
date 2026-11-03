@@ -566,7 +566,9 @@ export const AdminPagosView = {
                     day: 'numeric'
                 });
             }
-        } catch (_) { }
+        } catch (error) {
+            console.warn('Error al formatear fecha en AdminPagosView:', error);
+        }
         return String(fechaStr);
     }
 };

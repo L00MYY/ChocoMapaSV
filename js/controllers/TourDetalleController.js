@@ -23,9 +23,20 @@ import { TourDetalleView } from '../views/TourDetalleView.js';
 let tourActual = null;
 let failsafeTimeout;
 
+/**
+ * @namespace TourDetalleController
+ * @description Controlador para la página de detalle y reserva de tours.
+ * Gestiona la selección cronológica de fechas de salida, cálculo dinámico de aforo,
+ * validación y sanitización estricta de formularios, y persistencia de reservaciones en Supabase.
+ */
 export const TourDetalleController = {
+    /** @type {Function|null} */
     unsubscribeAuth: null,
 
+    /**
+     * @description Inicializa los listeners de eventos de la vista, verificaciones de sesión y carga del tour.
+     * @returns {void}
+     */
     init() {
         const { btnReturn, btnOpenReserve, reservationForm, selectDate, inputPhone } = TourDetalleView.elements;
 
@@ -93,7 +104,9 @@ export const TourDetalleController = {
                         return;
                     }
                 }
-            } catch (_) { }
+            } catch (error) {
+                console.warn('Error al verificar reserva previa al abrir formulario:', error);
+            }
 
             const fechaActual = this.obtenerFechaSeleccionadaActual();
             const cuposDisponibles = fechaActual ? Number(fechaActual.available_spots || 0) : 0;
@@ -116,7 +129,7 @@ export const TourDetalleController = {
         });
 
         if (typeof window !== 'undefined') {
-            window.addEventListener('pageshow', async (event) => {
+            window.addEventListener('pageshow', async () => {
                 // Si la página se restaura desde BFCache o recarga, volver a consultar si el usuario tiene una reserva activa
                 await this.verificarYBloquearReservaActiva();
             });
@@ -128,6 +141,11 @@ export const TourDetalleController = {
         this.cargarTour();
     },
 
+    /**
+     * @description Verifica si el usuario autenticado tiene una reserva activa (pendiente, en validación o confirmada)
+     * y, de ser así, oculta el formulario para evitar reservas duplicadas simultáneas.
+     * @returns {Promise<void>}
+     */
     async verificarYBloquearReservaActiva() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -159,6 +177,11 @@ export const TourDetalleController = {
         }
     },
 
+    /**
+     * @description Evalúa el estado de una reserva existente para mostrar la tarjeta correspondiente en la UI.
+     * @param {Object|null} reserva - Objeto de reserva turística o null.
+     * @returns {void}
+     */
     evaluarReservaExistente(reserva) {
         if (!reserva) {
             TourDetalleView.restablecerModoPublico(tourActual);
@@ -188,6 +211,11 @@ export const TourDetalleController = {
         }
     },
 
+    /**
+     * @description Encuentra la fecha de salida futura más próxima en una lista de fechas.
+     * @param {Array<Object>} fechas - Lista de fechas de salida asociadas al tour.
+     * @returns {Object|null} Objeto de la fecha más próxima futura o null.
+     */
     obtenerFechaMasProxima(fechas) {
         if (!Array.isArray(fechas) || fechas.length === 0) return null;
 
@@ -205,6 +233,10 @@ export const TourDetalleController = {
         return proximaFutura || null;
     },
 
+    /**
+     * @description Obtiene el objeto de la fecha actualmente seleccionada en el formulario o selector.
+     * @returns {Object|null} La fecha seleccionada vigente o la fecha más próxima.
+     */
     obtenerFechaSeleccionadaActual() {
         if (!tourActual || !Array.isArray(tourActual.tour_dates)) return null;
         const e = TourDetalleView.elements;
@@ -219,6 +251,10 @@ export const TourDetalleController = {
         return this.obtenerFechaMasProxima(tourActual.tour_dates);
     },
 
+    /**
+     * @description Configura la reactividad del formulario ante cambios de sesión de autenticación.
+     * @returns {void}
+     */
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {
             this.unsubscribeAuth();
@@ -231,13 +267,18 @@ export const TourDetalleController = {
                 try {
                     const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                     this.evaluarReservaExistente(reservaExistente);
-                } catch (_) {
+                } catch (error) {
+                    console.warn('Error al consultar reserva al actualizar autenticación:', error);
                     TourDetalleView.restablecerModoPublico(tourActual);
                 }
             }
         });
     },
 
+    /**
+     * @description Vincula eventos a los inputs del formulario para limpiar mensajes de error al escribir.
+     * @returns {void}
+     */
     inicializarLimpiezaErrores() {
         const e = TourDetalleView.elements;
         [
@@ -256,6 +297,10 @@ export const TourDetalleController = {
         });
     },
 
+    /**
+     * @description Activa un temporizador de contingencia para evitar loader infinito en fallos de red.
+     * @returns {void}
+     */
     inicializarFailsafe() {
         const activar = () => {
             const e = TourDetalleView.elements;
@@ -269,6 +314,10 @@ export const TourDetalleController = {
         window.addEventListener('error', activar);
     },
 
+    /**
+     * @description Carga los datos del tour por ID desde Supabase con fallback a datos locales.
+     * @returns {Promise<void>}
+     */
     async cargarTour() {
         TourDetalleView.mostrarEstado('loading');
         const params = new URLSearchParams(window.location.search);
@@ -311,7 +360,9 @@ export const TourDetalleController = {
                     if (sesion?.user?.id) {
                         reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                     }
-                } catch (_) { }
+                } catch (error) {
+                    console.warn('Error al consultar reserva previa del usuario:', error);
+                }
 
                 this.evaluarReservaExistente(reservaExistente);
             }
@@ -341,7 +392,9 @@ export const TourDetalleController = {
                         if (sesion?.user?.id) {
                             reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                         }
-                    } catch (_) { }
+                    } catch (error) {
+                        console.warn('Error al consultar reserva previa en fallback:', error);
+                    }
 
                     this.evaluarReservaExistente(reservaExistente);
                 }
@@ -351,6 +404,10 @@ export const TourDetalleController = {
         }
     },
 
+    /**
+     * @description Valida el formulario de reserva, actualiza aforos y registra la reserva en la base de datos.
+     * @returns {Promise<void>}
+     */
     async procesarReserva() {
         if (!tourActual) return;
 
@@ -490,7 +547,9 @@ export const TourDetalleController = {
 
             try {
                 localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaConfirmada));
-            } catch (_) { }
+            } catch (error) {
+                console.warn('No se pudo guardar la reserva en localStorage:', error);
+            }
 
             // Limpieza de formulario y reseteo de inputs antes de la redirección
             TourDetalleView.limpiarFormularioReserva();

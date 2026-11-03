@@ -1,9 +1,24 @@
+/**
+ * js/models/MisToursModel.js
+ * Modelo para el historial de reservas turísticas del usuario autenticado (MITUR).
+ * Provee consulta directa a Supabase tour_reservations y mapeo de estados cronológicos.
+ */
+
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
 
-const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http') ? atob(SUPABASE_URL_B64) : SUPABASE_URL_B64;
-const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_') ? atob(SUPABASE_ANON_KEY_B64) : SUPABASE_ANON_KEY_B64;
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
+/**
+ * @description Retorna la fecha de hoy en formato local 'YYYY-MM-DD'.
+ * @returns {string} Fecha local.
+ */
 export function obtenerFechaHoyLocal() {
     const hoy = new Date();
     const anio = hoy.getFullYear();
@@ -12,6 +27,11 @@ export function obtenerFechaHoyLocal() {
     return `${anio}-${mes}-${dia}`;
 }
 
+/**
+ * @description Convierte una fecha ISO o YYYY-MM-DD en formato largo en español.
+ * @param {string|null} fechaStr - Cadena de fecha.
+ * @returns {string} Fecha formateada en español.
+ */
 export function formatearFechaEspanol(fechaStr) {
     if (!fechaStr) return '';
     try {
@@ -29,11 +49,18 @@ export function formatearFechaEspanol(fechaStr) {
             });
         }
         return fechaStr;
-    } catch (_) {
+    } catch (error) {
+        console.warn('Advertencia al formatear fecha en formatearFechaEspanol:', error);
         return fechaStr;
     }
 }
 
+/**
+ * @description Calcula la etiqueta de estado visual considerando vigencia de la fecha del tour.
+ * @param {string|null} status - Estado en BD.
+ * @param {string|null} tourDate - Fecha del tour.
+ * @returns {string} Estado visual formateado.
+ */
 export function calcularEstadoVisual(status, tourDate) {
     const hoyStr = obtenerFechaHoyLocal();
     const fechaTourLimpia = tourDate ? String(tourDate).split('T')[0] : '';
@@ -68,6 +95,10 @@ export function calcularEstadoVisual(status, tourDate) {
     return 'Pendiente de pago';
 }
 
+/**
+ * @description Verifica la validez de la sesión con Supabase Auth.
+ * @returns {Promise<Object|null>} Objeto de usuario autenticado o null.
+ */
 export async function verificarSesion() {
     try {
         const sesion = await AuthModel.obtenerSesionActual();
@@ -88,18 +119,26 @@ export async function verificarSesion() {
                 const user = await res.json();
                 return user;
             }
-        } catch (_) { }
+        } catch (fetchError) {
+            console.warn('Advertencia al validar usuario en /auth/v1/user:', fetchError);
+        }
 
         if (sesion.user) {
             return sesion.user;
         }
 
         return null;
-    } catch (_) {
+    } catch (error) {
+        console.warn('Error al verificar sesión en MisToursModel:', error);
         return null;
     }
 }
 
+/**
+ * @description Consulta el historial completo de reservaciones del turista en Supabase PostgREST.
+ * @param {string} touristId - UUID del usuario turista autenticado.
+ * @returns {Promise<Array<Object>>} Lista de reservas ordenadas cronológicamente.
+ */
 export async function obtenerHistorial(touristId) {
     if (!touristId) {
         return [];
@@ -134,12 +173,9 @@ export async function obtenerHistorial(touristId) {
             }
         }
     } catch (err) {
-        console.error('Error al consultar tour_reservations:', err);
+        console.error('Error al consultar tour_reservations en Supabase:', err);
     }
 
-    // ELIMINAR cualquier renderizado de reservas mockeadas o leídas de localStorage
-    // cuando Supabase retorne un arreglo vacío []. Realizar siempre la consulta a
-    // tour_reservations filtrando por el tourist_id autenticado.
     if (!Array.isArray(datos) || datos.length === 0) {
         return [];
     }
@@ -185,6 +221,9 @@ export async function obtenerHistorial(touristId) {
     });
 }
 
+/**
+ * Objeto MisToursModel agrupando la API del historial de tours
+ */
 export const MisToursModel = {
     verificarSesion,
     obtenerHistorial,

@@ -1,6 +1,7 @@
 // Vista e integración visual de Mapbox.
 import { MAPBOX_TOKEN_B64 } from '../config.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
+import { coincideCategoria } from '../utils/textUtils.js';
 
 const MAPBOX_TOKEN = atob(MAPBOX_TOKEN_B64);
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -145,6 +146,7 @@ export const MapaView = {
     elements: {
         searchInput: document.getElementById('search-input'),
         searchResults: document.getElementById('results-list'),
+        categoryFilters: document.getElementById('map-category-filters'),
         closeSidebar: document.getElementById('close-sidebar'),
         sidebar: document.getElementById('info-sidebar')
     },
@@ -183,6 +185,87 @@ export const MapaView = {
 
     ocultarResultados() {
         this.elements.searchResults?.classList.add('hidden');
+    },
+
+    /**
+     * Renderiza dinámicamente las píldoras de categorías obtenidas en tiempo real.
+     * @param {Array<{name: string, slug: string, color: string}>} categorias
+     * @param {Function} onSelectCategory
+     */
+    renderizarCategorias(categorias, onSelectCategory) {
+        const container = document.getElementById('map-category-filters') || this.elements.categoryFilters;
+        if (!container) return;
+
+        container.replaceChildren();
+
+        // Botón inicial "Todos" marcado como activo por defecto
+        const btnTodos = document.createElement('button');
+        btnTodos.type = 'button';
+        btnTodos.className = 'legend-item active';
+        btnTodos.setAttribute('data-category', 'todos');
+        btnTodos.setAttribute('aria-pressed', 'true');
+
+        const dotTodos = document.createElement('span');
+        dotTodos.className = 'color-dot';
+        dotTodos.style.backgroundColor = '#38bdf8';
+
+        btnTodos.append(dotTodos, document.createTextNode(' Todos'));
+
+        btnTodos.addEventListener('click', () => {
+            const allPills = container.querySelectorAll('.legend-item');
+            allPills.forEach(p => {
+                p.classList.remove('active');
+                p.setAttribute('aria-pressed', 'false');
+            });
+            btnTodos.classList.add('active');
+            btnTodos.setAttribute('aria-pressed', 'true');
+            if (typeof onSelectCategory === 'function') {
+                onSelectCategory('todos');
+            }
+        });
+
+        container.appendChild(btnTodos);
+
+        // Renderizar píldoras para cada categoría real
+        categorias.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'legend-item';
+            btn.setAttribute('data-category', cat.name);
+            btn.setAttribute('aria-pressed', 'false');
+
+            const dot = document.createElement('span');
+            dot.className = 'color-dot';
+            dot.style.backgroundColor = cat.color || '#38bdf8';
+
+            btn.append(dot, document.createTextNode(` ${cat.name}`));
+
+            btn.addEventListener('click', () => {
+                const yaActivo = btn.classList.contains('active');
+                const allPills = container.querySelectorAll('.legend-item');
+                allPills.forEach(p => {
+                    p.classList.remove('active');
+                    p.setAttribute('aria-pressed', 'false');
+                });
+
+                if (yaActivo) {
+                    // Si ya estaba activo, alternar volviendo a "Todos"
+                    btnTodos.classList.add('active');
+                    btnTodos.setAttribute('aria-pressed', 'true');
+                    if (typeof onSelectCategory === 'function') {
+                        onSelectCategory('todos');
+                    }
+                } else {
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-pressed', 'true');
+                    if (typeof onSelectCategory === 'function') {
+                        onSelectCategory(cat.name);
+                    }
+                }
+            });
+
+            container.appendChild(btn);
+        });
     }
 };
 
@@ -216,7 +299,33 @@ export function renderizarMarcadores(lugares) {
     });
 }
 
+/**
+ * Filtra de manera interactiva los marcadores de Mapbox en base a la categoría seleccionada.
+ * Si se selecciona "todos", muestra el 100% de los marcadores.
+ * @param {string} categoria
+ */
+export function filtrarMarcadores(categoria) {
+    const esTodos = !categoria || categoria.toLowerCase() === 'todos' || categoria.toLowerCase() === 'todas';
+
+    Object.values(activeMarkers).forEach(({ marker, lugar }) => {
+        const visible = esTodos ||
+            coincideCategoria(lugar.category, categoria) ||
+            coincideCategoria(lugar.category_slug, categoria);
+
+        const el = marker.getElement();
+        if (el) {
+            el.style.display = visible ? '' : 'none';
+        }
+    });
+}
+
 export function openPopupAndFly(lugar, colorHex) {
+    // Asegurar que el marcador sea visible si estaba oculto por filtro
+    if (lugar?.id && activeMarkers[lugar.id]?.marker) {
+        const el = activeMarkers[lugar.id].marker.getElement();
+        if (el) el.style.display = '';
+    }
+
     map.flyTo({
         center: lugar.coords,
         zoom: 15,
@@ -252,33 +361,36 @@ export function openPopupAndFly(lugar, colorHex) {
         category.style.color = color;
         category.textContent = lugar.category || 'Turismo';
         const title = document.createElement('h3');
-        title.className = 'sidebar-title';
+        title.className = 'sidebar-title place-title info-sidebar-title';
         title.textContent = lugar.name || 'Sitio turístico';
         const description = document.createElement('p');
-        description.className = 'sidebar-description';
+        description.className = 'sidebar-description place-description info-sidebar-desc';
         description.textContent = lugar.description || '';
 
         const rating = document.createElement('div');
-        rating.className = 'sidebar-rating';
+        rating.className = 'sidebar-rating info-sidebar-rating';
         rating.style.cssText = 'display:flex;align-items:center;gap:6px;margin:8px 0;';
         const stars = document.createElement('span');
         stars.style.cssText = 'display:flex;gap:2px;align-items:center;';
         if (hayRating) stars.appendChild(crearEstrellas(infoRating.promedio));
         const ratingLabel = document.createElement('span');
-        ratingLabel.style.cssText = 'font-size:0.85rem;font-weight:600;color:#374151;';
+        ratingLabel.className = 'rating-text info-sidebar-rating rating-score';
+        ratingLabel.style.cssText = 'font-size:0.85rem;font-weight:600;';
         ratingLabel.textContent = ratingTexto;
         rating.append(stars, ratingLabel);
         if (hayRating) {
             const count = document.createElement('span');
-            count.style.cssText = 'font-size:0.75rem;color:#6B7280;';
+            count.className = 'rating-score info-sidebar-rating';
+            count.style.cssText = 'font-size:0.75rem;';
             count.textContent = `(${infoRating.total} reseña${infoRating.total !== 1 ? 's' : ''})`;
             rating.appendChild(count);
         }
 
         const hours = document.createElement('div');
-        hours.className = 'sidebar-hours';
-        hours.style.cssText = 'display:flex;align-items:center;gap:6px;margin:4px 0 12px;font-size:0.8rem;color:#6B7280;';
+        hours.className = 'sidebar-hours opening-days info-sidebar-days';
+        hours.style.cssText = 'display:flex;align-items:center;gap:6px;margin:4px 0 12px;font-size:0.8rem;';
         const hoursLabel = document.createElement('span');
+        hoursLabel.className = 'info-sidebar-days days-badge';
         hoursLabel.textContent = horarios;
         hours.appendChild(hoursLabel);
 

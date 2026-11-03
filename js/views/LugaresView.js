@@ -1,4 +1,4 @@
-import { normalizarTexto } from '../utils/textUtils.js';
+import { normalizarTexto, coincideCategoria, generarSlug } from '../utils/textUtils.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
@@ -225,31 +225,63 @@ export const LugaresView = {
         }
     },
 
-    inicializarFiltrosCategorias(categoriasMap, categoriaActiva, onSelectCategoria) {
+    inicializarFiltrosCategorias(categorias, categoriaActiva, onSelectCategoria) {
         const { categoryPillsContainer } = this.elements;
         if (!categoryPillsContainer) return;
 
         categoryPillsContainer.querySelectorAll('.pill-btn').forEach(button => {
             const categoria = button.dataset.category || button.dataset.categoria;
-            if (categoria !== 'todos') button.remove();
+            if (categoria !== 'todos' && categoria !== 'todas') button.remove();
         });
 
         const btnTodos = categoryPillsContainer.querySelector('[data-category="todos"], [data-categoria="todos"]');
+        const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
+
         if (btnTodos) {
-            const esActivo = categoriaActiva === 'todos';
-            btnTodos.classList.toggle('active', esActivo);
-            btnTodos.setAttribute('aria-checked', esActivo ? 'true' : 'false');
+            btnTodos.textContent = 'Todas';
+            btnTodos.dataset.category = 'todos';
+            btnTodos.dataset.categoria = 'todos';
+            btnTodos.classList.toggle('active', esTodos);
+            btnTodos.setAttribute('aria-checked', esTodos ? 'true' : 'false');
             btnTodos.onclick = () => onSelectCategoria('todos', btnTodos, 'todos');
         }
 
-        categoriasMap.forEach((color, categoria) => {
-            const categoriaNormalizada = normalizarTexto(categoria);
-            const esActivo = categoriaActiva === categoriaNormalizada;
+        // Normalizar entrada (Array de objetos {name, slug, color} o Map)
+        let listaCategorias = [];
+        if (Array.isArray(categorias)) {
+            listaCategorias = categorias;
+        } else if (categorias instanceof Map) {
+            categorias.forEach((color, name) => {
+                listaCategorias.push({
+                    name,
+                    slug: generarSlug(name),
+                    color
+                });
+            });
+        }
+
+        let hayCoincidenciaActiva = false;
+
+        listaCategorias.forEach(cat => {
+            const nombre = cat.name || '';
+            const slug = cat.slug || generarSlug(nombre);
+            const color = cat.color || null;
+
+            const esActivo = !esTodos && (
+                slug === categoriaActiva ||
+                coincideCategoria(nombre, categoriaActiva) ||
+                coincideCategoria(slug, categoriaActiva)
+            );
+
+            if (esActivo) hayCoincidenciaActiva = true;
+
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `pill-btn ${esActivo ? 'active' : ''}`;
-            button.dataset.category = categoriaNormalizada;
-            button.dataset.categoria = categoriaNormalizada;
+            button.dataset.category = slug;
+            button.dataset.categoria = slug;
+            button.dataset.slug = slug;
+            button.dataset.name = nombre;
             button.setAttribute('role', 'radio');
             button.setAttribute('aria-checked', esActivo ? 'true' : 'false');
 
@@ -261,20 +293,37 @@ export const LugaresView = {
             }
 
             const label = document.createElement('span');
-            label.textContent = categoria;
+            label.textContent = nombre;
             button.appendChild(label);
-            button.addEventListener('click', () => onSelectCategoria(categoriaNormalizada, button, categoria.toLowerCase()));
+            button.addEventListener('click', () => onSelectCategoria(slug, button, nombre));
             categoryPillsContainer.appendChild(button);
         });
+
+        if (btnTodos) {
+            const marcarTodos = esTodos || !hayCoincidenciaActiva;
+            btnTodos.classList.toggle('active', marcarTodos);
+            btnTodos.setAttribute('aria-checked', marcarTodos ? 'true' : 'false');
+        }
     },
 
     actualizarCategoriaActiva(categoriaActiva, btnSeleccionado = null) {
         const { categoryPillsContainer } = this.elements;
+        const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
+
         categoryPillsContainer?.querySelectorAll('.pill-btn').forEach(button => {
-            const categoria = button.dataset.category || button.dataset.categoria || '';
-            const esActivo = btnSeleccionado
-                ? button === btnSeleccionado
-                : categoria === categoriaActiva;
+            const cat = button.dataset.category || button.dataset.categoria || '';
+            let esActivo = false;
+
+            if (btnSeleccionado) {
+                esActivo = button === btnSeleccionado;
+            } else if (esTodos) {
+                esActivo = cat === 'todos' || cat === 'todas';
+            } else {
+                esActivo = cat === categoriaActiva ||
+                    coincideCategoria(cat, categoriaActiva) ||
+                    coincideCategoria(button.dataset.name || '', categoriaActiva);
+            }
+
             button.classList.toggle('active', esActivo);
             button.setAttribute('aria-checked', esActivo ? 'true' : 'false');
         });

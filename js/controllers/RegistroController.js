@@ -7,9 +7,13 @@
 import { AuthModel, validarFormularioRegistro, sanitizarUsuario } from '../models/AuthModel.js';
 import { RegistroView, REGLAS_PASSWORD } from '../views/RegistroView.js';
 
+/**
+ * Objeto controlador que gestiona el registro de nuevos turistas y validaciones en tiempo real
+ */
 export const RegistroController = {
     /**
-     * Inicializa los listeners y el flujo del controlador
+     * @description Inicializa los listeners y el flujo del controlador de registro.
+     * @returns {Promise<void>}
      */
     async init() {
         this.inicializarEventos();
@@ -17,7 +21,8 @@ export const RegistroController = {
     },
 
     /**
-     * Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato
+     * @description Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato.
+     * @returns {Promise<void>}
      */
     async verificarSesionExistente() {
         try {
@@ -31,7 +36,7 @@ export const RegistroController = {
     },
 
     /**
-     * Configura los escuchadores de eventos sobre los elementos de RegistroView
+     * @description Configura los escuchadores de eventos sobre los elementos de RegistroView.
      */
     inicializarEventos() {
         const {
@@ -43,7 +48,6 @@ export const RegistroController = {
             inputTerms
         } = RegistroView.elements;
 
-        // Limpiar errores individuales al escribir o cambiar valores
         inputNombre?.addEventListener('input', () => {
             RegistroView.limpiarErrorCampo('inputNombre');
         });
@@ -52,13 +56,11 @@ export const RegistroController = {
             RegistroView.limpiarErrorCampo('inputEmail');
         });
 
-        // Actualización en vivo de reglas de contraseña en input de password
         inputPassword?.addEventListener('input', (event) => {
             RegistroView.limpiarErrorCampo('inputPassword');
             const pass = event.target.value;
             RegistroView.actualizarReglasPassword(pass);
 
-            // Si ya hay algo en confirmPassword, verificar si aún coinciden o limpiar
             if (inputConfirm?.value) {
                 if (pass === inputConfirm.value) {
                     RegistroView.limpiarErrorCampo('inputConfirm');
@@ -74,7 +76,6 @@ export const RegistroController = {
             RegistroView.limpiarErrorCampo('inputTerms');
         });
 
-        // Cablear todos los botones de alternar visibilidad de contraseña
         const botonesToggle = document.querySelectorAll('.btn-toggle-password');
         botonesToggle.forEach(boton => {
             boton.addEventListener('click', (event) => {
@@ -84,17 +85,15 @@ export const RegistroController = {
             });
         });
 
-        // Envío del formulario
         form?.addEventListener('submit', (event) => {
             this.manejarSubmit(event);
         });
     },
 
     /**
-     * Valida los datos del formulario aplicando las reglas de negocio del modelo
-     * 
-     * @param {{ nombre: string, email: string, password: string, confirm: string, terms: boolean }} datos
-     * @returns {Array<[string, string]>} Lista de pares [campo, mensajeError]
+     * @description Valida los datos del formulario aplicando las reglas de negocio del modelo.
+     * @param {{ nombre: string, email: string, password: string, confirm: string, terms: boolean }} datos - Datos del formulario.
+     * @returns {Array<[string, string]>} Lista de pares [campo, mensajeError].
      */
     validar(datos) {
         const { errores: errs } = validarFormularioRegistro(datos);
@@ -110,9 +109,9 @@ export const RegistroController = {
     },
 
     /**
-     * Orquesta el flujo de envío del formulario de registro
-     * 
-     * @param {Event} event 
+     * @description Orquesta el flujo de envío del formulario de registro y creación de cuenta en Supabase.
+     * @param {Event} event - Evento submit.
+     * @returns {Promise<void>}
      */
     async manejarSubmit(event) {
         event.preventDefault();
@@ -138,7 +137,6 @@ export const RegistroController = {
             const nombreSanitizado = sanitizarUsuario(datos.nombre);
             const data = await AuthModel.registrarUsuario(nombreSanitizado, datos.email.trim(), datos.password);
 
-            // Solo si la respuesta de Supabase es exitosa (data.user existe)
             if (data && data.user) {
                 if (data.access_token || data.sesion) {
                     RegistroView.mostrarExito(
@@ -192,8 +190,8 @@ export const RegistroController = {
     },
 
     /**
-     * Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto.
-     * Replica exactamente la lógica de validación de origen seguro de LoginController.
+     * @description Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto,
+     * aplicando validación de origen contra redirecciones abiertas maliciosas.
      */
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
@@ -202,7 +200,6 @@ export const RegistroController = {
         if (redirect) {
             try {
                 const urlDecodificada = decodeURIComponent(redirect);
-                // Validación básica de seguridad para evitar redirecciones abiertas maliciosas
                 if (urlDecodificada.startsWith('http://') || urlDecodificada.startsWith('https://')) {
                     const destinoUrl = new URL(urlDecodificada);
                     if (destinoUrl.origin === window.location.origin) {
@@ -210,25 +207,24 @@ export const RegistroController = {
                         return;
                     }
                 } else {
-                    // Es una ruta relativa válida
                     window.location.href = urlDecodificada;
                     return;
                 }
-            } catch (_) {
-                // Si falla la decodificación, se ignora y se redirige a la ruta por defecto
+            } catch (error) {
+                console.warn('Advertencia al decodificar URL de redirección en RegistroController:', error);
             }
         }
 
-        // Redirección por defecto
         window.location.href = 'mapa.html';
     }
 };
 
-// Inicialización automática al cargar el DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => RegistroController.init(), { once: true });
-} else {
-    RegistroController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => RegistroController.init(), { once: true });
+    } else {
+        RegistroController.init();
+    }
 }
 
 export default RegistroController;

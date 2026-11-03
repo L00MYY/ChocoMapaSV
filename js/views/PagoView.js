@@ -458,7 +458,9 @@ export const PagoView = {
                     day: 'numeric'
                 });
             }
-        } catch (_) {}
+        } catch (error) {
+            console.warn('Error al formatear fecha en PagoView:', error);
+        }
         return String(fechaStr);
     }
 };

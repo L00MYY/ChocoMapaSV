@@ -7,9 +7,13 @@
 import { AuthModel, validarFormularioLogin, MENSAJE_ERROR_CREDENCIALES } from '../models/AuthModel.js';
 import { LoginView } from '../views/LoginView.js';
 
+/**
+ * Objeto controlador que gestiona el formulario de login y redirecciones seguras
+ */
 export const LoginController = {
     /**
-     * Inicializa los listeners y el flujo del controlador
+     * @description Inicializa los listeners y el flujo de verificación de sesión previa.
+     * @returns {Promise<void>}
      */
     async init() {
         this.inicializarEventos();
@@ -17,7 +21,8 @@ export const LoginController = {
     },
 
     /**
-     * Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato
+     * @description Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato.
+     * @returns {Promise<boolean>} True si existía sesión y se inició redirección.
      */
     async verificarSesionExistente() {
         try {
@@ -33,12 +38,11 @@ export const LoginController = {
     },
 
     /**
-     * Configura los escuchadores de eventos sobre los elementos de LoginView
+     * @description Configura los escuchadores de eventos sobre los elementos de LoginView.
      */
     inicializarEventos() {
         const { form, emailInput, passwordInput, passwordToggleBtn } = LoginView.elements;
 
-        // Limpiar errores cuando el usuario edite cualquiera de los campos
         emailInput?.addEventListener('input', () => {
             LoginView.limpiarErrorCampo('email');
             LoginView.limpiarError();
@@ -49,7 +53,6 @@ export const LoginController = {
             LoginView.limpiarError();
         });
 
-        // Alternar visibilidad de contraseña
         passwordToggleBtn?.addEventListener('click', () => {
             if (!passwordInput) return;
             const esPassword = passwordInput.getAttribute('type') === 'password';
@@ -59,16 +62,15 @@ export const LoginController = {
             passwordToggleBtn.classList.toggle('active', esPassword);
         });
 
-        // Evento submit del formulario
         form?.addEventListener('submit', (event) => {
             this.manejarSubmit(event);
         });
     },
 
     /**
-     * Maneja el envío del formulario de inicio de sesión
-     * 
-     * @param {Event} event 
+     * @description Maneja el envío del formulario de inicio de sesión, validando campos y autenticando con Supabase.
+     * @param {Event} event - Evento submit del formulario.
+     * @returns {Promise<void>}
      */
     async manejarSubmit(event) {
         event.preventDefault();
@@ -76,7 +78,6 @@ export const LoginController = {
 
         const credenciales = LoginView.obtenerCredenciales();
 
-        // 1. Validación previa mediante AuthModel (Criterios 1 y 3)
         const validacion = validarFormularioLogin(credenciales);
         if (!validacion.esValido) {
             if (validacion.errores.email) {
@@ -88,14 +89,11 @@ export const LoginController = {
             return;
         }
 
-        // 2. Estado visual de carga
         LoginView.mostrarCargando(true);
 
         try {
-            // 3. Autenticación con Supabase Auth
             await AuthModel.iniciarSesion(credenciales.email, credenciales.password);
 
-            // 4. Limpieza de formulario y estado de botón antes de la redirección
             const { form } = LoginView.elements;
             if (form && typeof form.reset === 'function') {
                 form.reset();
@@ -104,7 +102,6 @@ export const LoginController = {
             }
             LoginView.mostrarCargando(false);
 
-            // 5. Redirección en caso de éxito
             this.redirigirUsuario();
         } catch (error) {
             console.error('Error de autenticación:', error);
@@ -115,7 +112,8 @@ export const LoginController = {
     },
 
     /**
-     * Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto
+     * @description Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto,
+     * aplicando validación de origen para prevenir ataques de Open Redirect.
      */
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
@@ -124,7 +122,6 @@ export const LoginController = {
         if (redirect) {
             try {
                 const urlDecodificada = decodeURIComponent(redirect);
-                // Si existe un redirect válido y no apunta a login, redirigir inmediatamente a esa URL
                 const esLogin = urlDecodificada.toLowerCase().includes('login.html');
                 if (!esLogin) {
                     if (urlDecodificada.startsWith('http://') || urlDecodificada.startsWith('https://')) {
@@ -134,24 +131,21 @@ export const LoginController = {
                             return;
                         }
                     } else {
-                        // Es una ruta relativa válida
                         window.location.replace(urlDecodificada);
                         return;
                     }
                 }
-            } catch (_) {
-                // Si falla la decodificación, se ignora y se redirige a la ruta por defecto
+            } catch (error) {
+                console.warn('Advertencia al decodificar URL de redirección:', error);
             }
         }
 
-        // Redirección por defecto
         window.location.replace('mapa.html');
     }
 };
 
-// Listener para el evento pageshow que cubre restauraciones desde BFCache del navegador
 if (typeof window !== 'undefined') {
-    window.addEventListener('pageshow', async (event) => {
+    window.addEventListener('pageshow', async () => {
         const haySesion = await LoginController.verificarSesionExistente();
         if (!haySesion) {
             LoginView.mostrarCargando(false);
@@ -159,7 +153,6 @@ if (typeof window !== 'undefined') {
     });
 }
 
-// Inicialización automática al cargar el DOM
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => LoginController.init(), { once: true });
