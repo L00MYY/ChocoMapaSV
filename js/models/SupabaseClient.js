@@ -1,5 +1,20 @@
+/**
+ * @file SupabaseClient.js
+ * @description Cliente base de comunicación HTTP REST con los servicios de Supabase (PostgREST).
+ * Rol en el MVC: Modelo (Model / Capa de infraestructura de datos). Realiza peticiones directas vía fetch
+ * a la API REST sin utilizar SDKs pesados, normalizando la estructura de datos para el resto del aplicativo.
+ */
+
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
+/**
+ * Consulta la colección completa de lugares turísticos desde la tabla 'places' en Supabase PostgREST,
+ * incluyendo datos relacionados de categorías (nombre, color) y calificaciones (scores).
+ * @async
+ * @function obtenerLugaresTuristicos
+ * @returns {Promise<Array<Object>>} Lista de lugares turísticos mapeados con coordenadas [lng, lat].
+ * @throws {Error} Lanza error si la respuesta HTTP no es exitosa (capturado internamente retornando []).
+ */
 export async function obtenerLugaresTuristicos() {
     try {
         const params = new URLSearchParams({
@@ -8,6 +23,7 @@ export async function obtenerLugaresTuristicos() {
 
         const url = `${SUPABASE_URL}/rest/v1/places?${params.toString()}`;
 
+        // Petición HTTP nativa GET a Supabase PostgREST con apikey pública y token Bearer anónimo
         const respuesta = await fetch(url, {
             method: 'GET',
             headers: {

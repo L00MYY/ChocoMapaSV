@@ -7,10 +7,17 @@
 import { AuthModel } from '../models/AuthModel.js';
 import { LoginView } from '../views/LoginView.js';
 
+/**
+ * @file LoginController.js
+ * Rol en el MVC: Controlador (Controller).
+ * Gestiona el formulario de inicio de sesión, coordina la autenticación con AuthModel
+ * y manipula la interfaz mediante LoginView.
+ */
 export const LoginController = {
     /**
      * Inicializa los listeners y el flujo del controlador
      */
+     * @returns {Promise<void>}
     async init() {
         this.inicializarEventos();
         await this.verificarSesionExistente();
@@ -19,6 +26,7 @@ export const LoginController = {
     /**
      * Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato
      */
+     * @returns {Promise<void>}
     async verificarSesionExistente() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -33,6 +41,7 @@ export const LoginController = {
     /**
      * Configura los escuchadores de eventos sobre los elementos de LoginView
      */
+     * @returns {void}
     inicializarEventos() {
         const { form, emailInput, passwordInput, passwordToggleBtn } = LoginView.elements;
 
@@ -66,6 +75,7 @@ export const LoginController = {
      * 
      * @param {Event} event 
      */
+     * @returns {Promise<void>}
     async manejarSubmit(event) {
         event.preventDefault();
         LoginView.limpiarError();
@@ -100,6 +110,7 @@ export const LoginController = {
     /**
      * Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto
      */
+     * @returns {void}
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');

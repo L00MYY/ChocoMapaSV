@@ -1,6 +1,15 @@
+/**
+ * @file ToursModel.js
+ * @description Modelo de acceso a datos para el catálogo de tours, fechas, lugares asociados y reservaciones.
+ * Rol en el MVC: Modelo (Model). Realiza consultas a las tablas 'tours', 'tour_places', 'tour_dates'
+ * y 'tour_reservations' en Supabase PostgREST, implementando resiliencia con respaldo local (TOURS_DEMO)
+ * y funciones accesorias de formateo (conforme a la deuda documentada en ADR-004).
+ */
+
 // Modelo y acceso a datos para tours y reservas (MITUR SV)
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 
+/** @type {Object} Cabeceras comunes para llamadas a la API REST de Supabase */
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -435,6 +444,7 @@ export async function crearReservaTour(reservaData) {
  */
 export async function actualizarCuposTour(tourId, nuevosCupos) {
     try {
+        // Petición PATCH a Supabase PostgREST para decrementar los cupos disponibles tras confirmar la reserva
         const url = `${SUPABASE_URL}/rest/v1/tours?id=eq.${tourId}`;
         await fetch(url, {
             method: 'PATCH',
@@ -493,10 +503,22 @@ export function formatearFechaLarga(fechaStr) {
     return String(fechaStr);
 }
 
+/** @type {Array<Object>} Lista de tours en memoria */
 let todosLosTours = [];
+/** @type {Array<Object>} Lista de lugares turísticos para filtros en memoria */
 let lugaresDisponibles = [];
 
+/**
+ * Objeto modelo que administra el estado y filtrado del catálogo de tours.
+ * @namespace ToursModel
+ */
 export const ToursModel = {
+    /**
+     * Carga el catálogo de tours y lista de lugares con límite de tiempo de 6 segundos.
+     * @async
+     * @function cargarCatalogo
+     * @returns {Promise<{ tours: Array<Object>, lugares: Array<Object> }>} Objeto con tours y lugares.
+     */
     async cargarCatalogo() {
         const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error('Timeout de seguridad (6s) excedido al cargar catálogo')), 6000);
@@ -512,6 +534,12 @@ export const ToursModel = {
         return { tours: todosLosTours, lugares: lugaresDisponibles };
     },
 
+    /**
+     * Aplica los filtros de fecha, departamento, oferta y lugar sobre los tours en memoria.
+     * @function getToursFiltrados
+     * @param {Object} [filtros={}] - Criterios de filtrado.
+     * @returns {Array<Object>} Lista de tours coincidentes.
+     */
     getToursFiltrados(filtros = {}) {
         const { fecha = '', departamento = '', oferta = '', lugar = '' } = filtros;
         const deptoNormalizado = departamento.trim().toLowerCase();
@@ -539,10 +567,20 @@ export const ToursModel = {
         });
     },
 
+    /**
+     * Retorna la cantidad total de tours disponibles en el catálogo.
+     * @function getTotalTours
+     * @returns {number} Conteo total de tours.
+     */
     getTotalTours() {
         return todosLosTours.length;
     },
 
+    /**
+     * Retorna la lista de lugares asociados a los tours para poblar filtros.
+     * @function getLugaresDisponibles
+     * @returns {Array<Object>} Lista de lugares turísticos.
+     */
     getLugaresDisponibles() {
         return lugaresDisponibles;
     }

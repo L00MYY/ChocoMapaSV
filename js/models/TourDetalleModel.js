@@ -1,6 +1,9 @@
 /**
  * js/models/TourDetalleModel.js
  * Modelo del Detalle del Tour para ChocoMapaSV (MITUR)
+ * @file TourDetalleModel.js
+ * Rol en el MVC: Modelo (Model). Consulta tours específicos y reservaciones en Supabase PostgREST,
+ * gestiona la verificación de reservas previas por usuario y reexporta utilidades de ToursModel.
  * Capa de datos desacoplada del DOM que gestiona la comunicación con Supabase
  * para consultar tours individuales y reservaciones específicas.
  */
@@ -25,6 +28,7 @@ export {
     formatearMonedaUSD
 };
 
+/** @type {Object} Cabeceras estándar para peticiones HTTP a Supabase */
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -86,6 +90,7 @@ export async function obtenerReservaPorId(reservaId) {
             'Authorization': `Bearer ${sesion?.access_token || SUPABASE_ANON_KEY}`
         };
 
+        // Petición a Supabase PostgREST para obtener la reserva con join embebido a los datos del tour
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?id=eq.${encodeURIComponent(reservaId)}&select=id,tour_id,tourist_id,spots_reserved,tour_date,status,created_at,tours(*)`;
 
         const res = await fetch(url, {
@@ -148,6 +153,7 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
             limit: '1'
         });
 
+        // Consulta a Supabase para verificar si el usuario autenticado ya posee una reserva en este tour
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?${params.toString()}`;
         const res = await fetch(url, {
             method: 'GET',
@@ -199,6 +205,10 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
     return null;
 }
 
+/**
+ * Objeto modelo que agrupa los métodos para el detalle y reservación de un tour individual.
+ * @namespace TourDetalleModel
+ */
 export const TourDetalleModel = {
     obtenerTourPorId,
     obtenerReservaPorId,

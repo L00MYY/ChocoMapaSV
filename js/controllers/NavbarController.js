@@ -8,13 +8,22 @@
 import { AuthModel } from '../models/AuthModel.js';
 import { NavbarView } from '../views/NavbarView.js';
 
+/**
+ * Controlador de la barra de navegación institucional.
+ * Rol en el MVC: Controlador (Controller). Gestiona el estado de autenticación visible,
+ * interacción con el menú desplegable de usuario y navegación protegida hacia reservas.
+ * @namespace NavbarController
+ */
 export const NavbarController = {
+    /** @type {boolean} Indicador para asegurar ejecución única del controlador */
     initialized: false,
+    /** @type {Function|null} Función de cancelación de suscripción a eventos de autenticación */
     unsubscribeAuth: null,
 
     /**
      * Inicializa el controlador del navbar de forma idempotente
      */
+     * @returns {Promise<void>}
     async init() {
         if (this.initialized) {
             // Si ya se inicializó, sincronizar estado actual por si acaso
@@ -31,6 +40,7 @@ export const NavbarController = {
     /**
      * Configura los escuchadores de eventos del DOM
      */
+     * @returns {void}
     inicializarEventos() {
         const { btnUser, btnLogout, btnLogin, dropdownMenu, userContainer } = NavbarView.elements;
 
@@ -112,6 +122,7 @@ export const NavbarController = {
     /**
      * Suscribe un observador a los eventos del AuthModel para actualizar la UI reactivamente
      */
+     * @returns {void}
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {
             this.unsubscribeAuth();
@@ -129,6 +140,7 @@ export const NavbarController = {
     /**
      * Consulta el estado de sesión actual en AuthModel y actualiza la vista
      */
+     * @returns {Promise<void>}
     async actualizarEstadoDesdeModelo() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -146,6 +158,7 @@ export const NavbarController = {
     /**
      * Ejecuta el cierre de sesión a través del AuthModel y actualiza la interfaz
      */
+     * @returns {Promise<void>}
     async manejarCerrarSesion() {
         try {
             NavbarView.cerrarDropdown();

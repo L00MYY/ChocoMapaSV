@@ -1,6 +1,9 @@
 /**
  * js/models/MisToursModel.js
  * Modelo del Historial de Tours para ChocoMapaSV (MITUR)
+ * @file MisToursModel.js
+ * Rol en el MVC: Modelo (Model). Gestiona la consulta y formateo de reservaciones del usuario
+ * contra la tabla 'tour_reservations' en Supabase y valida sesiones con AuthModel.
  * Capa de datos desacoplada del DOM que gestiona la comunicación con Supabase
  * para las reservas del usuario autenticado.
  */
@@ -85,6 +88,7 @@ export async function verificarSesion() {
         }
 
         try {
+            // Consulta al endpoint auth/v1/user para validar el JWT y extraer los metadatos del usuario
             const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                 method: 'GET',
                 headers: {
@@ -141,6 +145,7 @@ export async function obtenerHistorial(touristId) {
         });
 
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?${params.toString()}`;
+        // Petición REST a Supabase para recuperar reservaciones con join embebido a la tabla tours
         const res = await fetch(url, {
             method: 'GET',
             headers
@@ -189,6 +194,10 @@ export async function obtenerHistorial(touristId) {
     }
 }
 
+/**
+ * Objeto modelo que agrupa los métodos para la gestión de reservas del usuario.
+ * @namespace MisToursModel
+ */
 export const MisToursModel = {
     verificarSesion,
     obtenerHistorial,

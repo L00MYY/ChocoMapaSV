@@ -1,3 +1,10 @@
+/**
+ * @file TourDetalleController.js
+ * @description Controlador de la página de detalle y reserva de tours.
+ * Rol en el MVC: Controlador (Controller). Orquesta la recuperación del tour desde TourDetalleModel,
+ * la visualización de datos en TourDetalleView y la tramitación de reservas asociadas al usuario autenticado.
+ */
+
 import {
     TOURS_DEMO,
     actualizarCuposTour,
@@ -10,12 +17,24 @@ import {
 import { AuthModel } from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';
 
+/** @type {Object|null} Referencia al tour actualmente cargado en memoria */
 let tourActual = null;
+/** @type {number|undefined} Identificador del temporizador de seguridad contra bloqueos de carga */
 let failsafeTimeout;
 
+/**
+ * Objeto controlador para la gestión del detalle y reserva de tours.
+ * @namespace TourDetalleController
+ */
 export const TourDetalleController = {
+    /** @type {Function|null} Función de desuscripción al listener de autenticación */
     unsubscribeAuth: null,
 
+    /**
+     * Inicializa los eventos de la vista de detalle de tour y arranca el ciclo de carga.
+     * @function init
+     * @returns {void}
+     */
     init() {
         const { btnReturn, btnOpenReserve, reservationForm } = TourDetalleView.elements;
         const params = new URLSearchParams(window.location.search);
@@ -67,6 +86,11 @@ export const TourDetalleController = {
         this.cargarTour();
     },
 
+    /**
+     * Configura el listener reactivo para actualizar el estado del formulario ante cambios de sesión.
+     * @function inicializarSuscripcionAuth
+     * @returns {void}
+     */
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {
             this.unsubscribeAuth();
@@ -87,6 +111,11 @@ export const TourDetalleController = {
         });
     },
 
+    /**
+     * Vincula listeners a los campos del formulario para limpiar mensajes de validación al interactuar.
+     * @function inicializarLimpiezaErrores
+     * @returns {void}
+     */
     inicializarLimpiezaErrores() {
         const e = TourDetalleView.elements;
         [
@@ -105,6 +134,11 @@ export const TourDetalleController = {
         });
     },
 
+    /**
+     * Establece un temporizador de seguridad (6s) para mostrar un estado de error si la carga se bloquea.
+     * @function inicializarFailsafe
+     * @returns {void}
+     */
     inicializarFailsafe() {
         const activar = () => {
             const e = TourDetalleView.elements;
@@ -118,6 +152,12 @@ export const TourDetalleController = {
         window.addEventListener('error', activar);
     },
 
+    /**
+     * Obtiene los datos del tour solicitado por ID desde Supabase o fallback local en TOURS_DEMO.
+     * @async
+     * @function cargarTour
+     * @returns {Promise<void>}
+     */
     async cargarTour() {
         TourDetalleView.mostrarEstado('loading');
         const params = new URLSearchParams(window.location.search);
@@ -126,6 +166,7 @@ export const TourDetalleController = {
         const reservaId = params.get('reservaId');
 
         try {
+            // Consulta asíncrona a Supabase con límite de tiempo de 6 segundos
             tourActual = await Promise.race([
                 obtenerTourPorId(id),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera agotado')), 6000))
@@ -216,6 +257,12 @@ export const TourDetalleController = {
         }
     },
 
+    /**
+     * Valida el formulario de reserva, registra la reservación en Supabase y descuenta cupos disponibles.
+     * @async
+     * @function procesarReserva
+     * @returns {Promise<void>}
+     */
     async procesarReserva() {
         if (!tourActual) return;
 
@@ -266,6 +313,7 @@ export const TourDetalleController = {
             button.textContent = 'Confirmando reserva...';
         }
         try {
+            // Registro de la reserva en la tabla de Supabase y actualización de cupos disponibles
             const resultado = await crearReservaTour(reserva);
             const cuposActualizados = Math.max(0, Number(tourActual.available_spots) - cupos);
             await actualizarCuposTour(tourActual.id, cuposActualizados);
@@ -301,6 +349,7 @@ export const TourDetalleController = {
     }
 };
 
+// Inicialización del controlador según el ciclo de vida del DOM
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => TourDetalleController.init(), { once: true });
 } else {

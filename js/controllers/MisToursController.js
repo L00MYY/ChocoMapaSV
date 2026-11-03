@@ -8,12 +8,18 @@
 import { MisToursModel } from '../models/MisToursModel.js';
 import { MisToursView } from '../views/MisToursView.js';
 
+/**
+ * Controlador del historial de tours y reservas del usuario autenticado.
+ * @namespace MisToursController
+ */
 export const MisToursController = {
+    /** @type {Object|null} Usuario en sesión actual */
     usuarioActual: null,
 
     /**
      * Inicializa el controlador y valida la sesión del usuario
      */
+     * @returns {Promise<void>}
     async init() {
         try {
             MisToursView.renderLoading();
@@ -40,6 +46,7 @@ export const MisToursController = {
     /**
      * Carga el historial de reservaciones desde el modelo y solicita a la vista renderizarlo
      */
+     * @returns {Promise<void>}
     async cargarHistorial() {
         if (!this.usuarioActual) return;
 

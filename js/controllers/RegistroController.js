@@ -7,10 +7,16 @@
 import { AuthModel } from '../models/AuthModel.js';
 import { RegistroView, REGLAS_PASSWORD } from '../views/RegistroView.js';
 
+/**
+ * Controlador de la vista de registro de usuarios.
+ * Rol en el MVC: Controlador (Controller). Valida entradas, interactúa con AuthModel y actualiza RegistroView.
+ * @namespace RegistroController
+ */
 export const RegistroController = {
     /**
      * Inicializa los listeners y el flujo del controlador
      */
+     * @returns {Promise<void>}
     async init() {
         this.inicializarEventos();
         await this.verificarSesionExistente();
@@ -19,6 +25,7 @@ export const RegistroController = {
     /**
      * Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato
      */
+     * @returns {Promise<void>}
     async verificarSesionExistente() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -33,6 +40,7 @@ export const RegistroController = {
     /**
      * Configura los escuchadores de eventos sobre los elementos de RegistroView
      */
+     * @returns {void}
     inicializarEventos() {
         const {
             form,
@@ -149,6 +157,7 @@ export const RegistroController = {
      * 
      * @param {Event} event 
      */
+     * @returns {Promise<void>}
     async manejarSubmit(event) {
         event.preventDefault();
         RegistroView.limpiarErrores();
@@ -170,6 +179,7 @@ export const RegistroController = {
         RegistroView.mostrarCargando(true);
 
         try {
+            // Petición a Supabase GoTrue Auth (/auth/v1/signup) para registrar el usuario y sus metadatos
             const data = await AuthModel.registrarUsuario(datos.nombre, datos.email, datos.password);
 
             // Solo si la respuesta de Supabase es exitosa (data.user existe)
@@ -229,6 +239,7 @@ export const RegistroController = {
      * Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto.
      * Replica exactamente la lógica de validación de origen seguro de LoginController.
      */
+     * @returns {void}
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
