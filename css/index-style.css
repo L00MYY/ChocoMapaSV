@@ -538,6 +538,17 @@ body {
     transition: var(--transition-standard);
 }
 
+[data-theme="light"] .trending-chip{
+    background-color: var(--cerulean);
+    color: #E2ECEF;
+}
+
+[data-theme="light"] .trending-chip:hover{
+    border-color: var(--cerulean);
+    background-color: #E2ECEF;
+    color: var(--cerulean);
+}
+
 .trending-chip:hover {
     background: var(--baltic-blue);
     color: #FFFFFF;
@@ -831,6 +842,11 @@ body {
     cursor: not-allowed;
 }
 
+[data-theme="light"] .carousel-arrow-btn{
+    background-color: var(--cerulean);
+    color: #E2ECEF;
+}
+
 .btn-tours-view-all {
     display: inline-flex;
     align-items: center;
@@ -844,6 +860,17 @@ body {
     border: 1.5px solid var(--border-color);
     border-radius: var(--radius-pill);
     transition: var(--transition-standard);
+}
+
+[data-theme="light"] .btn-tours-view-all{
+    background-color: var(--cerulean);
+    color: #E2ECEF;
+}
+
+[data-theme="light"] .btn-tours-view-all:hover{
+    border-color: var(--cerulean);
+    background-color: #E2ECEF;
+    color: var(--cerulean);
 }
 
 .btn-tours-view-all svg {
@@ -1888,6 +1915,175 @@ body {
 [data-theme="light"] .hero-search-card .result-item:hover,
 [data-theme="light"] #hero-search-results .result-item:hover {
   background: #f1f5f9 !important;
+}
+
+/* ==========================================================================
+   AJUSTES RESPONSIVOS DE HERO SEARCH, RESULTADOS Y TRENDING CHIPS
+   ========================================================================== */
+
+/* 1. Separación garantizada con la barra de métricas MITUR */
+.hero-search-card {
+  margin-bottom: 2rem !important;
+}
+
+.hero-trust-bar {
+  margin-top: 0.5rem !important;
+}
+
+/* 2. Botón "Buscar" compacto en pantallas móviles (para dar espacio al input) */
+@media (max-width: 600px) {
+  .hero-search-bar {
+    padding: 0.3rem 0.4rem 0.3rem 0.75rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .hero-search-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .hero-search-input {
+    font-size: 0.9rem !important;
+    min-width: 0 !important;
+  }
+
+  .hero-search-btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .hero-search-btn .btn-arrow-icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+/* 3. Corrección del título del resultado aplastado (de 0px a ancho fluido) */
+.hero-search-card .result-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.hero-search-card .result-item-title {
+  display: block !important;
+  flex: 1 1 auto !important; /* Clave: exige espacio y no se encoge a 0 */
+  min-width: 0 !important;   /* Clave: permite que el texto se trunque con puntos suspensivos */
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+}
+
+[data-theme="light"] .hero-search-card .result-item-title {
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .hero-search-card .result-item-title {
+  color: #f8fafc !important;
+}
+
+.hero-search-card .result-item-category {
+  flex: 0 0 auto !important; /* Mantiene su pastilla a la derecha */
+  font-size: 0.7rem !important;
+  padding: 2px 6px !important;
+}
+
+/* 4. Trending chips: en escritorio alineados; en móvil apilados para mostrar chips completos */
+@media (max-width: 640px) {
+  .trending-container {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.4rem !important;
+  }
+
+  .trending-label {
+    font-size: 0.8rem !important;
+  }
+
+  .trending-chips-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .trending-container {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  .trending-chips-wrapper {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   AJUSTES MÓVILES: OCULTAR BOTÓN BUSCAR Y MOSTRAR TÍTULO EN RESULTADOS
+   ========================================================================== */
+
+/* 1. Ocultar completamente el botón "Buscar" en pantallas pequeñas */
+@media (max-width: 640px) {
+  .hero-search-btn,
+  button.hero-search-btn,
+  .hero-search-bar button {
+    display: none !important;
+  }
+
+  /* El input toma todo el ancho disponible sin restricciones */
+  .hero-search-input,
+  #hero-search-input {
+    width: 100% !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* 2. Mostrar siempre el título en los resultados de búsqueda (sin ser aplastado) */
+@media (max-width: 640px) {
+  .hero-search-card .result-item,
+  #hero-search-results .result-item {
+    display: flex !important;
+    flex-direction: column !important; /* Título arriba, categoría abajo */
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .hero-search-card .result-item-category,
+  #hero-search-results .result-item-category {
+    font-size: 0.68rem !important;
+    padding: 2px 6px !important;
+    margin-top: 2px !important;
+  }
+}
+
+/* 3. Título del resultado visible en ambos temas con ancho completo */
+.hero-search-card .result-item-title,
+#hero-search-results .result-item-title {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #f8fafc !important; /* Tema oscuro */
+}
+
+[data-theme="light"] .hero-search-card .result-item-title,
+[data-theme="light"] #hero-search-results .result-item-title {
+  color: #0f172a !important; /* Tema claro */
 }
 
 /* END === WCAG AA CONTRAST AUDIT FIXES === */
