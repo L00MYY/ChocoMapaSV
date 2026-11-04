@@ -5,17 +5,14 @@ import {
     obtenerTourPorId,
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
-    obtenerFechaHoyLocal,
     esFechaPasada,
     sanitizarTelefono,
     validarFormularioReserva
 } from '../models/TourDetalleModel.js';
 import {
     AuthModel,
-    puedeReservarTour,
     requiereIniciarSesionParaReserva,
     validarEmail,
-    validarTelefonoSV,
     sanitizarUsuario
 } from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';

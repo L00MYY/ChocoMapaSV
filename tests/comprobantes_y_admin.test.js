@@ -17,7 +17,6 @@ if (typeof globalThis.localStorage === 'undefined') {
 import {
     obtenerDetalleReserva,
     subirComprobanteStorage,
-    notificarComprobante,
     PagoModel
 } from '../js/models/PagoModel.js';
 import { PagoController } from '../js/controllers/PagoController.js';
@@ -28,7 +27,6 @@ import { MisToursView } from '../js/views/MisToursView.js';
 import { TourDetalleModel } from '../js/models/TourDetalleModel.js';
 import { AdminPagosView } from '../js/views/AdminPagosView.js';
 import { AdminPagosModel } from '../js/models/AdminPagosModel.js';
-import { AdminPagosController } from '../js/controllers/AdminPagosController.js';
 import { LoginController } from '../js/controllers/LoginController.js';
 import { LoginView } from '../js/views/LoginView.js';
 import { AuthModel } from '../js/models/AuthModel.js';

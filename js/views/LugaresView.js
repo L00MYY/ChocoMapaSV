@@ -1,4 +1,4 @@
-import { normalizarTexto, coincideCategoria, generarSlug } from '../utils/textUtils.js';
+import { coincideCategoria, generarSlug } from '../utils/textUtils.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';

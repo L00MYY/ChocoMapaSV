@@ -5,7 +5,7 @@
  */
 
 import { AuthModel, validarFormularioRegistro, sanitizarUsuario } from '../models/AuthModel.js';
-import { RegistroView, REGLAS_PASSWORD } from '../views/RegistroView.js';
+import { RegistroView } from '../views/RegistroView.js';
 
 /**
  * Objeto controlador que gestiona el registro de nuevos turistas y validaciones en tiempo real

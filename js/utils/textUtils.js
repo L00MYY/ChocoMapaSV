@@ -85,3 +85,37 @@ export function coincideCategoria(categoriaLugar, categoriaFiltro) {
     return lugarNorm.includes(filtroNorm) || filtroNorm.includes(lugarNorm) ||
         (lugarSlug.length > 0 && filtroSlug.length > 0 && (lugarSlug.includes(filtroSlug) || filtroSlug.includes(lugarSlug)));
 }
+
+/**
+ * @description Formatea una hora militar 'HH:mm' a formato estándar de 12 horas con indicador AM/PM.
+ * @param {string|null|undefined} hora - Hora a formatear.
+ * @param {Object} [opciones] - Opciones opcionales de formato.
+ * @param {string} [opciones.fallback=''] - Cadena por defecto ante hora vacía o nula.
+ * @param {boolean} [opciones.padZero=false] - Si es true, antepone un cero a horas menores a 10 (ej. '08:00 AM').
+ * @returns {string} Hora formateada en formato legible de 12 horas.
+ */
+export function formatearHora(hora, { fallback = '', padZero = false } = {}) {
+    if (!hora) return fallback;
+    const [horaTexto, minutos = '00'] = String(hora).split(':');
+    let numero = Number.parseInt(horaTexto, 10);
+    if (Number.isNaN(numero)) return hora;
+    const periodo = numero >= 12 ? 'PM' : 'AM';
+    numero = numero % 12 || 12;
+    const horaFormateada = padZero ? String(numero).padStart(2, '0') : String(numero);
+    return `${horaFormateada}:${minutos} ${periodo}`;
+}
+
+/**
+ * @description Sanitiza una cadena escapando caracteres especiales de HTML para prevenir inyecciones XSS.
+ * @param {string|*} str - Cadena de entrada a sanitizar.
+ * @returns {string} Cadena segura con entidades HTML escapadas.
+ */
+export function escaparHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}

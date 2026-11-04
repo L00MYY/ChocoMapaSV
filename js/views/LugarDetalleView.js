@@ -1,18 +1,10 @@
 import { formatearMonedaUSD } from '../models/ToursModel.js';
+import { formatearHora } from '../utils/textUtils.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const TOUR_IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
-function formatearHora(hora) {
-    if (!hora) return '';
-    const [horaTexto, minutos = '00'] = hora.split(':');
-    let numero = Number.parseInt(horaTexto, 10);
-    if (Number.isNaN(numero)) return hora;
-    const periodo = numero >= 12 ? 'PM' : 'AM';
-    numero = numero % 12 || 12;
-    return `${String(numero).padStart(2, '0')}:${minutos} ${periodo}`;
-}
 
 export const LugarDetalleView = {
     get elements() {
@@ -136,7 +128,7 @@ export const LugarDetalleView = {
         const dias = lugar.opening_days?.trim() || 'Martes a Domingo';
         if (e.scheduleDays) e.scheduleDays.textContent = dias;
         if (e.scheduleHours) e.scheduleHours.textContent = lugar.opening_time && lugar.closing_time
-            ? `${formatearHora(lugar.opening_time)} – ${formatearHora(lugar.closing_time)}`
+            ? `${formatearHora(lugar.opening_time, { padZero: true })} – ${formatearHora(lugar.closing_time, { padZero: true })}`
             : '08:00 AM – 05:00 PM';
         if (e.scheduleNote) e.scheduleNote.textContent = dias.toLowerCase().includes('martes')
             ? 'Nota oficial: Cerrado los días lunes por labores de mantenimiento y preservación ecológica.'

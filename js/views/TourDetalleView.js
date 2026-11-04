@@ -1,4 +1,5 @@
 import { formatearFechaLarga, formatearMonedaUSD, esFechaPasada } from '../models/ToursModel.js';
+import { formatearHora } from '../utils/textUtils.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const LUGAR_FALLBACK = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80';
@@ -571,11 +572,7 @@ export const TourDetalleView = {
     },
 
     formatearHora(hora) {
-        if (!hora) return '07:00 AM';
-        const [h, minutes] = hora.split(':');
-        const numeric = Number.parseInt(h, 10);
-        if (Number.isNaN(numeric)) return hora;
-        return `${numeric % 12 || 12}:${minutes || '00'} ${numeric >= 12 ? 'PM' : 'AM'}`;
+        return formatearHora(hora, { fallback: '07:00 AM' });
     },
 
     mostrarReservaPendientePago(reserva, onExpirado) {

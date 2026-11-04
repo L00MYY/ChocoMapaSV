@@ -13,8 +13,6 @@
     --cerulean: #247BA0;
     --blue-bell: #1B98E0;
     --alice-blue: #E8F1F2;
-    --surface: #FFFFFF;
-    --border-color: #D1E3E6;
     --border-subtle: rgba(209, 227, 230, 0.6);
 
         /* Mapeo Semántico */
@@ -131,7 +129,6 @@ body {
     gap: 0.5rem;
     font-size: 0.95rem;
     font-weight: 700;
-    color: var(--baltic-blue);
     text-decoration: none;
     padding: 0.5rem 1rem;
     background: var(--bg-surface);
@@ -814,7 +811,6 @@ body {
     border-radius: 50%;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    color: var(--text-accent);
     color: white;
     display: flex;
     align-items: center;

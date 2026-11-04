@@ -11,7 +11,6 @@ import {
     renderizarSeccionCalificacion,
     LugarDetalleController
 } from '../js/controllers/LugarDetalleController.js';
-import { LugarDetalleView } from '../js/views/LugarDetalleView.js';
 import { AuthModel } from '../js/models/AuthModel.js';
 
 describe('Suite de Pruebas: Calificación de Lugares Turísticos (ChocoMapaSV)', () => {
