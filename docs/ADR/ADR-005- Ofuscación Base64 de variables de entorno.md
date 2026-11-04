@@ -40,6 +40,6 @@ Deuda técnica registrada: Se requerirá planificar en un futuro Sprint la imple
 Alternativas Consideradas y Descartadas
 Backend For Frontend (Vercel API Routes): Solución arquitectónicamente correcta y segura (las llaves nunca viajan al cliente). Descartada por estar fuera del alcance del Sprint actual.
 
-Dejar las llaves en texto plano y educar al stakeholder: Explicar que las claves publishable son públicas por diseño. Descartada por directiva de la Decana.
+Dejar las llaves en texto plano y educar al stakeholder: Explicar que las claves publishable son públicas por diseño.
 
 Encriptación Real (AES/RSA): Inviable en frontend puro, ya que el cliente necesitaría la llave de desencriptación para leer las variables, exponiendo el proceso de todos modos.
