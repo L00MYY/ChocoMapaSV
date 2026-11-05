@@ -1588,6 +1588,86 @@ img {
 
 
 /* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Card y títulos del formulario en Tema Oscuro */
+.booking-card,
+.reservation-card,
+.tour-sidebar-card,
+.reservation-form-container {
+  background-color: var(--bg-surface, #1e3a5f) !important;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15)) !important;
+  color: #f8fafc !important;
+}
+
+.booking-card h2,
+.booking-card h3,
+.reservation-card h3,
+.booking-title,
+.reservation-title,
+.reservation-form-title {
+  color: #ffffff !important;
+}
+
+.booking-card p,
+.booking-card .booking-subtitle,
+.reservation-card p,
+.reservation-subtitle,
+.reservation-form-subtitle {
+  color: #cbd5e1 !important;
+}
+
+/* Labels de los campos del formulario */
+.booking-card label,
+.reservation-card label,
+.form-group label,
+.form-label {
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+}
+
+/* Inputs, Selects y Datepickers en Tema Oscuro */
+.booking-card input,
+.booking-card select,
+.reservation-card input,
+.reservation-card select,
+.reservation-form input,
+.reservation-form select,
+.form-input,
+.form-select {
+  color-scheme: dark !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+.booking-card input::placeholder,
+.reservation-card input::placeholder,
+.reservation-form input::placeholder,
+.form-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+.booking-card select option,
+.reservation-card select option,
+.reservation-form select option,
+.form-select option {
+  background-color: #13293D !important;
+  color: #f8fafc !important;
+}
+
+/* Enfoque accesible */
+.booking-card input:focus,
+.booking-card select:focus,
+.reservation-card input:focus,
+.reservation-card select:focus,
+.reservation-form input:focus,
+.reservation-form select:focus,
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--blue-bell, #1B98E0) !important;
+  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25) !important;
+}
+
 /* Tema Oscuro (Defecto) */
 .panel-title {
   color: #ffffff !important;
@@ -1645,6 +1725,69 @@ img {
 
 .spots-text {
   color: #cbd5e1 !important;
+}
+
+/* --- Adaptación a Tema Claro --- */
+[data-theme="light"] .booking-card,
+[data-theme="light"] .reservation-card,
+[data-theme="light"] .tour-sidebar-card,
+[data-theme="light"] .reservation-form-container {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .booking-card h2,
+[data-theme="light"] .booking-card h3,
+[data-theme="light"] .reservation-card h3,
+[data-theme="light"] .booking-title,
+[data-theme="light"] .reservation-title,
+[data-theme="light"] .reservation-form-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .booking-card p,
+[data-theme="light"] .booking-card .booking-subtitle,
+[data-theme="light"] .reservation-card p,
+[data-theme="light"] .reservation-subtitle,
+[data-theme="light"] .reservation-form-subtitle {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .booking-card label,
+[data-theme="light"] .reservation-card label,
+[data-theme="light"] .form-group label,
+[data-theme="light"] .form-label {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .booking-card input,
+[data-theme="light"] .booking-card select,
+[data-theme="light"] .reservation-card input,
+[data-theme="light"] .reservation-card select,
+[data-theme="light"] .reservation-form input,
+[data-theme="light"] .reservation-form select,
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select {
+  color-scheme: light !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .booking-card input::placeholder,
+[data-theme="light"] .reservation-card input::placeholder,
+[data-theme="light"] .reservation-form input::placeholder,
+[data-theme="light"] .form-input::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .booking-card select option,
+[data-theme="light"] .reservation-card select option,
+[data-theme="light"] .reservation-form select option,
+[data-theme="light"] .form-select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 /* Tema Claro */
