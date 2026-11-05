@@ -15,6 +15,7 @@ const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.s
     ? atob(SUPABASE_ANON_KEY_B64)
     : SUPABASE_ANON_KEY_B64;
 
+/** @type {Object} Cabeceras comunes para llamadas a la API REST de Supabase */
 const HEADERS = {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -769,7 +770,9 @@ export function formatearFechaLarga(fechaStr) {
     return String(fechaStr);
 }
 
+/** @type {Array<Object>} Lista de tours en memoria */
 let todosLosTours = [];
+/** @type {Array<Object>} Lista de lugares turísticos para filtros en memoria */
 let lugaresDisponibles = [];
 
 /**

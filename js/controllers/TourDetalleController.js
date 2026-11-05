@@ -1,3 +1,10 @@
+/**
+ * @file TourDetalleController.js
+ * @description Controlador de la página de detalle y reserva de tours.
+ * Rol en el MVC: Controlador (Controller). Orquesta la recuperación del tour desde TourDetalleModel,
+ * la visualización de datos en TourDetalleView y la tramitación de reservas asociadas al usuario autenticado.
+ */
+
 import {
     TOURS_DEMO,
     actualizarCuposTour,
@@ -5,22 +12,21 @@ import {
     obtenerTourPorId,
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
-    obtenerFechaHoyLocal,
     esFechaPasada,
     sanitizarTelefono,
     validarFormularioReserva
 } from '../models/TourDetalleModel.js';
 import {
     AuthModel,
-    puedeReservarTour,
     requiereIniciarSesionParaReserva,
     validarEmail,
-    validarTelefonoSV,
     sanitizarUsuario
 } from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';
 
+/** @type {Object|null} Referencia al tour actualmente cargado en memoria */
 let tourActual = null;
+/** @type {number|undefined} Identificador del temporizador de seguridad contra bloqueos de carga */
 let failsafeTimeout;
 
 /**
@@ -326,6 +332,7 @@ export const TourDetalleController = {
         const reservaId = params.get('reservaId');
 
         try {
+            // Consulta asíncrona a Supabase con límite de tiempo de 6 segundos
             tourActual = await Promise.race([
                 obtenerTourPorId(id),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera agotado')), 6000))

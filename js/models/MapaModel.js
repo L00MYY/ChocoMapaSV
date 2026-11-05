@@ -7,6 +7,7 @@
 import { obtenerLugaresTuristicos } from './SupabaseClient.js';
 import { normalizarTexto, generarSlug, coincideCategoria } from '../utils/textUtils.js';
 
+/** @type {Array<Object>} Colección en memoria de lugares georreferenciados disponibles */
 let lugaresDisponibles = [];
 
 /**

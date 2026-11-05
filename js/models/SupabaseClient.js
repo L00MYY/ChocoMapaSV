@@ -27,6 +27,7 @@ export async function obtenerLugaresTuristicos() {
 
         const url = `${SUPABASE_URL}/rest/v1/places?${params.toString()}`;
 
+        // Petición HTTP nativa GET a Supabase PostgREST con apikey pública y token Bearer anónimo
         const respuesta = await fetch(url, {
             method: 'GET',
             headers: {

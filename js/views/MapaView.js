@@ -82,20 +82,6 @@ const nav = new mapboxgl.NavigationControl({
 });
 map.addControl(nav, 'bottom-right');
 
-/**
- * Calcula el promedio de calificaciones leyendo la columna `score`
- * de la tabla public.ratings unida al lugar.
- * @param {Array<{score: number}>} ratings - Arreglo de objetos rating
- * @returns {number} Promedio con 1 decimal, o 0 si no hay datos
- */
-function calcularPromedioRatings(ratings) {
-    if (!Array.isArray(ratings) || ratings.length === 0) return 0;
-
-    const suma = ratings.reduce((acum, item) => acum + (Number(item.score) || 0), 0);
-    const promedio = suma / ratings.length;
-    // Redondear a 1 decimal y limitar entre 1 y 5
-    return Math.min(5.0, Math.max(1.0, Math.round(promedio * 10) / 10));
-}
 
 function crearEstrellas(calificacion) {
     const estrellasLlenas = Math.floor(calificacion);

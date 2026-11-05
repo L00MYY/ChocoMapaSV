@@ -1,3 +1,5 @@
+import { escaparHtml } from '../utils/textUtils.js';
+import { formatearMonedaUSD } from '../models/ToursModel.js';
 export const AdminPagosView = {
     _mockElements: null,
     get elements() {
@@ -273,7 +275,7 @@ export const AdminPagosView = {
                     <td class="cell-tour" title="${this.escaparHtml(r.tour_name)}">${this.escaparHtml(r.tour_name)}</td>
                     <td>${fechaStr}</td>
                     <td><strong>${r.spots_reserved}</strong></td>
-                    <td class="cell-monto">$${monto.toFixed(2)}</td>
+                    <td class="cell-monto">${formatearMonedaUSD(monto)}</td>
                     <td>${statusBadge}</td>
                     <td>${comprobanteBoton}</td>
                     <td>${accionesHtml}</td>
@@ -541,13 +543,7 @@ export const AdminPagosView = {
     },
 
     escaparHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+        return escaparHtml(str);
     },
 
     formatearFecha(fechaStr) {

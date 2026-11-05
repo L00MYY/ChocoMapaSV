@@ -6,6 +6,7 @@
 
 import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { AuthModel } from './AuthModel.js';
+import { formatearFechaLarga } from './ToursModel.js';
 
 // Decodificación segura en memoria en tiempo de ejecución
 const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
@@ -33,26 +34,7 @@ export function obtenerFechaHoyLocal() {
  * @returns {string} Fecha formateada en español.
  */
 export function formatearFechaEspanol(fechaStr) {
-    if (!fechaStr) return '';
-    try {
-        const partes = String(fechaStr).split('T')[0].split('-');
-        if (partes.length === 3) {
-            const anio = parseInt(partes[0], 10);
-            const mes = parseInt(partes[1], 10) - 1;
-            const dia = parseInt(partes[2], 10);
-            const fecha = new Date(anio, mes, dia);
-            return fecha.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-        return fechaStr;
-    } catch (error) {
-        console.warn('Advertencia al formatear fecha en formatearFechaEspanol:', error);
-        return fechaStr;
-    }
+    return formatearFechaLarga(fechaStr);
 }
 
 /**
@@ -107,6 +89,7 @@ export async function verificarSesion() {
         }
 
         try {
+            // Consulta al endpoint auth/v1/user para validar el JWT y extraer los metadatos del usuario
             const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                 method: 'GET',
                 headers: {
@@ -161,6 +144,7 @@ export async function obtenerHistorial(touristId) {
         });
 
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?${params.toString()}`;
+        // Petición REST a Supabase para recuperar reservaciones con join embebido a la tabla tours
         const res = await fetch(url, {
             method: 'GET',
             headers

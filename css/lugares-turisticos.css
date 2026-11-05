@@ -915,13 +915,71 @@ main,
 
 
 /* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Pastillas de filtro de categorías (Estado Inactivo en Tema Oscuro) */
+.category-filter-btn,
+.category-chip,
+.filter-chip,
+.category-pill,
+#category-filters button,
+#category-filters .filter-chip,
+.categories-container button,
+.category-pills button,
+#category-pills button,
+.category-pills .pill-btn,
+#category-pills .pill-btn,
+.pill-btn {
+  color: #f1f5f9 !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.category-filter-btn span,
+.category-chip span,
+.filter-chip span,
+.category-pill span,
+#category-filters button span,
+#category-filters .filter-chip span,
+.categories-container button span,
+.category-pills button span,
+#category-pills button span,
+.pill-btn span {
+  color: inherit !important;
+}
+
+/* Pastilla activa (mantiene su color celeste / primario institucional) */
+.category-filter-btn.active,
+.category-chip.active,
+.filter-chip.active,
+.category-pill.active,
+#category-filters button.active,
+#category-filters .filter-chip.active,
+.category-pills button.active,
+#category-pills button.active,
+.category-pills .pill-btn.active,
+#category-pills .pill-btn.active,
+.pill-btn.active:not(.rating-pill-btn) {
+  background-color: var(--blue-bell, #1B98E0) !important;
+  color: #ffffff !important;
+  border-color: var(--blue-bell, #1B98E0) !important;
+}
+
+.category-filter-btn.active span,
+.category-chip.active span,
+.filter-chip.active span,
+.category-pill.active span,
+#category-filters button.active span,
+#category-filters .filter-chip.active span,
+.category-pills button.active span,
+#category-pills button.active span,
+.category-pills .pill-btn.active span,
+#category-pills .pill-btn.active span,
+.pill-btn.active:not(.rating-pill-btn) span {
+  color: #ffffff !important;
+}
+
 /* Tema Oscuro (Defecto) */
 .hero-subtitle {
   color: #cbd5e1 !important;
-}
-
-.pill-btn span {
-  color: #f1f5f9 !important;
 }
 
 .rating-filter-label {
@@ -931,6 +989,12 @@ main,
 .rating-pill-btn,
 .rating-pill-btn span {
   color: #f1f5f9 !important;
+}
+
+.rating-pill-btn.active {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+  color: #FFFFFF !important;
+  border-color: #F59E0B !important;
 }
 
 .search-input,
@@ -957,13 +1021,72 @@ main,
   color: #94a3b8 !important;
 }
 
+/* En Tema Claro se restablece a texto oscuro institucional */
+[data-theme="light"] .category-filter-btn,
+[data-theme="light"] .category-chip,
+[data-theme="light"] .filter-chip,
+[data-theme="light"] .category-pill,
+[data-theme="light"] #category-filters button,
+[data-theme="light"] #category-filters .filter-chip,
+[data-theme="light"] .categories-container button,
+[data-theme="light"] .category-pills button,
+[data-theme="light"] #category-pills button,
+[data-theme="light"] .category-pills .pill-btn,
+[data-theme="light"] #category-pills .pill-btn,
+[data-theme="light"] .pill-btn:not(.active) {
+  color: #13293D !important;
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+}
+
+[data-theme="light"] .category-filter-btn:not(.active) span,
+[data-theme="light"] .category-chip:not(.active) span,
+[data-theme="light"] .filter-chip:not(.active) span,
+[data-theme="light"] .category-pill:not(.active) span,
+[data-theme="light"] #category-filters button:not(.active) span,
+[data-theme="light"] #category-filters .filter-chip:not(.active) span,
+[data-theme="light"] .categories-container button:not(.active) span,
+[data-theme="light"] .category-pills button:not(.active) span,
+[data-theme="light"] #category-pills button:not(.active) span,
+[data-theme="light"] .category-pills .pill-btn:not(.active) span,
+[data-theme="light"] #category-pills .pill-btn:not(.active) span,
+[data-theme="light"] .pill-btn:not(.active) span {
+  color: #13293D !important;
+}
+
+[data-theme="light"] .category-filter-btn.active,
+[data-theme="light"] .category-chip.active,
+[data-theme="light"] .filter-chip.active,
+[data-theme="light"] .category-pill.active,
+[data-theme="light"] #category-filters button.active,
+[data-theme="light"] #category-filters .filter-chip.active,
+[data-theme="light"] .category-pills button.active,
+[data-theme="light"] #category-pills button.active,
+[data-theme="light"] .category-pills .pill-btn.active,
+[data-theme="light"] #category-pills .pill-btn.active,
+[data-theme="light"] .pill-btn.active:not(.rating-pill-btn) {
+  background-color: var(--baltic-blue, #006494) !important;
+  color: #ffffff !important;
+  border-color: var(--baltic-blue, #006494) !important;
+}
+
+[data-theme="light"] .category-filter-btn.active span,
+[data-theme="light"] .category-chip.active span,
+[data-theme="light"] .filter-chip.active span,
+[data-theme="light"] .category-pill.active span,
+[data-theme="light"] #category-filters button.active span,
+[data-theme="light"] #category-filters .filter-chip.active span,
+[data-theme="light"] .category-pills button.active span,
+[data-theme="light"] #category-pills button.active span,
+[data-theme="light"] .category-pills .pill-btn.active span,
+[data-theme="light"] #category-pills .pill-btn.active span,
+[data-theme="light"] .pill-btn.active:not(.rating-pill-btn) span {
+  color: #ffffff !important;
+}
+
 /* Tema Claro */
 [data-theme="light"] .hero-subtitle {
   color: #475569 !important;
-}
-
-[data-theme="light"] .pill-btn:not(.active) span {
-  color: #1e293b !important;
 }
 
 [data-theme="light"] .rating-filter-label {

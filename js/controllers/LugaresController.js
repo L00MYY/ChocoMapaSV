@@ -1,3 +1,10 @@
+/**
+ * @file LugaresController.js
+ * @description Controlador de la página del catálogo general de lugares turísticos.
+ * Rol en el MVC: Controlador (Controller). Orquesta la interacción entre LugaresModel y LugaresView,
+ * gestionando búsqueda por texto libre, filtrado por categorías de destino y sincronización con parámetros URL.
+ */
+
 import { LugaresModel } from '../models/LugaresModel.js';
 import { LugaresView } from '../views/LugaresView.js';
 import { coincideCategoria, normalizarTexto, generarSlug } from '../utils/textUtils.js';
@@ -98,6 +105,7 @@ export const LugaresController = {
         LugaresView.mostrarCargando();
 
         try {
+            // Petición a Supabase para recuperar la totalidad de atractivos turísticos activos
             const lugares = await LugaresModel.cargarLugares();
             if (lugares.length === 0) {
                 LugaresView.mostrarVacio(0);
@@ -248,6 +256,7 @@ export const LugaresController = {
     }
 };
 
+// Inicialización del controlador una vez el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => LugaresController.init(), { once: true });
 } else {

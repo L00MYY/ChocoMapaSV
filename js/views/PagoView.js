@@ -1,3 +1,4 @@
+import { formatearFechaLarga, formatearMonedaUSD } from '../models/ToursModel.js';
 let temporizadorId = null;
 
 export const PagoView = {
@@ -60,7 +61,7 @@ export const PagoView = {
         if (e.resumenTouristaNombre) e.resumenTouristaNombre.textContent = reserva.tourist_name || 'Turista';
         if (e.resumenMontoTotal) {
             const monto = Number(reserva.total_amount) || 0;
-            e.resumenMontoTotal.textContent = `$${monto.toFixed(2)}`;
+            e.resumenMontoTotal.textContent = formatearMonedaUSD(reserva.total_amount);
         }
 
         this.actualizarEstadoVisual(reserva.status);
@@ -443,25 +444,7 @@ export const PagoView = {
     },
 
     formatearFecha(fechaStr) {
-        if (!fechaStr) return '--';
-        try {
-            const partes = String(fechaStr).split('T')[0].split('-');
-            if (partes.length === 3) {
-                const anio = parseInt(partes[0], 10);
-                const mes = parseInt(partes[1], 10) - 1;
-                const dia = parseInt(partes[2], 10);
-                const f = new Date(anio, mes, dia);
-                return f.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-        } catch (error) {
-            console.warn('Error al formatear fecha en PagoView:', error);
-        }
-        return String(fechaStr);
+        return formatearFechaLarga(fechaStr) || '--';
     }
 };
 

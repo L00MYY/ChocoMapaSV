@@ -1,6 +1,6 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizarTexto, coincideCategoria, generarSlug, ALIAS_CATEGORIAS } from '../js/utils/textUtils.js';
+import { normalizarTexto, coincideCategoria, generarSlug } from '../js/utils/textUtils.js';
 import { calcularPromedioRating } from '../js/models/CalificacionesModel.js';
 import { LugaresModel } from '../js/models/LugaresModel.js';
 
