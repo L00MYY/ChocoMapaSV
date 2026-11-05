@@ -7,7 +7,6 @@ Aceptado e Implementado — Sprint 1 (20 de octubre de 2026) / Ratificado en Spr
 A medida que ChocoMapaSV creció hasta abarcar 49 archivos JavaScript, múltiples modelos de datos (`ToursModel`, `PagoModel`, `AdminPagosModel`, `AuthModel`, `CalificacionesModel`) y controladores con flujos asíncronos complejos, surgió la necesidad crítica de contar con seguridad de tipos:
 1. Prevenir errores comunes en tiempo de ejecución por propiedades inexistentes o tipos inesperados (`TypeError: Cannot read properties of undefined`, pasar un `string` numérico donde se espera un `number`).
 2. Facilitar la navegación, autocompletado inteligente (*IntelliSense*) y refactorización ágil en los editores de código (Visual Studio Code).
-3. Proveer documentación técnica viva y precisa para que cualquier integrante del equipo de la ESEN pudiera defender y explicar el funcionamiento exacto de cada función en el examen oral individual ante la decana.
 
 Sin embargo, adoptar TypeScript de manera convencional colisionaba frontalmente con la decisión arquitectónica fundamental de operar con JavaScript nativo en el navegador sin empaquetadores ni pasos de transpilación (ADR-010).
 
@@ -45,7 +44,7 @@ export async function reincorporarCuposTour(tourDateId, spotsReserved, authHeade
 * **Impacto Positivo (Beneficios):**
   * Preservación absoluta de la arquitectura sin empaquetadores (ADR-010): el código se ejecuta de forma nativa en el navegador sin pasos de compilación.
   * Autocompletado inteligente e inspección de tipos en tiempo real en Visual Studio Code y Antigravity.
-  * Código auto-documentado y auditable: facilita la lectura de contratos de software para la decana y la mesa examinadora académica.
+  * Código auto-documentado y auditable: facilita la lectura de contratos de software.
   * Integración nativa con herramientas de verificación sintáctica (`npm run check:syntax`).
 
 * **Impacto Negativo y Mitigaciones (Trade-offs / Deuda técnica asumida):**

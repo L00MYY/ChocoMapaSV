@@ -34,7 +34,6 @@ Se decide ejecutar una reingeniería profunda del subsistema de pruebas (Jira JU
   * Certeza técnica inquebrantable: cada regla de negocio, fórmula matemática y restricción de aforo está respaldada por aserciones formales.
   * Ejecución instantánea en el pipeline de Integración Continua (CI en GitHub Actions) y en terminales locales.
   * Cero dependencias pesadas de testing en `package.json`.
-  * Respaldo documental y probatorio inexpugnable para la revisión de la decana y la defensa de graduación.
 
 * **Impacto Negativo y Mitigaciones (Trade-offs / Deuda técnica asumida):**
   * *Complejidad para testear vistas que manipulan directamente el DOM del navegador.*
