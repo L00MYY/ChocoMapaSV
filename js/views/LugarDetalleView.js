@@ -1,12 +1,31 @@
+/**
+ * @file LugarDetalleView.js
+ * Vista (patrón MVC) de la página de detalle de un sitio turístico (detalle-lugar.html).
+ *
+ * Responsabilidades:
+ *  - Mostrar la información del lugar: portada, categoría, ubicación, servicios y horario.
+ *  - Mostrar la calificación promedio y el widget para calificar (según la elegibilidad del usuario).
+ *  - Listar los tours que visitan el lugar, con filtro por fecha de salida.
+ *
+ * La vista no consulta datos: los recibe del controlador (LugarDetalleController).
+ */
 import { formatearMonedaUSD } from '../models/ToursModel.js';
 import { formatearHora } from '../utils/textUtils.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
+// Imágenes de respaldo: portada del lugar (1200 px) y tarjetas de tours (800 px).
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const TOUR_IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
 
+/**
+ * Objeto de vista del detalle de un lugar: acceso al DOM y métodos de renderizado.
+ */
 export const LugarDetalleView = {
+    /**
+     * Referencias a los nodos del DOM de detalle-lugar.html.
+     * Se consultan en cada acceso (getter); fuera del navegador devuelve un objeto vacío.
+     */
     get elements() {
         if (typeof document === 'undefined') return {};
         return {
@@ -41,6 +60,12 @@ export const LugarDetalleView = {
         };
     },
 
+    /**
+     * Alterna entre los tres estados de la página: cargando, error o contenido.
+     *
+     * @param {'loading'|'error'|'content'} estado - Estado a mostrar.
+     * @param {string} [mensaje] - Texto del error (solo se usa si estado es "error").
+     */
     mostrarEstado(estado, mensaje = '') {
         const { loading, error, errorMessage, content } = this.elements;
         loading?.classList.toggle('hidden', estado !== 'loading');
@@ -49,6 +74,11 @@ export const LugarDetalleView = {
         if (estado === 'error' && errorMessage && mensaje) errorMessage.textContent = mensaje;
     },
 
+    /**
+     * Dibuja la calificación promedio del lugar en la cabecera: número, cantidad de valoraciones y 5 estrellas.
+     *
+     * @param {Array<Object>} ratings - Calificaciones del lugar; el promedio lo calcula calcularPromedioRating (CalificacionesModel).
+     */
     renderizarRatingCabecera(ratings) {
         const e = this.elements;
         const infoRating = calcularPromedioRating(ratings);
@@ -66,6 +96,7 @@ export const LugarDetalleView = {
 
         if (e.stars) {
             e.stars.replaceChildren();
+            // Una estrella se llena si index <= parte entera del promedio, o si es la siguiente y el decimal es >= 0.4.
             for (let index = 1; index <= 5; index++) {
                 const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 star.setAttribute('viewBox', '0 0 24 24');
@@ -85,6 +116,12 @@ export const LugarDetalleView = {
         }
     },
 
+    /**
+     * Rellena la página con los datos del lugar y actualiza el título de la pestaña del navegador.
+     * Cuando falta un dato usa un valor por defecto (por ejemplo, horario o servicios).
+     *
+     * @param {Object} lugar - Lugar con name, categories, department, region, image_url, description, is_active, ratings, place_services, opening_days, opening_time y closing_time.
+     */
     renderizarLugar(lugar) {
         const e = this.elements;
         const nombre = lugar.name || 'Sitio turístico';
@@ -95,6 +132,7 @@ export const LugarDetalleView = {
             e.category.textContent = lugar.categories?.name || 'Turismo';
             if (lugar.categories?.color) e.category.style.backgroundColor = lugar.categories.color;
         }
+        // Ubicación: departamento y región separados por "•".
         const ubicacion = [lugar.department, lugar.region ? `Región ${lugar.region}` : ''].filter(Boolean).join(' • ');
         if (e.location) e.location.textContent = ubicacion || 'El Salvador';
         if (e.heroImage) {
@@ -111,6 +149,7 @@ export const LugarDetalleView = {
         // Renderizado consistente y dinámico sin valores quemados (CA-01)
         this.renderizarRatingCabecera(lugar.ratings);
 
+        // Servicios del lugar. Si no hay ninguno registrado, se muestra una lista genérica por defecto.
         if (e.services) {
             e.services.replaceChildren();
             const servicios = (lugar.place_services || []).map(item => item.services?.name).filter(Boolean);
@@ -125,6 +164,8 @@ export const LugarDetalleView = {
             });
         }
 
+        // Horario de atención. Valores por defecto si el lugar no los define: "Martes a Domingo" y 08:00 AM – 05:00 PM.
+        // La nota oficial cambia según si los días de apertura incluyen el martes (cierre los lunes).
         const dias = lugar.opening_days?.trim() || 'Martes a Domingo';
         if (e.scheduleDays) e.scheduleDays.textContent = dias;
         if (e.scheduleHours) e.scheduleHours.textContent = lugar.opening_time && lugar.closing_time
@@ -135,12 +176,21 @@ export const LugarDetalleView = {
             : 'Nota oficial: Se recomienda ingresar al menos una hora antes del cierre institucional.';
     },
 
+    /**
+     * Lista los tours que incluyen este lugar y los filtra por fecha de salida (opcional).
+     * Si no hay resultados muestra un mensaje distinto según haya o no una fecha seleccionada.
+     *
+     * @param {Array<Object>} tours - Tours que visitan el lugar (con su lista tour_dates).
+     * @param {string} fecha - Fecha de salida en formato AAAA-MM-DD; cadena vacía para no filtrar.
+     * @param {function(string|number): void} onSelectTour - Callback con el id del tour seleccionado.
+     */
     renderizarTours(tours, fecha, onSelectTour) {
         const { toursGrid, toursEmpty, toursEmptyText, clearDate } = this.elements;
         if (!toursGrid) return;
         toursGrid.replaceChildren();
         clearDate?.classList.toggle('hidden', !fecha);
 
+        // Con fecha: solo los tours que tienen una salida ese día. Sin fecha: todos.
         const filtrados = fecha
             ? tours.filter(tour => tour.tour_dates?.some(item => item.departure_date === fecha))
             : tours;
@@ -156,6 +206,7 @@ export const LugarDetalleView = {
         toursEmpty?.classList.add('hidden');
         toursGrid.classList.remove('hidden');
         const fragment = document.createDocumentFragment();
+        // Construye una tarjeta por tour (mismo formato visual que el catálogo de tours.html).
         filtrados.forEach(tour => {
             const card = document.createElement('article');
             card.className = 'tour-card';
@@ -277,6 +328,18 @@ export const LugarDetalleView = {
         toursGrid.appendChild(fragment);
     },
 
+    /**
+     * Dibuja el widget de calificación según la elegibilidad del usuario. Hay cuatro casos:
+     * 1) Sin sesión (AUTH_REQUERIDA): estrellas de invitado que llevan a iniciar sesión.
+     * 2) Ya calificó (YA_CALIFICADO): muestra su calificación, que no se puede modificar.
+     * 3) Sin tour confirmado (SIN_TOUR_CONFIRMADO): aviso de que solo califican quienes reservaron y confirmaron un tour del lugar.
+     * 4) Elegible: formulario de 1 a 5 estrellas con botón de envío.
+     *
+     * @param {Object} opciones - Objeto con los campos siguientes.
+     * @param {Object} opciones.elegibilidad - Resultado de la verificación: razon, mensaje, usuario, puede, yaCalifico y calificacionPrevia.
+     * @param {function(number): Promise<void>} opciones.onCalificar - Se ejecuta con la puntuación (1 a 5) al enviar el formulario.
+     * @param {function(): void} opciones.onLogin - Se ejecuta cuando un usuario sin sesión intenta calificar.
+     */
     renderizarSeccionCalificacion({ elegibilidad, onCalificar, onLogin }) {
         const container = this.elements.ratingWidgetContainer;
         if (!container) return;
@@ -416,6 +479,7 @@ export const LugarDetalleView = {
         feedbackMsg.className = 'rating-widget-feedback hidden';
         feedbackMsg.id = 'rating-widget-feedback';
 
+        // Pinta las estrellas del selector hasta la puntuación indicada (al pasar el mouse o al seleccionar).
         function actualizarEstrellasInteractivas(scoreHover) {
             starButtons.forEach((btn, idx) => {
                 const starSvg = btn.querySelector('.star-icon');
@@ -467,6 +531,7 @@ export const LugarDetalleView = {
             starSelector.appendChild(btn);
         }
 
+        // Envía la calificación; mientras espera la respuesta deshabilita el botón y cambia su texto.
         submitBtn.addEventListener('click', async () => {
             if (scoreSeleccionado < 1 || scoreSeleccionado > 5) return;
             submitBtn.disabled = true;
@@ -483,6 +548,11 @@ export const LugarDetalleView = {
         container.appendChild(formCard);
     },
 
+    /**
+     * Reemplaza el formulario por la confirmación de que la calificación se envió, con la puntuación fija.
+     *
+     * @param {number} score - Puntuación enviada (1 a 5).
+     */
     mostrarCalificacionExitosa(score) {
         const container = this.elements.ratingWidgetContainer;
         if (!container) return;
@@ -516,6 +586,11 @@ export const LugarDetalleView = {
         container.appendChild(successCard);
     },
 
+    /**
+     * Muestra un mensaje de error debajo del formulario de calificación.
+     *
+     * @param {string} mensaje - Texto del error.
+     */
     mostrarErrorCalificacion(mensaje) {
         const feedback = document.getElementById('rating-widget-feedback');
         if (feedback) {

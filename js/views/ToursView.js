@@ -1,7 +1,27 @@
+/**
+ * @file ToursView.js
+ * Vista (patrón MVC) del catálogo de tours oficiales (tours.html).
+ *
+ * Responsabilidades:
+ *  - Dibujar las tarjetas de tours con su precio, oferta y departamento.
+ *  - Llenar los selectores de filtro (departamento y lugar) y leer sus valores.
+ *  - Mostrar los estados de la pantalla: cargando, sin datos y listado.
+ *
+ * La vista no consulta datos: los recibe del controlador (ToursController).
+ */
 import { formatearMonedaUSD } from '../models/ToursModel.js';
 
+/** Imagen de respaldo cuando el tour no tiene foto o la URL falla al cargar. */
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
+/**
+ * Crea la tarjeta (artículo HTML) de un tour.
+ * Es accesible por teclado: se activa con clic, Enter o Espacio.
+ *
+ * @param {Object} tour - Datos del tour: id, name, image_url, department, short_description, guide_name, price, has_offer, discount_percentage y final_price.
+ * @param {function(string|number): void} onSelectTour - Se ejecuta con el id del tour al seleccionarlo.
+ * @returns {HTMLElement} Elemento <article> listo para insertarse en la grilla.
+ */
 function crearTarjetaTour(tour, onSelectTour) {
     const card = document.createElement('article');
     card.className = 'tour-card';
@@ -31,6 +51,7 @@ function crearTarjetaTour(tour, onSelectTour) {
     });
     media.appendChild(image);
 
+    // Hay oferta solo si has_offer es true y el porcentaje de descuento es mayor a 0.
     const conOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
     if (conOferta) {
         const badge = document.createElement('span');
@@ -87,6 +108,7 @@ function crearTarjetaTour(tour, onSelectTour) {
 
         const discounted = document.createElement('strong');
         discounted.className = 'price-amount price-discounted';
+        // Usa el precio final que trae el tour; si no existe, lo calcula aplicando el descuento.
         const finalPrice = tour.final_price ?? (Number(tour.price) * (1 - Number(tour.discount_percentage) / 100));
         discounted.textContent = formatearMonedaUSD(finalPrice);
         priceValues.appendChild(discounted);
@@ -139,7 +161,11 @@ function crearTarjetaTour(tour, onSelectTour) {
     return card;
 }
 
+/**
+ * Objeto de vista del catálogo de tours: referencias al DOM y métodos que modifican la pantalla.
+ */
 export const ToursView = {
+    /** Referencias a los nodos del DOM de tours.html (filtros, contador, estados y grilla). */
     elements: {
         filterDate: document.getElementById('filter-date'),
         filterDepartment: document.getElementById('filter-department'),
@@ -154,6 +180,11 @@ export const ToursView = {
         toursGrid: document.getElementById('tours-grid')
     },
 
+    /**
+     * Lee los valores actuales de los filtros de la pantalla.
+     *
+     * @returns {{fecha: string, departamento: string, oferta: string, lugar: string}} Valores ya sin espacios; cadena vacía si el filtro no está aplicado.
+     */
     getFiltros() {
         const { filterDate, filterDepartment, filterOffer, filterPlace } = this.elements;
         return {
@@ -164,6 +195,13 @@ export const ToursView = {
         };
     },
 
+    /**
+     * Llena los selectores de departamento y de lugar.
+     * Los departamentos salen de los tours (sin repetir y ordenados); los lugares, del catálogo de sitios.
+     *
+     * @param {Array<Object>} tours - Tours de los que se extraen los departamentos.
+     * @param {Array<Object>} lugares - Sitios turísticos para el selector "Todos los lugares".
+     */
     poblarSelectores(tours, lugares) {
         const { filterDepartment, filterPlace } = this.elements;
         if (filterDepartment) {
@@ -183,6 +221,9 @@ export const ToursView = {
         }
     },
 
+    /**
+     * Muestra el indicador de carga y oculta la grilla y el estado sin resultados.
+     */
     mostrarCargando() {
         const { stateLoading, stateNoResults, toursGrid, resultsCounter } = this.elements;
         stateLoading?.classList.remove('hidden');
@@ -191,6 +232,9 @@ export const ToursView = {
         if (resultsCounter) resultsCounter.textContent = 'Cargando catálogo de tours...';
     },
 
+    /**
+     * Muestra el estado "No hay datos disponibles" y deja el contador en 0.
+     */
     mostrarSinDatos() {
         const { stateLoading, stateNoResults, noResultsMessage, toursGrid, resultsCounter } = this.elements;
         stateLoading?.classList.add('hidden');
@@ -200,6 +244,14 @@ export const ToursView = {
         if (resultsCounter) resultsCounter.textContent = '0 tours encontrados';
     },
 
+    /**
+     * Dibuja la grilla de tours y actualiza el contador de resultados.
+     * Si la lista está vacía, distingue entre "no hay datos" (total = 0) y "ningún tour coincide con los filtros".
+     *
+     * @param {Array<Object>} lista - Tours a mostrar (ya filtrados).
+     * @param {number} total - Total de tours sin filtrar.
+     * @param {function(string|number): void} onSelectTour - Callback al seleccionar una tarjeta.
+     */
     renderizarTours(lista, total, onSelectTour) {
         const { stateNoResults, noResultsMessage, toursGrid, resultsCounter } = this.elements;
         if (!toursGrid) return;
