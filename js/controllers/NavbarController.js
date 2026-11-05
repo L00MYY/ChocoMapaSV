@@ -40,9 +40,7 @@ if (typeof document !== 'undefined' && document.documentElement) {
  * Objeto controlador que gestiona el ciclo de vida, eventos de UI y sincronización del navbar
  */
 export const NavbarController = {
-    /** @type {boolean} Indicador para asegurar ejecución única del controlador */
     initialized: false,
-    /** @type {Function|null} Función de cancelación de suscripción a eventos de autenticación */
     unsubscribeAuth: null,
     logoutCallbacks: new Set(),
 
@@ -51,7 +49,6 @@ export const NavbarController = {
      * aplicando el tema persistido y cableando escuchadores de eventos y observadores de autenticación.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async init() {
         if (this.initialized) {
             await this.actualizarEstadoDesdeModelo();
@@ -140,7 +137,6 @@ export const NavbarController = {
     /**
      * @description Configura los escuchadores de eventos del DOM para dropdown, atajos de teclado y clics externos.
      */
-     * @returns {void}
     inicializarEventos() {
         const { btnUser, btnLogout, btnLogin, dropdownMenu, userContainer } = NavbarView.elements;
 
@@ -238,7 +234,6 @@ export const NavbarController = {
     /**
      * @description Suscribe un observador a los eventos de AuthModel para reflejar cambios reactivamente en el navbar.
      */
-     * @returns {void}
     inicializarSuscripcionAuth() {
         if (this.unsubscribeAuth) {
             this.unsubscribeAuth();
@@ -258,7 +253,6 @@ export const NavbarController = {
      * @description Consulta el estado de sesión actual en AuthModel y sincroniza la vista del navbar.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async actualizarEstadoDesdeModelo() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -291,7 +285,6 @@ export const NavbarController = {
      * @description Ejecuta el cierre de sesión a través del AuthModel y actualiza la interfaz.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async manejarCerrarSesion() {
         try {
             NavbarView.cerrarDropdown();

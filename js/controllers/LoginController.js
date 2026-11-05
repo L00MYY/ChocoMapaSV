@@ -15,7 +15,6 @@ export const LoginController = {
      * @description Inicializa los listeners y el flujo de verificación de sesión previa.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async init() {
         this.inicializarEventos();
         await this.verificarSesionExistente();
@@ -25,7 +24,6 @@ export const LoginController = {
      * @description Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato.
      * @returns {Promise<boolean>} True si existía sesión y se inició redirección.
      */
-     * @returns {Promise<void>}
     async verificarSesionExistente() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -42,7 +40,6 @@ export const LoginController = {
     /**
      * @description Configura los escuchadores de eventos sobre los elementos de LoginView.
      */
-     * @returns {void}
     inicializarEventos() {
         const { form, emailInput, passwordInput, passwordToggleBtn } = LoginView.elements;
 
@@ -75,7 +72,6 @@ export const LoginController = {
      * @param {Event} event - Evento submit del formulario.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async manejarSubmit(event) {
         event.preventDefault();
         LoginView.limpiarError();
@@ -119,7 +115,6 @@ export const LoginController = {
      * @description Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto,
      * aplicando validación de origen para prevenir ataques de Open Redirect.
      */
-     * @returns {void}
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');

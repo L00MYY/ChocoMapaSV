@@ -18,7 +18,6 @@ export const MisToursController = {
      * y dispara la carga del historial de tours.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async init() {
         this.inicializarSuscripcionAuth();
 
@@ -84,7 +83,6 @@ export const MisToursController = {
      * @description Recupera el listado de reservas del usuario y renderiza las tarjetas de historial o estados vacíos.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async cargarHistorial() {
         if (!this.usuarioActual) return;
 

@@ -15,7 +15,6 @@ export const RegistroController = {
      * @description Inicializa los listeners y el flujo del controlador de registro.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async init() {
         this.inicializarEventos();
         await this.verificarSesionExistente();
@@ -25,7 +24,6 @@ export const RegistroController = {
      * @description Si el usuario ya cuenta con una sesión activa, lo redirige de inmediato.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async verificarSesionExistente() {
         try {
             const sesion = await AuthModel.obtenerSesionActual();
@@ -40,7 +38,6 @@ export const RegistroController = {
     /**
      * @description Configura los escuchadores de eventos sobre los elementos de RegistroView.
      */
-     * @returns {void}
     inicializarEventos() {
         const {
             form,
@@ -116,7 +113,6 @@ export const RegistroController = {
      * @param {Event} event - Evento submit.
      * @returns {Promise<void>}
      */
-     * @returns {Promise<void>}
     async manejarSubmit(event) {
         event.preventDefault();
         RegistroView.limpiarErrores();
@@ -197,7 +193,6 @@ export const RegistroController = {
      * @description Redirige al destino especificado en el parámetro ?redirect= o a mapa.html por defecto,
      * aplicando validación de origen contra redirecciones abiertas maliciosas.
      */
-     * @returns {void}
     redirigirUsuario() {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
