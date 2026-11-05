@@ -1,4 +1,5 @@
-import { normalizarTexto } from '../utils/textUtils.js';
+import { normalizarTexto, coincideCategoria, generarSlug } from '../utils/textUtils.js';
+import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
@@ -58,11 +59,52 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
     title.className = 'place-card-title';
     title.textContent = lugar.name || 'Sitio turístico sin nombre registrado';
 
+    // Componente de calificación por estrellas y promedio (CA-02)
+    const infoRating = calcularPromedioRating(lugar.ratings);
+    const ratingStrip = document.createElement('div');
+    ratingStrip.className = 'place-card-rating';
+    ratingStrip.setAttribute('aria-label', infoRating.tieneCalificaciones
+        ? `Calificación ${infoRating.texto} de 5 estrellas basada en ${infoRating.total} reseñas`
+        : 'Sin calificaciones');
+
+    const starsGraphic = document.createElement('div');
+    starsGraphic.className = 'place-card-stars';
+    starsGraphic.setAttribute('role', 'img');
+
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        star.setAttribute('viewBox', '0 0 24 24');
+        star.setAttribute('class', 'place-star-icon');
+        const isFilled = infoRating.tieneCalificaciones && (
+            i <= Math.floor(infoRating.promedio) ||
+            (i === Math.floor(infoRating.promedio) + 1 && (infoRating.promedio % 1) >= 0.4)
+        );
+        if (!isFilled) {
+            star.classList.add('empty');
+        }
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2');
+        star.appendChild(poly);
+        starsGraphic.appendChild(star);
+    }
+
+    const ratingLabel = document.createElement('span');
+    ratingLabel.className = 'place-card-rating-text';
+    if (infoRating.tieneCalificaciones) {
+        ratingLabel.textContent = `${infoRating.texto} (${infoRating.total} ${infoRating.total === 1 ? 'reseña' : 'reseñas'})`;
+    } else {
+        ratingLabel.textContent = 'Sin calificaciones';
+    }
+
+    ratingStrip.appendChild(starsGraphic);
+    ratingStrip.appendChild(ratingLabel);
+
     const description = document.createElement('p');
     description.className = 'place-card-description';
     description.textContent = lugar.description || 'No hay descripción disponible actualmente para este sitio.';
 
     bodyContainer.appendChild(title);
+    bodyContainer.appendChild(ratingStrip);
     bodyContainer.appendChild(description);
 
     const footerContainer = document.createElement('div');
@@ -113,6 +155,7 @@ export const LugaresView = {
         searchInput: document.getElementById('search-input'),
         searchClearBtn: document.getElementById('search-clear-btn'),
         categoryPillsContainer: document.getElementById('category-pills'),
+        ratingPillsContainer: document.getElementById('rating-pills'),
         resultsCounter: document.getElementById('results-counter'),
         btnRetry: document.getElementById('btn-retry'),
         btnResetFilters: document.getElementById('btn-reset-filters')
@@ -182,31 +225,63 @@ export const LugaresView = {
         }
     },
 
-    inicializarFiltrosCategorias(categoriasMap, categoriaActiva, onSelectCategoria) {
+    inicializarFiltrosCategorias(categorias, categoriaActiva, onSelectCategoria) {
         const { categoryPillsContainer } = this.elements;
         if (!categoryPillsContainer) return;
 
         categoryPillsContainer.querySelectorAll('.pill-btn').forEach(button => {
             const categoria = button.dataset.category || button.dataset.categoria;
-            if (categoria !== 'todos') button.remove();
+            if (categoria !== 'todos' && categoria !== 'todas') button.remove();
         });
 
         const btnTodos = categoryPillsContainer.querySelector('[data-category="todos"], [data-categoria="todos"]');
+        const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
+
         if (btnTodos) {
-            const esActivo = categoriaActiva === 'todos';
-            btnTodos.classList.toggle('active', esActivo);
-            btnTodos.setAttribute('aria-checked', esActivo ? 'true' : 'false');
+            btnTodos.textContent = 'Todas';
+            btnTodos.dataset.category = 'todos';
+            btnTodos.dataset.categoria = 'todos';
+            btnTodos.classList.toggle('active', esTodos);
+            btnTodos.setAttribute('aria-checked', esTodos ? 'true' : 'false');
             btnTodos.onclick = () => onSelectCategoria('todos', btnTodos, 'todos');
         }
 
-        categoriasMap.forEach((color, categoria) => {
-            const categoriaNormalizada = normalizarTexto(categoria);
-            const esActivo = categoriaActiva === categoriaNormalizada;
+        // Normalizar entrada (Array de objetos {name, slug, color} o Map)
+        let listaCategorias = [];
+        if (Array.isArray(categorias)) {
+            listaCategorias = categorias;
+        } else if (categorias instanceof Map) {
+            categorias.forEach((color, name) => {
+                listaCategorias.push({
+                    name,
+                    slug: generarSlug(name),
+                    color
+                });
+            });
+        }
+
+        let hayCoincidenciaActiva = false;
+
+        listaCategorias.forEach(cat => {
+            const nombre = cat.name || '';
+            const slug = cat.slug || generarSlug(nombre);
+            const color = cat.color || null;
+
+            const esActivo = !esTodos && (
+                slug === categoriaActiva ||
+                coincideCategoria(nombre, categoriaActiva) ||
+                coincideCategoria(slug, categoriaActiva)
+            );
+
+            if (esActivo) hayCoincidenciaActiva = true;
+
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `pill-btn ${esActivo ? 'active' : ''}`;
-            button.dataset.category = categoriaNormalizada;
-            button.dataset.categoria = categoriaNormalizada;
+            button.dataset.category = slug;
+            button.dataset.categoria = slug;
+            button.dataset.slug = slug;
+            button.dataset.name = nombre;
             button.setAttribute('role', 'radio');
             button.setAttribute('aria-checked', esActivo ? 'true' : 'false');
 
@@ -218,22 +293,50 @@ export const LugaresView = {
             }
 
             const label = document.createElement('span');
-            label.textContent = categoria;
+            label.textContent = nombre;
             button.appendChild(label);
-            button.addEventListener('click', () => onSelectCategoria(categoriaNormalizada, button, categoria.toLowerCase()));
+            button.addEventListener('click', () => onSelectCategoria(slug, button, nombre));
             categoryPillsContainer.appendChild(button);
         });
+
+        if (btnTodos) {
+            const marcarTodos = esTodos || !hayCoincidenciaActiva;
+            btnTodos.classList.toggle('active', marcarTodos);
+            btnTodos.setAttribute('aria-checked', marcarTodos ? 'true' : 'false');
+        }
     },
 
     actualizarCategoriaActiva(categoriaActiva, btnSeleccionado = null) {
         const { categoryPillsContainer } = this.elements;
+        const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
+
         categoryPillsContainer?.querySelectorAll('.pill-btn').forEach(button => {
-            const categoria = button.dataset.category || button.dataset.categoria || '';
-            const esActivo = btnSeleccionado
-                ? button === btnSeleccionado
-                : categoria === categoriaActiva;
+            const cat = button.dataset.category || button.dataset.categoria || '';
+            let esActivo = false;
+
+            if (btnSeleccionado) {
+                esActivo = button === btnSeleccionado;
+            } else if (esTodos) {
+                esActivo = cat === 'todos' || cat === 'todas';
+            } else {
+                esActivo = cat === categoriaActiva ||
+                    coincideCategoria(cat, categoriaActiva) ||
+                    coincideCategoria(button.dataset.name || '', categoriaActiva);
+            }
+
             button.classList.toggle('active', esActivo);
             button.setAttribute('aria-checked', esActivo ? 'true' : 'false');
+        });
+    },
+
+    actualizarRatingActivo(minRatingActivo) {
+        const { ratingPillsContainer } = this.elements;
+        const valor = String(minRatingActivo || 0);
+        ratingPillsContainer?.querySelectorAll('.rating-pill-btn').forEach(btn => {
+            const ratingValor = btn.dataset.rating || '0';
+            const esActivo = ratingValor === valor;
+            btn.classList.toggle('active', esActivo);
+            btn.setAttribute('aria-checked', esActivo ? 'true' : 'false');
         });
     }
 };

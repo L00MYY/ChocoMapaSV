@@ -109,6 +109,9 @@
                                        autocomplete="email" 
                                        spellcheck="false">
                             </div>
+                            <div class="field-error-message" id="email-error" role="alert">
+                                <span class="error-text"></span>
+                            </div>
                         </div>
 
                         <!-- Campo: Contraseña -->
@@ -143,6 +146,9 @@
                                     </svg>
                                 </button>
                             </div>
+                            <div class="field-error-message" id="password-error" role="alert">
+                                <span class="error-text"></span>
+                            </div>
                         </div>
 
                         <!-- Botón de Envío: Texto exacto "Ingresar" -->
@@ -173,6 +179,7 @@
     </div>
 
     <!-- Controlador MVC -->
+    <script type="module" src="js/controllers/NavbarController.js"></script>
     <script type="module" src="js/controllers/LoginController.js"></script>
 </body>
 </html>

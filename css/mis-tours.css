@@ -8,7 +8,13 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--deep-space-blue) 0%, #0a1926 100%);
+  background: var(--bg-app);
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .mis-tours-main {
@@ -52,14 +58,14 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--alice-blue, #E8F1F2);
+  color: var(--text-primary);
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .mis-tours-subtitle {
   font-size: 1rem;
-  color: #a4c2cb;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -75,9 +81,9 @@
 }
 
 .mis-tours-tab-btn {
-  background: rgba(232, 241, 242, 0.06);
-  border: 1px solid rgba(232, 241, 242, 0.16);
-  color: var(--alice-blue, #E8F1F2);
+  background: var(--input-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
   padding: 8px 18px;
   border-radius: var(--radius-pill, 9999px);
   font-family: inherit;
@@ -116,8 +122,8 @@
 
 /* --- Estados: Loading / Error / Vacío --- */
 .state-box {
-  background: rgba(19, 41, 61, 0.65);
-  border: 1px solid rgba(209, 227, 230, 0.15);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 18px;
   padding: 48px 24px;
   text-align: center;
@@ -151,7 +157,7 @@
 }
 
 .loading-text {
-  color: var(--alice-blue, #E8F1F2);
+  color: var(--text-primary);
   font-size: 1.05rem;
   font-weight: 600;
   margin: 0;
@@ -221,7 +227,7 @@
 }
 
 .empty-title {
-  color: var(--alice-blue, #E8F1F2);
+  color: var(--text-primary);
   font-size: 1.6rem;
   font-weight: 800;
   margin: 0 0 12px;
@@ -229,7 +235,7 @@
 }
 
 .empty-description {
-  color: #a4c2cb;
+  color: var(--text-secondary);
   font-size: 1rem;
   margin: 0 0 28px;
   line-height: 1.5;
@@ -266,7 +272,7 @@
 }
 
 .tour-history-card {
-  background: #ffffff;
+  background: var(--bg-surface);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -275,7 +281,7 @@
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
   cursor: pointer;
   position: relative;
-  border: 1px solid rgba(209, 227, 230, 0.6);
+  border: 1px solid var(--border-subtle);
 }
 
 .tour-history-card:hover {
@@ -350,6 +356,69 @@
 }
 
 /* Estado: Pasado */
+
+/* Estado: Rechazado */
+.status-badge--rechazado {
+  background: rgba(239, 68, 68, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Tooltip personalizado en status-badge */
+.status-badge--has-tooltip {
+  cursor: help;
+}
+
+.status-badge--has-tooltip:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.status-tooltip-bubble {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(19, 41, 61, 0.96);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  width: max-content;
+  max-width: 240px;
+  text-align: right;
+  text-transform: none;
+  letter-spacing: normal;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 10;
+  white-space: normal;
+}
+
+.status-tooltip-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 14px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(19, 41, 61, 0.96) transparent;
+}
+
+.status-badge:hover .status-tooltip-bubble,
+.status-badge:focus .status-tooltip-bubble,
+.status-badge:focus-within .status-tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
 .status-badge--pasado {
   background: rgba(108, 122, 137, 0.9);
   color: #ffffff;
@@ -383,7 +452,7 @@
 .card-tour-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--deep-space-blue, #13293D);
+  color: var(--text-primary);
   margin: 0 0 12px;
   line-height: 1.35;
   display: -webkit-box;
@@ -404,7 +473,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  color: #4a6572;
+  color: var(--text-secondary);
   font-size: 0.88rem;
   font-weight: 500;
 }
@@ -470,3 +539,70 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES === */
+/* Tema Oscuro (Defecto) */
+.card-meta-item,
+.card-meta-list span,
+.card-meta-list div,
+.meta-label,
+.meta-value {
+  color: #cbd5e1 !important;
+}
+
+.card-meta-item strong,
+.card-meta-value-highlight,
+.code-badge-text {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+.card-meta-list svg,
+.card-meta-item svg,
+.card-meta-icon {
+  stroke: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+.card-footer-action,
+.card-footer-action span {
+  color: #38bdf8 !important;
+}
+
+.card-footer-action svg {
+  stroke: #38bdf8 !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .card-meta-item,
+[data-theme="light"] .card-meta-list span,
+[data-theme="light"] .card-meta-list div,
+[data-theme="light"] .meta-label,
+[data-theme="light"] .meta-value {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .card-meta-item strong,
+[data-theme="light"] .card-meta-value-highlight,
+[data-theme="light"] .code-badge-text {
+  color: #0f172a !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] .card-meta-list svg,
+[data-theme="light"] .card-meta-item svg,
+[data-theme="light"] .card-meta-icon {
+  stroke: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .card-footer-action,
+[data-theme="light"] .card-footer-action span {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .card-footer-action svg {
+  stroke: #0284c7 !important;
+}
+/* END === WCAG AA CONTRAST AUDIT FIXES === */

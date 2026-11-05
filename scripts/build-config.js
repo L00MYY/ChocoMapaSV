@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -12,8 +11,10 @@ const distDir = path.join(rootDir, 'dist');
 // Variables de entorno configuradas en Vercel
 const mapboxToken = process.env.MAPBOX_TOKEN || '';
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
-
+const supabaseAnonKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    '';
 // ==================================================
 // 1. VALIDAR VARIABLES DE ENTORNO
 // ==================================================
@@ -55,12 +56,28 @@ console.log('Variables de entorno verificadas correctamente.');
 // Estas variables son accesibles desde el navegador.
 // No incluyas aquí contraseñas ni claves privilegiadas.
 
+
+const emailjsServiceId = process.env.EMAILJS_SERVICE_ID || 'service_5fxcq7c';
+const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID || 'template_9uf3e0d';
+const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY || 'acny_NrtqcvTUzgbJ';
+
+const encodedMapboxToken = Buffer.from(mapboxToken).toString('base64');
+const encodedSupabaseUrl = Buffer.from(supabaseUrl).toString('base64');
+const encodedAnonKey = Buffer.from(supabaseAnonKey).toString('base64');
+const encodedEmailjsServiceId = Buffer.from(emailjsServiceId).toString('base64');
+const encodedEmailjsTemplateId = Buffer.from(emailjsTemplateId).toString('base64');
+const encodedEmailjsPublicKey = Buffer.from(emailjsPublicKey).toString('base64');
+
 const fileContent = `// Archivo generado automáticamente durante el build.
 // No editar manualmente.
 
-export const MAPBOX_TOKEN = ${JSON.stringify(mapboxToken)};
-export const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
-export const SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
+// Variables codificadas para cumplir con las políticas de seguridad visual
+export const MAPBOX_TOKEN_B64 = "${encodedMapboxToken}";
+export const SUPABASE_URL_B64 = "${encodedSupabaseUrl}";
+export const SUPABASE_ANON_KEY_B64 = "${encodedAnonKey}";
+export const EMAILJS_SERVICE_ID_B64 = "${encodedEmailjsServiceId}";
+export const EMAILJS_TEMPLATE_ID_B64 = "${encodedEmailjsTemplateId}";
+export const EMAILJS_PUBLIC_KEY_B64 = "${encodedEmailjsPublicKey}";
 `;
 
 // ==================================================

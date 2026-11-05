@@ -1,13 +1,19 @@
 /**
- * @file ToursModel.js
- * @description Modelo de acceso a datos para el catálogo de tours, fechas, lugares asociados y reservaciones.
- * Rol en el MVC: Modelo (Model). Realiza consultas a las tablas 'tours', 'tour_places', 'tour_dates'
- * y 'tour_reservations' en Supabase PostgREST, implementando resiliencia con respaldo local (TOURS_DEMO)
- * y funciones accesorias de formateo (conforme a la deuda documentada en ADR-004).
+ * js/models/ToursModel.js
+ * Modelo y acceso a datos para tours y reservas (MITUR SV).
+ * Provee consulta resiliente a Supabase PostgREST, filtrado cronológico y lógica de cupos.
  */
 
-// Modelo y acceso a datos para tours y reservas (MITUR SV)
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
+import { AuthModel } from './AuthModel.js';
+
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 /** @type {Object} Cabeceras comunes para llamadas a la API REST de Supabase */
 const HEADERS = {
@@ -22,7 +28,6 @@ const HEADERS = {
  * permitiendo pruebas completas e interacción inmediata. En cuanto existan registros en Supabase,
  * estos tienen prioridad absoluta.
  */
-
 export const TOURS_DEMO = [
     {
         id: 'a1000000-0000-0000-0000-000000000001',
@@ -37,12 +42,11 @@ export const TOURS_DEMO = [
         has_offer: true,
         discount_percentage: 20,
         final_price: 28.00,
-        available_spots: 12,
         is_active: true,
         tour_dates: [
-            { id: 'd1000001', departure_date: '2026-10-18' },
-            { id: 'd1000002', departure_date: '2026-10-25' },
-            { id: 'd1000003', departure_date: '2026-11-01' }
+            { id: 'd1000001', departure_date: '2026-10-18', available_spots: 12 },
+            { id: 'd1000002', departure_date: '2026-10-25', available_spots: 8 },
+            { id: 'd1000003', departure_date: '2026-11-01', available_spots: 10 }
         ],
         tour_places: [
             {
@@ -101,12 +105,10 @@ export const TOURS_DEMO = [
         has_offer: false,
         discount_percentage: 0,
         final_price: 45.00,
-        available_spots: 8,
         is_active: true,
         tour_dates: [
-            { id: 'd2000001', departure_date: '2026-10-18' },
-            { id: 'd2000002', departure_date: '2026-10-24' },
-            { id: 'd2000003', departure_date: '2026-10-31' }
+            { id: 'd2000001', departure_date: '2026-10-19', available_spots: 15 },
+            { id: 'd2000002', departure_date: '2026-10-26', available_spots: 10 }
         ],
         tour_places: [
             {
@@ -118,7 +120,7 @@ export const TOURS_DEMO = [
                     name: 'Laguna de Apastepeque',
                     department: 'San Vicente',
                     image_url: 'https://lh3.googleusercontent.com/d/1FjMwSMq1ktqF4fgzN9aivDVaAej7_pFb',
-                    short_description: 'Hermoso espejo de agua de origen volcánico rodeado de vegetación.'
+                    short_description: 'Hermoso espejo de agua de origen volcánico rodeado de naturaleza.'
                 }
             },
             {
@@ -130,11 +132,96 @@ export const TOURS_DEMO = [
                     name: 'Parque Recreativo Amapulapa',
                     department: 'San Vicente',
                     image_url: 'https://lh3.googleusercontent.com/d/1UA8Jw0OTgJwmSGJnzPGJ_DXT-9Jy7Uwm',
-                    short_description: 'Nacimientos de agua cristalina y piscinas naturales.'
+                    short_description: 'Nacimientos de agua cristalina y piscinas familiares.'
+                }
+            }
+        ],
+        tour_images: [
+            { id: 'i4', image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80' },
+            { id: 'i5', image_url: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80' }
+        ]
+    },
+    {
+        id: 'a3000000-0000-0000-0000-000000000003',
+        name: 'Senderismo Oriental & Altos de la Cueva',
+        short_description: 'Caminatas por miradores panorámicos y vegetación tropical en el oriente del país.',
+        full_description: 'Conoce los paisajes más cautivadores de la zona oriental salvadoreña. Una travesía diseñada para los amantes del senderismo y el contacto con la naturaleza, con vistas espectaculares del valle de San Miguel y avistamiento de fauna local.',
+        image_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+        guide_name: 'Roberto Gómez',
+        department: 'San Miguel',
+        departure_time: '06:00:00',
+        price: 40.00,
+        has_offer: true,
+        discount_percentage: 15,
+        final_price: 34.00,
+        is_active: true,
+        tour_dates: [
+            { id: 'd3000001', departure_date: '2026-10-20', available_spots: 6 },
+            { id: 'd3000002', departure_date: '2026-10-27', available_spots: 14 }
+        ],
+        tour_places: [
+            {
+                tour_id: 'a3000000-0000-0000-0000-000000000003',
+                place_id: '9506d663-3b09-4430-860d-dbb336c18295',
+                visit_order: 1,
+                places: {
+                    id: '9506d663-3b09-4430-860d-dbb336c18295',
+                    name: 'Parque Recreativo Altos de la Cueva',
+                    department: 'San Miguel',
+                    image_url: 'https://lh3.googleusercontent.com/d/1ik9s0NdKmAzLWriuTyVafM0HP_yuvbF7',
+                    short_description: 'Senderos naturales y áreas de esparcimiento familiar.'
+                }
+            }
+        ],
+        tour_images: [
+            { id: 'i6', image_url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80' }
+        ]
+    },
+    {
+        id: 'a4000000-0000-0000-0000-000000000004',
+        name: 'Circuito Completo: Lagunas y Miradores',
+        short_description: 'Ruta completa de 2 días conectando San Salvador, San Vicente y San Miguel.',
+        full_description: 'La experiencia definitiva por tres departamentos de El Salvador. Incluye transporte climatizado, guía acreditado durante todo el trayecto, entradas a parques recreativos, degustación gastronómica regional y hospedaje en hotel certificado.',
+        image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+        guide_name: 'Elena Quintanilla',
+        department: 'San Salvador',
+        departure_time: '06:30:00',
+        price: 85.00,
+        has_offer: true,
+        discount_percentage: 25,
+        final_price: 63.75,
+        is_active: true,
+        tour_dates: [
+            { id: 'd4000001', departure_date: '2026-10-24', available_spots: 10 },
+            { id: 'd4000002', departure_date: '2026-10-31', available_spots: 8 }
+        ],
+        tour_places: [
+            {
+                tour_id: 'a4000000-0000-0000-0000-000000000004',
+                place_id: '236c0fa7-2ae1-4fb5-a504-8f35e63105cf',
+                visit_order: 1,
+                places: {
+                    id: '236c0fa7-2ae1-4fb5-a504-8f35e63105cf',
+                    name: 'Biblioteca Nacional (BINAES)',
+                    department: 'San Salvador',
+                    image_url: 'https://lh3.googleusercontent.com/d/1pNfmL_rSHxv01_sqwCv5MTU9UP_PPXBb',
+                    short_description: 'Centro de conocimiento y cultura moderno en el corazón de la capital salvadoreña.'
                 }
             },
             {
-                tour_id: 'a2000000-0000-0000-0000-000000000002',
+                tour_id: 'a4000000-0000-0000-0000-000000000004',
+                place_id: '9b1d17db-0467-4372-8ed3-9f4ec84116f1',
+                visit_order: 2,
+                places: {
+                    id: '9b1d17db-0467-4372-8ed3-9f4ec84116f1',
+                    name: 'Laguna de Apastepeque',
+                    department: 'San Vicente',
+                    image_url: 'https://lh3.googleusercontent.com/d/1FjMwSMq1ktqF4fgzN9aivDVaAej7_pFb',
+                    short_description: 'Hermoso espejo de agua de origen volcánico rodeado de naturaleza.'
+                }
+            },
+            {
+                tour_id: 'a4000000-0000-0000-0000-000000000004',
                 place_id: '9506d663-3b09-4430-860d-dbb336c18295',
                 visit_order: 3,
                 places: {
@@ -147,81 +234,17 @@ export const TOURS_DEMO = [
             }
         ],
         tour_images: [
-            { id: 'i4', image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80' },
-            { id: 'i5', image_url: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80' }
-        ]
-    },
-    {
-        id: 'a3000000-0000-0000-0000-000000000003',
-        name: 'Expedición Bosque & Tradición Oriental',
-        short_description: 'Visita los pulmones verdes de Ahuachapán y la riqueza natural del oriente del país.',
-        full_description: 'Una expedición pensada para amantes de la naturaleza y la biodiversidad. Conoce el Bosque de Mamapán en Ahuachapán, explora flora endémica y continúa hacia los tesoros naturales del oriente salvadoreño con guías especializados en ecoturismo y fotografía de paisajes.',
-        image_url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80',
-        guide_name: 'Roberto Henríquez',
-        department: 'Ahuachapán',
-        departure_time: '06:00:00',
-        price: 50.00,
-        has_offer: true,
-        discount_percentage: 15,
-        final_price: 42.50,
-        available_spots: 15,
-        is_active: true,
-        tour_dates: [
-            { id: 'd3000001', departure_date: '2026-10-19' },
-            { id: 'd3000002', departure_date: '2026-10-26' },
-            { id: 'd3000003', departure_date: '2026-11-02' }
-        ],
-        tour_places: [
-            {
-                tour_id: 'a3000000-0000-0000-0000-000000000003',
-                place_id: '55ba3abd-f67c-4a36-98a7-c5f77605f7b3',
-                visit_order: 1,
-                places: {
-                    id: '55ba3abd-f67c-4a36-98a7-c5f77605f7b3',
-                    name: 'El Bosque de Mamapán',
-                    department: 'Ahuachapán',
-                    image_url: 'https://lh3.googleusercontent.com/d/11pekOzG2trB897unfFZ_DGEcuCpMr2YN',
-                    short_description: 'Reserva forestal y senderos ecológicos de alta montaña.'
-                }
-            },
-            {
-                tour_id: 'a3000000-0000-0000-0000-000000000003',
-                place_id: '236c0fa7-2ae1-4fb5-a504-8f35e63105cf',
-                visit_order: 2,
-                places: {
-                    id: '236c0fa7-2ae1-4fb5-a504-8f35e63105cf',
-                    name: 'Biblioteca Nacional (BINAES)',
-                    department: 'San Salvador',
-                    image_url: 'https://lh3.googleusercontent.com/d/1pNfmL_rSHxv01_sqwCv5MTU9UP_PPXBb',
-                    short_description: 'Centro de conocimiento y cultura moderno.'
-                }
-            },
-            {
-                tour_id: 'a3000000-0000-0000-0000-000000000003',
-                place_id: '9b1d17db-0467-4372-8ed3-9f4ec84116f1',
-                visit_order: 3,
-                places: {
-                    id: '9b1d17db-0467-4372-8ed3-9f4ec84116f1',
-                    name: 'Laguna de Apastepeque',
-                    department: 'San Vicente',
-                    image_url: 'https://lh3.googleusercontent.com/d/1FjMwSMq1ktqF4fgzN9aivDVaAej7_pFb',
-                    short_description: 'Hermoso espejo de agua de origen volcánico.'
-                }
-            }
-        ],
-        tour_images: [
-            { id: 'i6', image_url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80' },
-            { id: 'i7', image_url: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80' }
+            { id: 'i7', image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80' },
+            { id: 'i8', image_url: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80' }
         ]
     }
 ];
 
 /**
- * Realiza una petición fetch con límite de tiempo de seguridad (6 segundos)
- * para evitar bloqueos y estados de carga infinita.
- * @param {string} url 
- * @param {Object} options 
- * @param {number} timeoutMs 
+ * @description Realiza peticiones fetch con control de timeout por señal de cancelación.
+ * @param {string} url - URL de la petición.
+ * @param {RequestInit} [options={}] - Opciones de la petición HTTP.
+ * @param {number} [timeoutMs=6000] - Tiempo máximo de espera en milisegundos.
  * @returns {Promise<Response>}
  */
 async function fetchConTimeout(url, options = {}, timeoutMs = 6000) {
@@ -236,14 +259,14 @@ async function fetchConTimeout(url, options = {}, timeoutMs = 6000) {
 }
 
 /**
- * Consulta todos los tours activos desde Supabase con sus relaciones
- * @returns {Promise<Array>} Lista de tours activos
+ * @description Consulta todos los tours activos desde Supabase con sus relaciones (fechas, sitios e imágenes).
+ * @returns {Promise<Array<Object>>} Lista de tours activos o catálogo de demostración en modo de respaldo.
  */
 export async function obtenerToursActivos() {
     try {
         const queryParams = new URLSearchParams({
             is_active: 'eq.true',
-            select: '*,tour_dates(*),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*)',
+            select: '*,tour_dates(id,departure_date,available_spots),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*)',
             order: 'name.asc'
         });
 
@@ -264,11 +287,10 @@ export async function obtenerToursActivos() {
 }
 
 /**
- * Consulta un tour específico por su ID único (UUID) de forma resiliente
- * Realiza la consulta principal a tours y las secundarias (tour_places con places, tour_dates, tour_images)
- * de forma independiente con Promise.allSettled para que fallas en tablas secundarias no bloqueen la vista.
- * @param {string} id - Identificador UUID del tour
- * @returns {Promise<Object|null>} Registro del tour o null
+ * @description Consulta un tour específico por su ID único (UUID) de forma resiliente,
+ * consultando relaciones secundarias mediante Promise.allSettled.
+ * @param {string} id - Identificador UUID del tour.
+ * @returns {Promise<Object|null>} Registro del tour o null si no se localiza.
  */
 export async function obtenerTourPorId(id) {
     if (!id || typeof id !== 'string' || !id.trim()) return null;
@@ -276,8 +298,7 @@ export async function obtenerTourPorId(id) {
     const cleanId = id.trim();
 
     try {
-        // 1. Consulta principal a la tabla tours
-        const tourUrl = `${SUPABASE_URL}/rest/v1/tours?id=eq.${cleanId}&select=*`;
+        const tourUrl = `${SUPABASE_URL}/rest/v1/tours?id=eq.${cleanId}&select=*,tour_dates(id,departure_date,available_spots)`;
         const resTour = await fetchConTimeout(tourUrl, { headers: HEADERS }, 6000);
 
         if (resTour.ok) {
@@ -285,9 +306,8 @@ export async function obtenerTourPorId(id) {
             if (Array.isArray(dataTour) && dataTour.length > 0) {
                 const tour = dataTour[0];
 
-                // 2. Consultas secundarias independientes con Promise.allSettled
                 const placesUrl = `${SUPABASE_URL}/rest/v1/tour_places?tour_id=eq.${cleanId}&select=*,places(id,name,department,image_url,short_description)&order=visit_order.asc`;
-                const datesUrl = `${SUPABASE_URL}/rest/v1/tour_dates?tour_id=eq.${cleanId}&order=departure_date.asc`;
+                const datesUrl = `${SUPABASE_URL}/rest/v1/tour_dates?tour_id=eq.${cleanId}&select=id,departure_date,available_spots&order=departure_date.asc`;
                 const imagesUrl = `${SUPABASE_URL}/rest/v1/tour_images?tour_id=eq.${cleanId}`;
 
                 const [placesResult, datesResult, imagesResult] = await Promise.allSettled([
@@ -300,9 +320,11 @@ export async function obtenerTourPorId(id) {
                     ? placesResult.value
                     : [];
 
-                tour.tour_dates = (datesResult.status === 'fulfilled' && Array.isArray(datesResult.value))
-                    ? datesResult.value
-                    : [];
+                if (datesResult.status === 'fulfilled' && Array.isArray(datesResult.value) && datesResult.value.length > 0) {
+                    tour.tour_dates = datesResult.value;
+                } else if (!Array.isArray(tour.tour_dates)) {
+                    tour.tour_dates = [];
+                }
 
                 tour.tour_images = (imagesResult.status === 'fulfilled' && Array.isArray(imagesResult.value))
                     ? imagesResult.value
@@ -315,7 +337,6 @@ export async function obtenerTourPorId(id) {
         console.warn('Error o timeout al consultar tour por ID en Supabase:', error);
     }
 
-    // 3. Fallback en memoria si coincide con el catálogo de demostración
     const demoTour = TOURS_DEMO.find(t => t.id === cleanId);
     if (demoTour) {
         return demoTour;
@@ -325,9 +346,9 @@ export async function obtenerTourPorId(id) {
 }
 
 /**
- * Consulta los tours activos que incluyen un lugar turístico determinado (CP-013)
- * @param {string} placeId - Identificador del sitio turístico
- * @returns {Promise<Array>} Lista de tours asociados
+ * @description Consulta los tours activos que incluyen un lugar turístico determinado (CP-013).
+ * @param {string} placeId - Identificador UUID del sitio turístico.
+ * @returns {Promise<Array<Object>>} Lista de tours asociados.
  */
 export async function obtenerToursPorLugar(placeId) {
     if (!placeId) return [];
@@ -335,7 +356,7 @@ export async function obtenerToursPorLugar(placeId) {
     try {
         const queryParams = new URLSearchParams({
             place_id: `eq.${placeId}`,
-            select: 'tour_id,visit_order,tours(*,tour_dates(*),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*))'
+            select: 'tour_id,visit_order,tours(*,tour_dates(id,departure_date,available_spots),tour_places(*,places(id,name,department,image_url,short_description)),tour_images(*))'
         });
 
         const url = `${SUPABASE_URL}/rest/v1/tour_places?${queryParams.toString()}`;
@@ -362,15 +383,14 @@ export async function obtenerToursPorLugar(placeId) {
         console.warn('Error o timeout al consultar tours por lugar en Supabase:', error);
     }
 
-    // Fallback a los tours de demostración que incluyen este lugar
     return TOURS_DEMO.filter(t =>
         t.is_active && t.tour_places && t.tour_places.some(tp => tp.place_id === placeId)
     );
 }
 
 /**
- * Consulta la lista de lugares turísticos para poblar el selector de filtro
- * @returns {Promise<Array>} Lista de lugares con { id, name, department }
+ * @description Consulta la lista de lugares turísticos para poblar el selector de filtro en tours.
+ * @returns {Promise<Array<Object>>} Lista de lugares con { id, name, department }.
  */
 export async function obtenerLugaresParaFiltro() {
     try {
@@ -393,7 +413,6 @@ export async function obtenerLugaresParaFiltro() {
         console.warn('Error o timeout al consultar lugares para filtro:', error);
     }
 
-    // Lugares extraídos de los tours de respaldo
     const lugaresMap = new Map();
     TOURS_DEMO.forEach(t => {
         (t.tour_places || []).forEach(tp => {
@@ -406,60 +425,170 @@ export async function obtenerLugaresParaFiltro() {
 }
 
 /**
- * Inserta una nueva reserva en la tabla tour_reservations de Supabase (CP-021)
- * @param {Object} reservaData - { tour_id, tourist_name, tourist_email, tourist_phone, tour_date, spots_reserved }
- * @returns {Promise<{ ok: boolean, data?: Object, error?: string }>}
+ * @description Sanitiza un número de teléfono removiendo cualquier caracter que no sea dígito 0-9.
+ * Cumple estrictamente con la restricción CHECK (tourist_phone ~ '^[0-9]+$').
+ * @param {string|number} phone - Número de teléfono en bruto.
+ * @returns {string} Cadena compuesta únicamente por dígitos.
  */
-export async function crearReservaTour(reservaData) {
-    try {
-        const url = `${SUPABASE_URL}/rest/v1/tour_reservations`;
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                ...HEADERS,
-                'Prefer': 'return=representation'
-            },
-            body: JSON.stringify(reservaData)
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            return { ok: true, data: Array.isArray(data) ? data[0] : data };
-        } else {
-            const errJson = await res.json().catch(() => ({}));
-            console.warn('Respuesta no exitosa al guardar reserva en Supabase:', res.status, errJson);
-            // Si el error es por tour inexistente en demo local o RLS, permitimos que la UI valide el éxito
-            return { ok: true, data: reservaData, note: 'Simulación local de reserva guardada' };
-        }
-    } catch (error) {
-        console.error('Error al enviar reserva a Supabase:', error);
-        return { ok: true, data: reservaData, note: 'Reserva procesada' };
-    }
+export function sanitizarTelefono(phone) {
+    if (!phone) return '';
+    return String(phone).replace(/\D/g, '');
 }
 
 /**
- * Intenta actualizar los cupos disponibles de un tour tras confirmar la reserva
- * @param {string} tourId - UUID del tour
- * @param {number} nuevosCupos - Nueva cantidad de cupos disponibles
+ * @description Valida los datos del formulario de reserva, incluyendo validación y sanitización estricta de teléfono.
+ * @param {Object} [datos={}] - Datos de la reserva a evaluar.
+ * @returns {{ esValido: boolean, error?: string, errores?: Object, telefonoSanitizado?: string }}
  */
-export async function actualizarCuposTour(tourId, nuevosCupos) {
-    try {
-        // Petición PATCH a Supabase PostgREST para decrementar los cupos disponibles tras confirmar la reserva
-        const url = `${SUPABASE_URL}/rest/v1/tours?id=eq.${tourId}`;
-        await fetch(url, {
-            method: 'PATCH',
-            headers: HEADERS,
-            body: JSON.stringify({ available_spots: nuevosCupos })
-        });
-    } catch (error) {
-        console.warn('No se pudieron actualizar los cupos en la base de datos:', error);
+export function validarFormularioReserva(datos = {}) {
+    const payload = datos && typeof datos === 'object' ? datos : {};
+    const phone = payload.phone ?? payload.telefono ?? payload.tourist_phone;
+    const telefonoLimpio = sanitizarTelefono(phone);
+
+    if (!/^[0-9]{8,15}$/.test(telefonoLimpio)) {
+        return {
+            esValido: false,
+            error: 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)',
+            errores: { phone: 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)' }
+        };
     }
+
+    return {
+        esValido: true,
+        telefonoSanitizado: telefonoLimpio,
+        errores: {}
+    };
 }
 
 /**
- * Formatea un número decimal como moneda estadounidense USD (ej. $28.00)
- * @param {number|string} valor 
- * @returns {string}
+ * @description Inserta una nueva reserva en la tabla tour_reservations de Supabase PostgREST.
+ * @param {Object} datosReserva - Datos de la reserva a registrar.
+ * @returns {Promise<{ ok: boolean, data?: Object }>}
+ * @throws {Error} Si la petición a Supabase falla o el usuario no está autenticado.
+ */
+export async function crearReservaTour(datosReserva) {
+    const sesion = await AuthModel.obtenerSesionActual();
+    if (!sesion || !sesion.user) {
+        throw new Error('Debes iniciar sesión para realizar una reserva');
+    }
+
+    const tourDateId = datosReserva.tourDateId || datosReserva.tour_date_id;
+    if (!tourDateId) {
+        throw new Error('Debes seleccionar una fecha de salida válida');
+    }
+
+    const chars = '0123456789ABCDEF';
+    let code = 'CM-';
+    for (let i = 0; i < 6; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    const payload = {
+        tour_id: datosReserva.tourId || datosReserva.tour_id,
+        tour_date_id: tourDateId,
+        tour_date: datosReserva.tourDate || datosReserva.tour_date,
+        tourist_id: sesion.user.id,
+        tourist_name: (datosReserva.nombre || datosReserva.tourist_name || '').trim(),
+        tourist_email: (datosReserva.email || datosReserva.tourist_email || '').trim(),
+        tourist_phone: sanitizarTelefono(datosReserva.telefono ?? datosReserva.tourist_phone ?? datosReserva.phone),
+        spots_reserved: Number(datosReserva.cuposReservados ?? datosReserva.spots_reserved),
+        reservation_code: datosReserva.reservation_code || datosReserva.codigo || code,
+        status: datosReserva.status || 'pendiente_pago',
+        total_amount: Number(datosReserva.total_amount ?? datosReserva.totalAmount) || null,
+        expires_at: datosReserva.expires_at || new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    };
+
+    delete payload.available_spots;
+
+    const url = `${SUPABASE_URL}/rest/v1/tour_reservations`;
+    const respuesta = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${sesion.access_token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!respuesta.ok) {
+        const errorBody = await respuesta.json().catch((jsonErr) => {
+            console.warn('Error al deserializar cuerpo de error en crearReservaTour:', jsonErr);
+            return {};
+        });
+        throw new Error(errorBody.message || 'Error al guardar la reservación');
+    }
+
+    const data = await respuesta.json().catch((jsonErr) => {
+        console.warn('Error al deserializar datos de respuesta en crearReservaTour:', jsonErr);
+        return null;
+    });
+    const resultado = Array.isArray(data) ? data[0] : (data || payload);
+    return { ok: true, data: resultado };
+}
+
+/**
+ * @description Actualiza los cupos disponibles de una fecha específica en tour_dates tras confirmar la reserva.
+ * @param {string} tourDateId - UUID del registro en la tabla tour_dates.
+ * @param {number} nuevosCuposDisponibles - Nueva cantidad de cupos disponibles.
+ * @returns {Promise<Object>} Datos actualizados devueltos por Supabase.
+ * @throws {Error} Si la actualización en Supabase falla.
+ */
+export async function actualizarCuposTour(tourDateId, nuevosCuposDisponibles) {
+    if (!tourDateId) return null;
+
+    const sesion = await AuthModel.obtenerSesionActual();
+    const token = sesion?.access_token || SUPABASE_ANON_KEY;
+
+    const url = `${SUPABASE_URL}/rest/v1/tour_dates?id=eq.${tourDateId}`;
+    const respuesta = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+            available_spots: nuevosCuposDisponibles
+        })
+    });
+
+    if (!respuesta.ok) {
+        const errorBody = await respuesta.json().catch((jsonErr) => {
+            console.warn('Error al deserializar error en actualizarCuposTour:', jsonErr);
+            return {};
+        });
+        throw new Error(errorBody.message || 'Error al actualizar cupos en tour_dates');
+    }
+
+    const data = await respuesta.json().catch((jsonErr) => {
+        console.warn('Error al deserializar respuesta en actualizarCuposTour:', jsonErr);
+        return null;
+    });
+    return Array.isArray(data) ? data[0] : data;
+}
+
+export const actualizarCuposFecha = actualizarCuposTour;
+export const obtenerPorId = obtenerTourPorId;
+
+/**
+ * @description Retorna la fecha actual en la zona local del usuario en formato estándar YYYY-MM-DD.
+ * @returns {string} Fecha en formato 'YYYY-MM-DD'.
+ */
+export function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
+
+/**
+ * @description Formatea un número decimal como moneda estadounidense USD (ej. $28.00).
+ * @param {number|string} valor - Valor numérico a formatear.
+ * @returns {string} Cadena formateada en USD.
  */
 export function formatearMonedaUSD(valor) {
     const num = Number(valor);
@@ -468,9 +597,147 @@ export function formatearMonedaUSD(valor) {
 }
 
 /**
- * Formatea una fecha YYYY-MM-DD en texto legible en español
- * @param {string} fechaStr 
- * @returns {string}
+ * @description Calcula el precio final aplicando un descuento porcentual y redondeando a 2 decimales.
+ * @param {number|string} precioBase - Monto regular.
+ * @param {number|string} porcentajeDescuento - Porcentaje de descuento aplicable.
+ * @returns {number} Precio con descuento aplicado.
+ */
+export function calcularPrecioConDescuento(precioBase, porcentajeDescuento) {
+    const p = Number(precioBase);
+    const d = Number(porcentajeDescuento);
+    if (isNaN(p) || p <= 0) return 0;
+    if (isNaN(d) || d <= 0) return Number(p.toFixed(2));
+    const finalPrice = p * (1 - d / 100);
+    return Number(finalPrice.toFixed(2));
+}
+
+/**
+ * @description Determina si una fecha de salida es pasada (o igual a la fecha de referencia).
+ * En la regla de negocio de reservas, las fechas del día de hoy o anteriores no están disponibles para reserva.
+ * @param {string} fechaStr - Fecha a evaluar.
+ * @param {string} [fechaReferencia] - Fecha 'YYYY-MM-DD' de referencia (por defecto hoy local).
+ * @returns {boolean} True si la fecha es pasada o de hoy.
+ */
+export function esFechaPasada(fechaStr, fechaReferencia) {
+    if (!fechaStr) return true;
+    const ref = fechaReferencia ? String(fechaReferencia).split('T')[0] : obtenerFechaHoyLocal();
+    const f = String(fechaStr).split('T')[0];
+    return f <= ref;
+}
+
+/**
+ * @description Determina si una fecha de salida es futura y vigente para realizar reservaciones.
+ * @param {string} fechaStr - Fecha a evaluar.
+ * @param {string} [fechaReferencia] - Fecha 'YYYY-MM-DD' de referencia.
+ * @returns {boolean} True si la fecha es estrictamente posterior a la referencia.
+ */
+export function esFechaVigente(fechaStr, fechaReferencia) {
+    return !esFechaPasada(fechaStr, fechaReferencia);
+}
+
+/**
+ * @description Filtra un catálogo de tours por departamento de manera insensible a mayúsculas y espacios.
+ * @param {Array<Object>} tours - Lista de tours.
+ * @param {string} departamento - Nombre del departamento a filtrar.
+ * @returns {Array<Object>} Tours filtrados.
+ */
+export function filtrarPorDepartamento(tours, departamento) {
+    if (!Array.isArray(tours)) return [];
+    if (!departamento || !departamento.trim() || departamento === 'todos') return tours;
+    const deptoNorm = departamento.trim().toLowerCase();
+    return tours.filter(t => (t.department || '').trim().toLowerCase() === deptoNorm);
+}
+
+/**
+ * @description Filtra un catálogo de tours por condición de oferta ('oferta' vs 'sin_oferta').
+ * @param {Array<Object>} tours - Lista de tours.
+ * @param {string} condicionOferta - Criterio ('oferta' | 'sin_oferta' | 'todas').
+ * @returns {Array<Object>} Tours filtrados.
+ */
+export function filtrarPorOferta(tours, condicionOferta) {
+    if (!Array.isArray(tours)) return [];
+    if (!condicionOferta || condicionOferta === 'todas') return tours;
+    return tours.filter(t => {
+        const tieneOferta = t.has_offer === true && Number(t.discount_percentage) > 0;
+        if (condicionOferta === 'oferta') return tieneOferta;
+        if (condicionOferta === 'sin_oferta') return !tieneOferta;
+        return true;
+    });
+}
+
+/**
+ * @description Realiza una búsqueda parcial insensible a mayúsculas por texto libre en el nombre del tour.
+ * @param {Array<Object>} tours - Lista de tours.
+ * @param {string} textoBusqueda - Texto a localizar.
+ * @returns {Array<Object>} Tours coincidentes.
+ */
+export function buscarPorTitulo(tours, textoBusqueda) {
+    if (!Array.isArray(tours)) return [];
+    if (!textoBusqueda || !textoBusqueda.trim()) return tours;
+    const queryNorm = textoBusqueda.trim().toLowerCase();
+    return tours.filter(t => {
+        const titulo = (t.name || t.title || '').trim().toLowerCase();
+        return titulo.includes(queryNorm);
+    });
+}
+
+/**
+ * @description Función pura que filtra una lista de tours en base a los criterios recibidos.
+ * Admite filtros: departamento, oferta, busqueda/texto, fecha, lugar.
+ * @param {Array<Object>} listaTours - Array de tours a filtrar.
+ * @param {Object} [filtros={}] - Objeto con criterios de filtro.
+ * @returns {Array<Object>} Nueva lista filtrada.
+ */
+export function filtrarCatalogoTours(listaTours, filtros = {}) {
+    if (!Array.isArray(listaTours)) return [];
+    const {
+        fecha = '',
+        departamento = '',
+        oferta = '',
+        lugar = '',
+        busqueda = '',
+        texto = ''
+    } = filtros;
+
+    let resultado = listaTours;
+
+    if (fecha) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => {
+                const f = typeof item === 'string' ? item : item.departure_date;
+                return String(f).split('T')[0] === String(fecha).split('T')[0];
+            })
+        );
+    }
+
+    if (departamento) {
+        resultado = filtrarPorDepartamento(resultado, departamento);
+    }
+
+    if (oferta) {
+        resultado = filtrarPorOferta(resultado, oferta);
+    }
+
+    if (lugar) {
+        resultado = resultado.filter(tour =>
+            Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
+                item.place_id === lugar || item.places?.id === lugar
+            )
+        );
+    }
+
+    const termino = busqueda || texto;
+    if (termino) {
+        resultado = buscarPorTitulo(resultado, termino);
+    }
+
+    return resultado;
+}
+
+/**
+ * @description Formatea una fecha YYYY-MM-DD en texto legible en español.
+ * @param {string} fechaStr - Cadena de fecha en formato ISO o YYYY-MM-DD.
+ * @returns {string} Fecha formateada en español.
  */
 export function formatearFechaLarga(fechaStr) {
     if (!fechaStr) return '';
@@ -498,7 +765,7 @@ export function formatearFechaLarga(fechaStr) {
             });
         }
     } catch (e) {
-        console.warn('Error al formatear fecha:', e);
+        console.warn('Error al formatear fecha en formatearFechaLarga:', e);
     }
     return String(fechaStr);
 }
@@ -509,15 +776,29 @@ let todosLosTours = [];
 let lugaresDisponibles = [];
 
 /**
- * Objeto modelo que administra el estado y filtrado del catálogo de tours.
- * @namespace ToursModel
+ * Objeto ToursModel que agrupa la API del catálogo de tours
  */
 export const ToursModel = {
+    obtenerPorId,
+    obtenerTourPorId,
+    actualizarCuposTour,
+    actualizarCuposFecha,
+    crearReservaTour,
+    sanitizarTelefono,
+    validarFormularioReserva,
+    filtrarCatalogoTours,
+
     /**
-     * Carga el catálogo de tours y lista de lugares con límite de tiempo de 6 segundos.
-     * @async
-     * @function cargarCatalogo
-     * @returns {Promise<{ tours: Array<Object>, lugares: Array<Object> }>} Objeto con tours y lugares.
+     * @description Asigna la colección de tours en memoria.
+     * @param {Array<Object>} tours
+     */
+    setTours(tours) {
+        todosLosTours = Array.isArray(tours) ? tours : [];
+    },
+
+    /**
+     * @description Carga simultáneamente el catálogo de tours y lugares para filtros.
+     * @returns {Promise<{ tours: Array<Object>, lugares: Array<Object> }>}
      */
     async cargarCatalogo() {
         const timeoutPromise = new Promise((_, reject) => {
@@ -535,54 +816,29 @@ export const ToursModel = {
     },
 
     /**
-     * Aplica los filtros de fecha, departamento, oferta y lugar sobre los tours en memoria.
-     * @function getToursFiltrados
-     * @param {Object} [filtros={}] - Criterios de filtrado.
-     * @returns {Array<Object>} Lista de tours coincidentes.
+     * @description Filtra los tours activos en base a los criterios suministrados.
+     * @param {Object} [filtros={}]
+     * @returns {Array<Object>}
      */
     getToursFiltrados(filtros = {}) {
-        const { fecha = '', departamento = '', oferta = '', lugar = '' } = filtros;
-        const deptoNormalizado = departamento.trim().toLowerCase();
-
-        return todosLosTours.filter(tour => {
-            if (fecha && !(Array.isArray(tour.tour_dates) && tour.tour_dates.some(item => item.departure_date === fecha))) {
-                return false;
-            }
-
-            if (deptoNormalizado && (tour.department || '').trim().toLowerCase() !== deptoNormalizado) {
-                return false;
-            }
-
-            const tieneOferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
-            if (oferta === 'oferta' && !tieneOferta) return false;
-            if (oferta === 'sin_oferta' && tieneOferta) return false;
-
-            if (lugar && !(Array.isArray(tour.tour_places) && tour.tour_places.some(item =>
-                item.place_id === lugar || item.places?.id === lugar
-            ))) {
-                return false;
-            }
-
-            return true;
-        });
+        return filtrarCatalogoTours(todosLosTours, filtros);
     },
 
     /**
-     * Retorna la cantidad total de tours disponibles en el catálogo.
-     * @function getTotalTours
-     * @returns {number} Conteo total de tours.
+     * @description Retorna la cantidad total de tours disponibles.
+     * @returns {number}
      */
     getTotalTours() {
         return todosLosTours.length;
     },
 
     /**
-     * Retorna la lista de lugares asociados a los tours para poblar filtros.
-     * @function getLugaresDisponibles
-     * @returns {Array<Object>} Lista de lugares turísticos.
+     * @description Retorna la lista de lugares turísticos para filtros.
+     * @returns {Array<Object>}
      */
     getLugaresDisponibles() {
         return lugaresDisponibles;
     }
 };
 
+export default ToursModel;

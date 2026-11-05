@@ -136,12 +136,11 @@
                 </div>
             </div>
 
-            <!-- Filtros por Categoría (Etiquetas tipo píldora) -->
-            <div class="legend-box">
-                <div class="legend-item"><span class="color-dot"></span> Históricos</div>
-                <div class="legend-item"><span class="color-dot"></span> Restaurantes</div>
-                <div class="legend-item"><span class="color-dot"></span> Miradores</div>
-                <div class="legend-item"><span class="color-dot"></span> Tours</div>
+            <!-- Filtros por Categoría (Etiquetas tipo píldora dinámicas) -->
+            <div class="legend-box" id="map-category-filters" role="toolbar" aria-label="Filtros de categoría del mapa">
+                <button type="button" class="legend-item active" data-category="todos" aria-pressed="true">
+                    <span class="color-dot" style="background-color: #38bdf8;"></span> Todos
+                </button>
             </div>
         </section>
 

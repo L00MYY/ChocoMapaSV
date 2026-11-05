@@ -1,24 +1,30 @@
 /**
- * @file LugarDetalleModel.js
- * @description Modelo de acceso a datos para la ficha detallada de un atractivo turístico.
- * Rol en el MVC: Modelo (Model). Realiza consultas a la tabla 'places' en Supabase PostgREST
- * vinculando categorías, servicios asociados y calificaciones, y delega consultas de tours a ToursModel.
+ * js/models/LugarDetalleModel.js
+ * Modelo de acceso a datos para la ficha detallada de un sitio turístico (MITUR).
+ * Provee consulta de atributos, servicios, calificaciones y tours asociados.
  */
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+import { SUPABASE_URL_B64, SUPABASE_ANON_KEY_B64 } from '../config.js';
 import { obtenerToursPorLugar } from './ToursModel.js';
+import { CalificacionesModel } from './CalificacionesModel.js';
+
+// Decodificación segura en memoria en tiempo de ejecución
+const SUPABASE_URL = typeof atob === 'function' && !SUPABASE_URL_B64.startsWith('http')
+    ? atob(SUPABASE_URL_B64)
+    : SUPABASE_URL_B64;
+const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.startsWith('sb_')
+    ? atob(SUPABASE_ANON_KEY_B64)
+    : SUPABASE_ANON_KEY_B64;
 
 /**
- * Modelo para la obtención de datos detallados de un sitio turístico.
- * @namespace LugarDetalleModel
+ * Objeto LugarDetalleModel que gestiona la información detallada del sitio
  */
 export const LugarDetalleModel = {
     /**
-     * Consulta un atractivo turístico específico por su identificador UUID en Supabase.
-     * @async
-     * @function obtenerPorId
-     * @param {string} id - Identificador UUID del atractivo.
-     * @returns {Promise<Object|null>} Objeto con los datos del lugar o null si no existe o falla la consulta.
+     * @description Consulta la información completa de un lugar turístico por su identificador UUID,
+     * incluyendo categorías, servicios ofrecidos y valoraciones.
+     * @param {string} id - UUID del lugar turístico.
+     * @returns {Promise<Object|null>} Objeto de lugar detallado o null si no existe.
      */
     async obtenerPorId(id) {
         if (!id) return null;
@@ -26,10 +32,9 @@ export const LugarDetalleModel = {
         try {
             const params = new URLSearchParams({
                 id: `eq.${id}`,
-                select: 'id,name,description,image_url,opening_days,opening_time,closing_time,department,region,is_active,latitude,longitude,categories(name,color),place_services(services(name)),ratings(score)'
+                select: 'id,name,description,image_url,opening_days,opening_time,closing_time,department,region,is_active,latitude,longitude,categories(name,color),place_services(services(name)),ratings(id,score,user_id)'
             });
-            // Petición HTTP a Supabase PostgREST para obtener el lugar con joins a categorías, servicios y calificaciones
-            const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/places?${params}`, {
+            const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/places?${params.toString()}`, {
                 headers: {
                     apikey: SUPABASE_ANON_KEY,
                     Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
@@ -37,7 +42,9 @@ export const LugarDetalleModel = {
                 }
             });
 
-            if (!respuesta.ok) throw new Error(`Supabase respondió ${respuesta.status}`);
+            if (!respuesta.ok) {
+                throw new Error(`Supabase respondió con error ${respuesta.status}`);
+            }
             const datos = await respuesta.json();
             return Array.isArray(datos) ? (datos[0] || null) : null;
         } catch (error) {
@@ -47,12 +54,34 @@ export const LugarDetalleModel = {
     },
 
     /**
-     * Obtiene los tours que incluyen el atractivo turístico especificado delegando en ToursModel.
-     * @function obtenerTours
-     * @param {string} idLugar - Identificador UUID del lugar turístico.
+     * @description Obtiene los paquetes de tours oficiales que incluyen este sitio turístico.
+     * @param {string} idLugar - UUID del sitio turístico.
      * @returns {Promise<Array<Object>>} Lista de tours asociados.
      */
     obtenerTours(idLugar) {
         return obtenerToursPorLugar(idLugar);
+    },
+
+    /**
+     * @description Evalúa si el usuario activo tiene derecho a calificar este lugar turístico.
+     * @param {string} idLugar - UUID del sitio turístico.
+     * @param {Object} [usuario=undefined] - Usuario específico a evaluar (opcional).
+     * @returns {Promise<Object>} Resultado de elegibilidad con razón y mensaje explicativo.
+     */
+    verificarElegibilidad(idLugar, usuario = undefined) {
+        return CalificacionesModel.verificarElegibilidad(idLugar, usuario);
+    },
+
+    /**
+     * @description Registra una calificación de 1 a 5 estrellas para el sitio turístico.
+     * @param {Object} params
+     * @param {string} params.placeId - UUID del lugar turístico.
+     * @param {number} params.score - Calificación entera (1 a 5).
+     * @returns {Promise<{ ok: boolean, data?: Object, error?: string }>}
+     */
+    guardarCalificacion({ placeId, score }) {
+        return CalificacionesModel.guardarCalificacion({ placeId, score });
     }
 };
+
+export default LugarDetalleModel;

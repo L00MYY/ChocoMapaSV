@@ -12,9 +12,19 @@ import {
     obtenerTourPorId,
     obtenerReservaPorId,
     obtenerReservaUsuarioPorTour,
-    TourDetalleModel
+    obtenerFechaHoyLocal,
+    esFechaPasada,
+    sanitizarTelefono,
+    validarFormularioReserva
 } from '../models/TourDetalleModel.js';
-import { AuthModel } from '../models/AuthModel.js';
+import {
+    AuthModel,
+    puedeReservarTour,
+    requiereIniciarSesionParaReserva,
+    validarEmail,
+    validarTelefonoSV,
+    sanitizarUsuario
+} from '../models/AuthModel.js';
 import { TourDetalleView } from '../views/TourDetalleView.js';
 
 /** @type {Object|null} Referencia al tour actualmente cargado en memoria */
@@ -23,25 +33,25 @@ let tourActual = null;
 let failsafeTimeout;
 
 /**
- * Objeto controlador para la gestión del detalle y reserva de tours.
  * @namespace TourDetalleController
+ * @description Controlador para la página de detalle y reserva de tours.
+ * Gestiona la selección cronológica de fechas de salida, cálculo dinámico de aforo,
+ * validación y sanitización estricta de formularios, y persistencia de reservaciones en Supabase.
  */
 export const TourDetalleController = {
-    /** @type {Function|null} Función de desuscripción al listener de autenticación */
+    /** @type {Function|null} */
     unsubscribeAuth: null,
 
     /**
-     * Inicializa los eventos de la vista de detalle de tour y arranca el ciclo de carga.
-     * @function init
+     * @description Inicializa los listeners de eventos de la vista, verificaciones de sesión y carga del tour.
      * @returns {void}
      */
     init() {
-        const { btnReturn, btnOpenReserve, reservationForm } = TourDetalleView.elements;
-        const params = new URLSearchParams(window.location.search);
-        const fromHistorial = params.get('from') === 'historial';
+        const { btnReturn, btnOpenReserve, reservationForm, selectDate, inputPhone } = TourDetalleView.elements;
 
         btnReturn?.addEventListener('click', event => {
-            if (fromHistorial) {
+            const isFromHistorial = new URLSearchParams(window.location.search).get('from') === 'historial';
+            if (isFromHistorial) {
                 event.preventDefault();
                 window.location.href = 'mis-tours.html';
                 return;
@@ -52,26 +62,65 @@ export const TourDetalleController = {
             }
         });
 
-        btnOpenReserve?.addEventListener('click', async () => {
-            // Criterio 4: NO permitir reservar cupos si se visita desde el historial
-            if (fromHistorial) return;
+        const manejarCambioFecha = (selectedDateId) => {
+            if (!tourActual || !selectedDateId) {
+                TourDetalleView.marcarFechaSeleccionada(null);
+                TourDetalleView.actualizarCupos(0);
+                return;
+            }
+            const fechaObj = (tourActual.tour_dates || []).find(d => String(d.id) === String(selectedDateId));
+            if (fechaObj) {
+                if (esFechaPasada(fechaObj.departure_date)) {
+                    TourDetalleView.marcarFechaSeleccionada(null);
+                    TourDetalleView.actualizarCupos(0);
+                    return;
+                }
 
+                const cupos = Number(fechaObj.available_spots) || 0;
+                TourDetalleView.marcarFechaSeleccionada(fechaObj.id);
+                TourDetalleView.actualizarCupos(cupos);
+            } else {
+                TourDetalleView.marcarFechaSeleccionada(null);
+                TourDetalleView.actualizarCupos(0);
+            }
+        };
+
+        selectDate?.addEventListener('change', event => {
+            manejarCambioFecha(event.target.value);
+        });
+
+        document.addEventListener('change', event => {
+            if (event.target && (event.target.name === 'tour_date' || event.target.name === 'tour_date_id') && event.target.type === 'radio') {
+                manejarCambioFecha(event.target.value);
+            }
+        });
+
+        btnOpenReserve?.addEventListener('click', async () => {
             const sesion = await AuthModel.obtenerSesionActual();
-            if (!sesion || !sesion.user) {
+            if (requiereIniciarSesionParaReserva(sesion)) {
                 window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
                 return;
             }
 
-            // Validación: Si el usuario ya reservó en este tour, mostrar la información de su reserva
             try {
                 const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual?.id);
                 if (reservaExistente) {
-                    TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                    return;
-                }
-            } catch (_) {}
+                    const st = String(reservaExistente.status_original || reservaExistente.status || '').toLowerCase().trim();
+                    const esActiva = ['pendiente_pago', 'en_validacion', 'confirmada', 'confirmado'].includes(st);
 
-            if (!tourActual || Number(tourActual.available_spots) <= 0) return;
+                    if (esActiva) {
+                        this.evaluarReservaExistente(reservaExistente);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.warn('Error al verificar reserva previa al abrir formulario:', error);
+            }
+
+            const fechaActual = this.obtenerFechaSeleccionadaActual();
+            const cuposDisponibles = fechaActual ? Number(fechaActual.available_spots || 0) : 0;
+            if (!tourActual || !fechaActual || cuposDisponibles <= 0) return;
+
             TourDetalleView.mostrarFormularioReserva();
         });
 
@@ -80,6 +129,21 @@ export const TourDetalleController = {
             this.procesarReserva();
         });
 
+        inputPhone?.addEventListener('input', (event) => {
+            const val = event.target.value;
+            const soloDigitos = val.replace(/\D/g, '');
+            if (val !== soloDigitos) {
+                event.target.value = soloDigitos;
+            }
+        });
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('pageshow', async () => {
+                // Si la página se restaura desde BFCache o recarga, volver a consultar si el usuario tiene una reserva activa
+                await this.verificarYBloquearReservaActiva();
+            });
+        }
+
         this.inicializarSuscripcionAuth();
         this.inicializarLimpiezaErrores();
         this.inicializarFailsafe();
@@ -87,8 +151,117 @@ export const TourDetalleController = {
     },
 
     /**
-     * Configura el listener reactivo para actualizar el estado del formulario ante cambios de sesión.
-     * @function inicializarSuscripcionAuth
+     * @description Verifica si el usuario autenticado tiene una reserva activa (pendiente, en validación o confirmada)
+     * y, de ser así, oculta el formulario para evitar reservas duplicadas simultáneas.
+     * @returns {Promise<void>}
+     */
+    async verificarYBloquearReservaActiva() {
+        try {
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion?.user?.id) return;
+
+            if (!tourActual) {
+                const search = (typeof window !== 'undefined' && window.location?.search) ? window.location.search : '';
+                const params = new URLSearchParams(search);
+                const tourId = params.get('id')?.trim() || 'a1000000-0000-0000-0000-000000000001';
+                tourActual = await obtenerTourPorId(tourId).catch(() => null);
+                tourActual ||= TOURS_DEMO.find(t => t.id === tourId) || null;
+            }
+
+            if (!tourActual?.id) return;
+
+            const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
+            if (reservaExistente) {
+                const st = String(reservaExistente.status_original || reservaExistente.status || '').toLowerCase().trim();
+                const esActiva = ['pendiente_pago', 'en_validacion', 'confirmada', 'confirmado'].includes(st);
+
+                if (esActiva) {
+                    TourDetalleView.ocultarFormularioReserva();
+                    TourDetalleView.limpiarFormularioReserva();
+                    this.evaluarReservaExistente(reservaExistente);
+                }
+            }
+        } catch (e) {
+            console.error('Error al verificar reserva activa en pageshow:', e);
+        }
+    },
+
+    /**
+     * @description Evalúa el estado de una reserva existente para mostrar la tarjeta correspondiente en la UI.
+     * @param {Object|null} reserva - Objeto de reserva turística o null.
+     * @returns {void}
+     */
+    evaluarReservaExistente(reserva) {
+        if (!reserva) {
+            TourDetalleView.restablecerModoPublico(tourActual);
+            return;
+        }
+
+        const status = String(reserva.status_original || reserva.status || '').toLowerCase().trim();
+
+        if (status === 'pendiente_pago') {
+            const exp = reserva.expires_at
+                ? new Date(reserva.expires_at).getTime()
+                : (reserva.created_at ? new Date(reserva.created_at).getTime() + 3600000 : null);
+
+            if (exp && Date.now() >= exp) {
+                TourDetalleView.restablecerModoPublico(tourActual);
+            } else {
+                TourDetalleView.mostrarReservaPendientePago(reserva, () => {
+                    TourDetalleView.restablecerModoPublico(tourActual);
+                });
+            }
+        } else if (status === 'en_validacion') {
+            TourDetalleView.mostrarReservaEnValidacion(reserva);
+        } else if (status === 'confirmada' || status === 'confirmado') {
+            TourDetalleView.mostrarReservaConfirmada(reserva);
+        } else {
+            TourDetalleView.restablecerModoPublico(tourActual);
+        }
+    },
+
+    /**
+     * @description Encuentra la fecha de salida futura más próxima en una lista de fechas.
+     * @param {Array<Object>} fechas - Lista de fechas de salida asociadas al tour.
+     * @returns {Object|null} Objeto de la fecha más próxima futura o null.
+     */
+    obtenerFechaMasProxima(fechas) {
+        if (!Array.isArray(fechas) || fechas.length === 0) return null;
+
+        const fechasOrdenadas = [...fechas].sort((a, b) => {
+            const dateA = new Date(a.departure_date || a);
+            const dateB = new Date(b.departure_date || b);
+            return dateA - dateB;
+        });
+
+        const proximaFutura = fechasOrdenadas.find(f => {
+            const fStr = f.departure_date || f;
+            return !esFechaPasada(fStr);
+        });
+
+        return proximaFutura || null;
+    },
+
+    /**
+     * @description Obtiene el objeto de la fecha actualmente seleccionada en el formulario o selector.
+     * @returns {Object|null} La fecha seleccionada vigente o la fecha más próxima.
+     */
+    obtenerFechaSeleccionadaActual() {
+        if (!tourActual || !Array.isArray(tourActual.tour_dates)) return null;
+        const e = TourDetalleView.elements;
+        const radioChecked = document.querySelector('input[name="tour_date"]:checked, input[name="tour_date_id"]:checked');
+        const selectedId = e.selectDate?.value || radioChecked?.value;
+        if (selectedId) {
+            const encontrada = tourActual.tour_dates.find(d => String(d.id) === String(selectedId));
+            if (encontrada && !esFechaPasada(encontrada.departure_date)) {
+                return encontrada;
+            }
+        }
+        return this.obtenerFechaMasProxima(tourActual.tour_dates);
+    },
+
+    /**
+     * @description Configura la reactividad del formulario ante cambios de sesión de autenticación.
      * @returns {void}
      */
     inicializarSuscripcionAuth() {
@@ -98,22 +271,21 @@ export const TourDetalleController = {
 
         this.unsubscribeAuth = AuthModel.onCambioEstadoAuth(async (evento, sesion) => {
             if (evento === 'SIGNED_OUT' || !sesion || !sesion.user) {
-                TourDetalleView.ocultarFormularioReserva();
-                TourDetalleView.limpiarFormularioReserva();
+                TourDetalleView.restablecerModoPublico(tourActual);
             } else if ((evento === 'SIGNED_IN' || evento === 'TOKEN_REFRESHED') && tourActual) {
                 try {
                     const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
-                    if (reservaExistente) {
-                        TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                    }
-                } catch (_) {}
+                    this.evaluarReservaExistente(reservaExistente);
+                } catch (error) {
+                    console.warn('Error al consultar reserva al actualizar autenticación:', error);
+                    TourDetalleView.restablecerModoPublico(tourActual);
+                }
             }
         });
     },
 
     /**
-     * Vincula listeners a los campos del formulario para limpiar mensajes de validación al interactuar.
-     * @function inicializarLimpiezaErrores
+     * @description Vincula eventos a los inputs del formulario para limpiar mensajes de error al escribir.
      * @returns {void}
      */
     inicializarLimpiezaErrores() {
@@ -135,8 +307,7 @@ export const TourDetalleController = {
     },
 
     /**
-     * Establece un temporizador de seguridad (6s) para mostrar un estado de error si la carga se bloquea.
-     * @function inicializarFailsafe
+     * @description Activa un temporizador de contingencia para evitar loader infinito en fallos de red.
      * @returns {void}
      */
     inicializarFailsafe() {
@@ -153,9 +324,7 @@ export const TourDetalleController = {
     },
 
     /**
-     * Obtiene los datos del tour solicitado por ID desde Supabase o fallback local en TOURS_DEMO.
-     * @async
-     * @function cargarTour
+     * @description Carga los datos del tour por ID desde Supabase con fallback a datos locales.
      * @returns {Promise<void>}
      */
     async cargarTour() {
@@ -181,75 +350,63 @@ export const TourDetalleController = {
             TourDetalleView.mostrarEstado('content');
             clearTimeout(failsafeTimeout);
 
-            // Criterio 3: Flujo especial desde historial
-            if (fromHistorial) {
-                let reserva = null;
-                if (reservaId) {
-                    reserva = await obtenerReservaPorId(reservaId);
-                }
-
-                if (!reserva) {
-                    reserva = {
-                        id: reservaId || 'demo-reserva',
-                        tour_id: tourActual.id,
-                        spots_reserved: 1,
-                        tour_date: tourActual.tour_dates?.[0]?.departure_date || new Date().toISOString().split('T')[0],
-                        status: 'Confirmado'
-                    };
-                }
-
-                TourDetalleView.renderizarModoHistorial(reserva, tourActual);
+            const fechaProxima = this.obtenerFechaMasProxima(tourActual.tour_dates);
+            if (fechaProxima) {
+                TourDetalleView.marcarFechaSeleccionada(fechaProxima.id);
+                TourDetalleView.actualizarCupos(fechaProxima.available_spots);
             } else {
-                // Validación: Si el usuario ya reservó en este tour en específico, mostrar la información de su reserva
+                TourDetalleView.marcarFechaSeleccionada(null);
+                TourDetalleView.actualizarCupos(0);
+                TourDetalleView.deshabilitarReservaPorTourPasado();
+            }
+
+            if (fromHistorial && reservaId) {
+                const reserva = await obtenerReservaPorId(reservaId);
+                this.evaluarReservaExistente(reserva);
+            } else {
                 let reservaExistente = null;
                 try {
                     const sesion = await AuthModel.obtenerSesionActual();
                     if (sesion?.user?.id) {
                         reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                     }
-                } catch (errCheck) {
-                    console.warn('Error al verificar reservación previa del usuario:', errCheck);
+                } catch (error) {
+                    console.warn('Error al consultar reserva previa del usuario:', error);
                 }
 
-                if (reservaExistente) {
-                    TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                } else {
-                    // Criterio 4: Si el tour ya pasó, no permitir reservar cupos
-                    const hoyStr = new Date().toISOString().split('T')[0];
-                    const fechas = tourActual.tour_dates || [];
-                    const tieneFechasFuturas = fechas.some(d => {
-                        const fechaStr = typeof d === 'string' ? d : d.departure_date;
-                        return String(fechaStr).split('T')[0] >= hoyStr;
-                    });
-                    if (fechas.length > 0 && !tieneFechasFuturas) {
-                        TourDetalleView.deshabilitarReservaPorTourPasado();
-                    }
-                }
+                this.evaluarReservaExistente(reservaExistente);
             }
         } catch (error) {
-            console.error('Error o timeout al cargar detalle del tour:', error);
+            console.error(error);
             tourActual = TOURS_DEMO.find(tour => tour.id === id) || null;
             if (tourActual) {
                 TourDetalleView.renderizarTour(tourActual);
                 TourDetalleView.mostrarEstado('content');
-                if (fromHistorial) {
-                    TourDetalleView.renderizarModoHistorial({
-                        id: reservaId || 'demo-reserva',
-                        tour_id: tourActual.id,
-                        spots_reserved: 1,
-                        tour_date: tourActual.tour_dates?.[0]?.departure_date || new Date().toISOString().split('T')[0],
-                        status: 'Confirmado'
-                    }, tourActual);
+                const fechaProxima = this.obtenerFechaMasProxima(tourActual.tour_dates);
+                if (fechaProxima) {
+                    TourDetalleView.marcarFechaSeleccionada(fechaProxima.id);
+                    TourDetalleView.actualizarCupos(fechaProxima.available_spots);
                 } else {
+                    TourDetalleView.marcarFechaSeleccionada(null);
+                    TourDetalleView.actualizarCupos(0);
+                    TourDetalleView.deshabilitarReservaPorTourPasado();
+                }
+
+                if (fromHistorial && reservaId) {
+                    const reserva = await obtenerReservaPorId(reservaId);
+                    this.evaluarReservaExistente(reserva);
+                } else {
+                    let reservaExistente = null;
                     try {
                         const sesion = await AuthModel.obtenerSesionActual();
                         if (sesion?.user?.id) {
-                            const reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
-                            if (reservaExistente) {
-                                TourDetalleView.renderizarModoHistorial(reservaExistente, tourActual);
-                            }
+                            reservaExistente = await obtenerReservaUsuarioPorTour(sesion.user.id, tourActual.id);
                         }
-                    } catch (_) {}
+                    } catch (error) {
+                        console.warn('Error al consultar reserva previa en fallback:', error);
+                    }
+
+                    this.evaluarReservaExistente(reservaExistente);
                 }
             } else {
                 TourDetalleView.mostrarEstado('error', 'No hay datos disponibles para mostrar', 'Ocurrió un problema de comunicación con el servidor o se agotó el tiempo de espera.');
@@ -258,15 +415,12 @@ export const TourDetalleController = {
     },
 
     /**
-     * Valida el formulario de reserva, registra la reservación en Supabase y descuenta cupos disponibles.
-     * @async
-     * @function procesarReserva
+     * @description Valida el formulario de reserva, actualiza aforos y registra la reserva en la base de datos.
      * @returns {Promise<void>}
      */
     async procesarReserva() {
         if (!tourActual) return;
 
-        // Doble validación: Verificar sesión activa antes de construir el payload o llamar al modelo
         const sesion = await AuthModel.obtenerSesionActual();
         if (!sesion || !sesion.user) {
             TourDetalleView.ocultarFormularioReserva();
@@ -279,16 +433,53 @@ export const TourDetalleController = {
         const values = TourDetalleView.obtenerDatosReserva();
         TourDetalleView.limpiarErrores();
         const errors = [];
-        if (!values.nombre) errors.push(['inputName', 'Este campo es obligatorio']);
-        if (!values.email) errors.push(['inputEmail', 'Este campo es obligatorio']);
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.push(['inputEmail', 'Ingresa un correo electrónico con formato válido']);
-        if (!values.telefono) errors.push(['inputPhone', 'Este campo es obligatorio']);
-        else if (!/^\d+$/.test(values.telefono)) errors.push(['inputPhone', 'El teléfono debe contener solo números']);
-        if (!values.fecha) errors.push(['selectDate', 'Este campo es obligatorio']);
+
+        const nombreSanitizado = sanitizarUsuario(values.nombre);
+        if (!nombreSanitizado) {
+            errors.push(['inputName', 'Este campo es obligatorio']);
+        }
+
+        const emailSanitizado = (values.email || '').trim();
+        if (!emailSanitizado) {
+            errors.push(['inputEmail', 'Este campo es obligatorio']);
+        } else if (!validarEmail(emailSanitizado)) {
+            errors.push(['inputEmail', 'Ingresa un correo electrónico con formato válido']);
+        }
+
+        const rawPhone = values.telefono || e.inputPhone?.value || '';
+        const telefonoSanitizado = sanitizarTelefono(rawPhone);
+        const validacionTelefono = validarFormularioReserva({ phone: rawPhone });
+
+        if (!rawPhone.trim()) {
+            errors.push(['inputPhone', 'Este campo es obligatorio']);
+        } else if (!validacionTelefono.esValido) {
+            errors.push(['inputPhone', validacionTelefono.error || 'Ingresa un número de teléfono válido (mínimo 8 dígitos numéricos)']);
+        }
+
+        if (!values.tour_date_id && !values.fecha) {
+            errors.push(['selectDate', 'Debes seleccionar una fecha de salida']);
+        }
+
+        const fechaSeleccionada = (tourActual.tour_dates || []).find(d =>
+            String(d.id) === String(values.tour_date_id) || String(d.departure_date) === String(values.fecha)
+        );
+
+        const fechaStr = fechaSeleccionada
+            ? String(fechaSeleccionada.departure_date || '')
+            : String(values.fecha || '');
+
+        if (fechaSeleccionada && esFechaPasada(fechaStr)) {
+            errors.push(['selectDate', 'La fecha seleccionada ya no se encuentra disponible. Por favor elige una fecha futura.']);
+        }
+
+        const cuposDisponiblesFecha = fechaSeleccionada
+            ? Number(fechaSeleccionada.available_spots) || 0
+            : 0;
+
         const cupos = Number.parseInt(values.cupos, 10);
         if (!values.cupos) errors.push(['inputSpots', 'Este campo es obligatorio']);
         else if (!Number.isInteger(cupos) || cupos < 1) errors.push(['inputSpots', 'Ingresa al menos 1 cupo']);
-        else if (cupos > Number(tourActual.available_spots || 0)) errors.push(['inputSpots', `La cantidad de cupos no puede superar los cupos disponibles (${Number(tourActual.available_spots) || 0})`]);
+        else if (cupos > cuposDisponiblesFecha) errors.push(['inputSpots', `La cantidad de cupos no puede superar los cupos disponibles para esta fecha (${cuposDisponiblesFecha})`]);
 
         if (errors.length) {
             TourDetalleView.mostrarErrorCampo(...errors[0]);
@@ -297,49 +488,100 @@ export const TourDetalleController = {
             return;
         }
 
-        const reserva = {
-            tour_id: tourActual.id,
-            tourist_id: sesion.user.id,
-            tourist_name: values.nombre,
-            tourist_email: values.email,
-            tourist_phone: values.telefono,
-            tour_date: values.fecha,
-            spots_reserved: cupos
+        const tourDateId = fechaSeleccionada?.id || values.tour_date_id;
+        const tourDateStr = fechaSeleccionada?.departure_date || values.tour_date || values.fecha;
+
+        const precioUnitario = Number(tourActual.final_price || tourActual.price || 0);
+        const montoTotal = Number((precioUnitario * cupos).toFixed(2));
+        const chars = '0123456789ABCDEF';
+        let codigoGenerado = 'CM-';
+        for (let i = 0; i < 6; i++) {
+            codigoGenerado += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        const datosReserva = {
+            tourId: tourActual.id,
+            tourDateId: tourDateId,
+            tourDate: tourDateStr,
+            nombre: nombreSanitizado,
+            email: emailSanitizado,
+            telefono: telefonoSanitizado,
+            tourist_phone: telefonoSanitizado,
+            cuposReservados: cupos,
+            reservation_code: codigoGenerado,
+            total_amount: montoTotal,
+            status: 'pendiente_pago',
+            expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString()
         };
+
         const button = e.btnConfirmReserve;
         const textoOriginal = button?.textContent || 'Confirmar reserva';
         if (button) {
             button.disabled = true;
             button.textContent = 'Confirmando reserva...';
         }
+
         try {
-            // Registro de la reserva en la tabla de Supabase y actualización de cupos disponibles
-            const resultado = await crearReservaTour(reserva);
-            const cuposActualizados = Math.max(0, Number(tourActual.available_spots) - cupos);
-            await actualizarCuposTour(tourActual.id, cuposActualizados);
-            tourActual.available_spots = cuposActualizados;
-            TourDetalleView.actualizarCupos(cuposActualizados);
+            const resultado = await crearReservaTour(datosReserva);
+
+            const nuevosCuposDisponibles = Math.max(0, cuposDisponiblesFecha - cupos);
+
+            if (tourDateId) {
+                if (fechaSeleccionada) {
+                    fechaSeleccionada.available_spots = nuevosCuposDisponibles;
+                }
+                await actualizarCuposTour(tourDateId, nuevosCuposDisponibles);
+                TourDetalleView.actualizarCuposEnOpcion(tourDateId, nuevosCuposDisponibles);
+            }
+            TourDetalleView.actualizarCupos(nuevosCuposDisponibles);
 
             const reservaIdGenerado = resultado?.data?.id || `res-${Date.now()}`;
-            const reservaCompleta = {
+            const codigoFinal = resultado?.data?.reservation_code || codigoGenerado;
+
+            const reservaConfirmada = {
+                ...(resultado?.data || {}),
                 id: reservaIdGenerado,
                 tour_id: tourActual.id,
+                tour_date_id: tourDateId,
                 tourist_id: sesion.user.id,
+                tourist_name: nombreSanitizado,
+                tourist_email: emailSanitizado,
+                tourist_phone: telefonoSanitizado,
                 spots_reserved: cupos,
-                tour_date: values.fecha,
-                status: 'Confirmado'
+                tour_date: tourDateStr,
+                status: 'pendiente_pago',
+                reservation_code: codigoFinal,
+                total_amount: montoTotal,
+                expires_at: datosReserva.expires_at
             };
 
-            // Guardar localmente para contingencia inmediata y persistencia
             try {
-                localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaCompleta));
-            } catch (_) {}
+                localStorage.setItem(`chocomapa_reserva_${sesion.user.id}_${tourActual.id}`, JSON.stringify(reservaConfirmada));
+            } catch (error) {
+                console.warn('No se pudo guardar la reserva en localStorage:', error);
+            }
 
-            TourDetalleView.mostrarConfirmacion(tourActual, reservaCompleta);
-            TourDetalleView.renderizarModoHistorial(reservaCompleta, tourActual);
+            // Limpieza de formulario y reseteo de inputs antes de la redirección
+            TourDetalleView.limpiarFormularioReserva();
+            TourDetalleView.ocultarFormularioReserva();
+            e.reservationForm?.reset();
+
+            window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reservaIdGenerado)}&codigo=${encodeURIComponent(codigoFinal)}`;
+            return;
         } catch (error) {
-            console.error('Error al guardar la reserva:', error);
-            TourDetalleView.mostrarError('Ocurrió un error al procesar tu reserva con el servidor. Por favor intenta nuevamente.');
+            console.error(error);
+
+            if (e.historialCard) {
+                e.historialCard.classList.add('hidden');
+            }
+            if (e.reservationSuccessCard) {
+                e.reservationSuccessCard.classList.add('hidden');
+            }
+            if (e.reservationCard) {
+                e.reservationCard.classList.remove('hidden');
+            }
+
+            TourDetalleView.mostrarError(error.message || 'Error al guardar la reservación');
         } finally {
             if (button) {
                 button.disabled = false;
@@ -349,9 +591,10 @@ export const TourDetalleController = {
     }
 };
 
-// Inicialización del controlador según el ciclo de vida del DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => TourDetalleController.init(), { once: true });
-} else {
-    TourDetalleController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => TourDetalleController.init(), { once: true });
+    } else {
+        TourDetalleController.init();
+    }
 }

@@ -1,4 +1,4 @@
-html{
+html {
   overflow-y: scroll !important;
 }
 
@@ -8,15 +8,29 @@ html{
   font-style: normal;
 }
 
-:root {
+/* Variables base y Tema Oscuro (Estándar del sistema) */
+:root,
+[data-theme="dark"] {
+  --bg-app: #13293D;
+  --bg-surface: #1e3a5f;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.09);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-accent: #38BDF8;
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.2);
+  --table-row-hover: rgba(255, 255, 255, 0.04);
+
   /* Paleta Océano para la Interfaz */
   --deep-space-blue: #13293D;
   --baltic-blue: #006494;
   --cerulean: #247BA0;
   --blue-bell: #1B98E0;
   --alice-blue: #E8F1F2;
-  --surface: #FFFFFF;
-  --border-color: #D1E3E6;
+  --surface: #1e3a5f;
+  --border-color: rgba(255, 255, 255, 0.12);
 
   /* Mapeo UI */
   --primary: var(--baltic-blue);
@@ -27,7 +41,8 @@ html{
   --font-family: 'Plus Jakarta Sans', sans-serif;
 
   /* Distribución institucional: marino (header) → azul institucional (campo) → marino (base) */
-  --gutter: 32px; /* margen exterior único: alinea header, buscador y mapa */
+  --gutter: 32px;
+  /* margen exterior único: alinea header, buscador y mapa */
   --field-gradient: linear-gradient(180deg, var(--baltic-blue) 0%, var(--deep-space-blue) 100%);
 
   /* Constantes de color para leyendas */
@@ -42,17 +57,59 @@ html{
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-html, body {
+/* Tema Claro (Inspirado en el diseño limpio de index.html) */
+[data-theme="light"] {
+  --bg-app: #F6FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --text-primary: #13293D;
+  --text-secondary: #64748B;
+  --text-accent: #0284C7;
+  --border-subtle: #E2E8F0;
+  --input-bg: #FFFFFF;
+  --input-border: #CBD5E1;
+  --table-row-hover: #F8FAFC;
+
+  --surface: #FFFFFF;
+  --border-color: #D1E3E6;
+}
+
+/* Blindaje de Elementos Fijos Institucionales */
+.navbar-mitur,
+#navbar,
+.footer-mitur,
+footer,
+.hero-editorial,
+.hero-banner,
+header.navbar,
+header.app-header,
+footer.app-footer,
+.app-footer {
+  --text-primary: #F8FAFC !important;
+  --text-secondary: #94A3B8 !important;
+  --border-subtle: rgba(255, 255, 255, 0.15) !important;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
   height: auto !important;
   min-height: 100vh;
   font-family: var(--font-family);
-  background-color: var(--deep-space-blue); /* sin franjas blancas o grises */
-  color: var(--dark);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Vista del mapa (mapa.html) con footer institucional estandarizado */
@@ -69,7 +126,7 @@ body.mapa-body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background-color: var(--deep-space-blue);
+  background-color: var(--bg-app);
   overflow-x: hidden;
 }
 
@@ -78,7 +135,8 @@ body.mapa-body .app-layout {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  min-height: 0;
+  /* Vital para permitir que flexbox no desborde */
   width: 100%;
 }
 
@@ -95,7 +153,9 @@ main,
   overflow: visible;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
 }
 
@@ -112,8 +172,10 @@ main,
   max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
-  background-color: var(--deep-space-blue); /* Fondo azul marino institucional */
-  border-bottom: 2px solid var(--cerulean); /* Línea divisoria */
+  background-color: var(--deep-space-blue);
+  /* Fondo azul marino institucional */
+  border-bottom: 2px solid var(--cerulean);
+  /* Línea divisoria */
   box-shadow: 0 4px 14px rgba(19, 41, 61, 0.25);
 }
 
@@ -149,7 +211,8 @@ main,
   font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: var(--alice-blue); /* Texto del título contrastante */
+  color: var(--alice-blue);
+  /* Texto del título contrastante */
 }
 
 /* Logo oficial (PNG con fondo transparente): sin recuadro, mantiene proporción */
@@ -177,7 +240,8 @@ main,
   gap: 8px 10px;
   max-width: 100%;
   box-sizing: border-box;
-  padding-right: 4px; /* Margen de seguridad derecho para evitar recorte */
+  padding-right: 4px;
+  /* Margen de seguridad derecho para evitar recorte */
 }
 
 .nav-link {
@@ -223,16 +287,20 @@ main,
 .search-filter-bar,
 .search-section {
   position: relative;
-  z-index: 15; /* Los resultados de búsqueda quedan por encima del mapa */
+  z-index: 15;
+  /* Los resultados de búsqueda quedan por encima del mapa */
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center; /* Alineación limpia y centrada mediante Flexbox */
+  justify-content: center;
+  /* Alineación limpia y centrada mediante Flexbox */
   flex-wrap: wrap;
   gap: 14px 20px;
   padding: 12px var(--gutter);
-  flex-shrink: 0; /* Mantiene su altura calculada sin comprimir el layout */
-  background-color: rgba(19, 41, 61, 0.65); /* Consistencia visual con el fondo */
+  flex-shrink: 0;
+  /* Mantiene su altura calculada sin comprimir el layout */
+  background-color: rgba(19, 41, 61, 0.65);
+  /* Consistencia visual con el fondo */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(209, 227, 230, 0.15);
@@ -252,7 +320,8 @@ main,
 #search-input {
   width: 100%;
   padding: 10px 20px;
-  border-radius: 9999px; /* Forma de píldora armónica con los filtros */
+  border-radius: 9999px;
+  /* Forma de píldora armónica con los filtros */
   border: 2px solid var(--border-color);
   background: var(--surface);
   font-family: var(--font-family);
@@ -304,34 +373,52 @@ main,
 }
 
 /* --- FILTROS POR CATEGORÍA (ETIQUETAS TIPO PÍLDORA) --- */
-.legend-box {
+.legend-box,
+#map-category-filters {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: .5rem;
 }
 
-.legend-item {
+.legend-item,
+button.legend-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 7px 16px;
-  background: var(--surface);
-  border: 1.5px solid var(--border-color);
-  border-radius: 9999px; /* Diseño tipo píldora */
+  background: var(--surface, #1e3a5f);
+  border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  border-radius: 9999px;
+  /* Diseño tipo píldora */
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--deep-space-blue);
+  color: #f1f5f9;
   box-shadow: 0 2px 8px rgba(19, 41, 61, 0.08);
-  cursor: default;
+  cursor: pointer;
   user-select: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  outline: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
-.legend-item:hover {
+.legend-item:hover,
+button.legend-item:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(19, 41, 61, 0.15);
-  border-color: var(--blue-bell);
+  border-color: #38bdf8;
+}
+
+.legend-item.active,
+button.legend-item.active {
+  background: var(--baltic-blue, #006494) !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 4px 12px rgba(19, 41, 61, 0.25) !important;
+}
+
+.legend-item.active .color-dot {
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
 }
 
 .color-dot {
@@ -342,19 +429,14 @@ main,
   flex-shrink: 0;
 }
 
-.legend-item:nth-child(1) .color-dot { background-color: var(--color-historicos); }
-.legend-item:nth-child(2) .color-dot { background-color: var(--color-restaurantes); }
-.legend-item:nth-child(3) .color-dot { background-color: var(--color-miradores); }
-.legend-item:nth-child(4) .color-dot { background-color: var(--color-tours); }
-.legend-item:nth-child(5) .color-dot { background-color: var(--color-otros); }
-
 /* --- SECCIÓN DEL MAPA (ALTURA DISPONIBLE DINÁMICA SIN SCROLL) --- */
 .map-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 0; /* Vital para permitir que flexbox no desborde */
+  min-height: 0;
+  /* Vital para permitir que flexbox no desborde */
   width: 100%;
   padding: 16px var(--gutter) 20px var(--gutter);
   box-sizing: border-box;
@@ -368,10 +450,12 @@ main,
   min-height: calc(100vh - 180px);
   position: relative;
   border-radius: 16px;
-  border: 3px solid var(--alice-blue); /* Marco claro que separa el mapa del campo azul */
+  border: 3px solid var(--alice-blue);
+  /* Marco claro que separa el mapa del campo azul */
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(19, 41, 61, 0.35);
-  background-color: var(--alice-blue); /* Fondo mientras cargan los tiles */
+  background-color: var(--alice-blue);
+  /* Fondo mientras cargan los tiles */
 }
 
 .mapboxgl-canvas {
@@ -534,17 +618,21 @@ main,
   :root {
     --gutter: 24px;
   }
+
   .app-logo {
     height: 48px;
   }
+
   .app-header h1 {
     font-size: 1.25rem;
   }
+
   .search-filter-bar,
   .search-section {
     gap: 12px 18px;
     padding: 10px var(--gutter);
   }
+
   .info-sidebar {
     width: 300px;
   }
@@ -659,7 +747,8 @@ main,
   .map-container,
   #map {
     width: 100%;
-    height: calc(100vh - 70px); /* 70px del navbar */
+    height: calc(100vh - 70px);
+    /* 70px del navbar */
     min-height: calc(100dvh - 70px);
     position: relative;
     border-radius: 0;
@@ -674,7 +763,8 @@ main,
     position: absolute;
     z-index: 10;
     top: 16px;
-    top: calc(58px + 14px); /* 14px por debajo del navbar en móvil */
+    top: calc(58px + 14px);
+    /* 14px por debajo del navbar en móvil */
     left: 16px;
     right: 16px;
     background: transparent;
@@ -743,40 +833,42 @@ main,
     pointer-events: auto;
   }
 
-  /* 3. Filtros de categoría con scroll horizontal fluido */
-  .legend-box {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    gap: 8px;
-    width: 100%;
-    padding: 2px 2px 6px 2px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    pointer-events: auto;
+  /* 3. Filtros de categoría con scroll horizontal fluido en móvil */
+  .legend-box,
+  #map-category-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    /* Anula el wrap de escritorio gracias al ID y al !important */
+    overflow-x: auto !important;
+    /* Habilita el desplazamiento lateral con el dedo */
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 2px 2px 8px 2px !important;
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE / Edge */
+    pointer-events: auto !important;
+    box-sizing: border-box !important;
   }
 
-  .legend-box::-webkit-scrollbar {
-    display: none;
+  .legend-box::-webkit-scrollbar,
+  #map-category-filters::-webkit-scrollbar {
+    display: none !important;
+    /* Oculta la barra en Chrome/Safari */
   }
 
-  .legend-item {
-    flex-shrink: 0;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 14px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    background-color: var(--surface);
-    border: 1.5px solid var(--border-color);
-    border-radius: var(--radius-pill);
-    box-shadow: 0 2px 8px rgba(19, 41, 61, 0.12);
-    color: var(--deep-space-blue);
-    user-select: none;
+  .legend-box .legend-item,
+  #map-category-filters .legend-item,
+  #map-category-filters button {
+    flex-shrink: 0 !important;
+    /* Evita que los botones se compriman */
+    white-space: nowrap !important;
+    pointer-events: auto !important;
   }
 
   .color-dot {
@@ -974,6 +1066,7 @@ body.registro-body {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1226,6 +1319,7 @@ body.registro-body {
     opacity: 0;
     transform: scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -1680,16 +1774,22 @@ body.registro-body {
    ========================================================================== */
 
 /* 1. Configuración Base Universal Anti-Desbordamiento */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   max-width: 100%;
   overflow-x: hidden !important;
 }
 
-img, svg, video, canvas {
+img,
+svg,
+video,
+canvas {
   max-width: 100%;
 }
 
@@ -1971,6 +2071,7 @@ textarea,
    PANTALLAS ANGOSTAS Y CELULARES (@media max-width: 600px)
    ========================================================================== */
 @media (max-width: 600px) {
+
   /* Cuadrículas y Catálogos: Transición a 1 columna completa con márgenes */
   .places-grid,
   .tours-grid,
@@ -2013,6 +2114,7 @@ textarea,
    CELULARES COMPACTOS (@media max-width: 480px)
    ========================================================================== */
 @media (max-width: 480px) {
+
   header.navbar,
   header.app-header {
     padding: 0 8px !important;
@@ -2060,7 +2162,8 @@ textarea,
 
   .form-input,
   .form-control {
-    font-size: 16px !important; /* evita auto-zoom en iOS Safari */
+    font-size: 16px !important;
+    /* evita auto-zoom en iOS Safari */
     height: 46px !important;
   }
 
@@ -2069,4 +2172,256 @@ textarea,
     height: 48px !important;
     font-size: 0.95rem !important;
   }
+}
+
+
+/* === WCAG AA CONTRAST AUDIT FIXES - MAPA === */
+
+/* Textos dentro de la tarjeta flotante / sidebar de detalles en el mapa */
+.info-sidebar,
+.place-info-card,
+.map-sidebar-card {
+  background: var(--bg-surface, #13293D) !important;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15)) !important;
+}
+
+.info-sidebar .place-title,
+.info-sidebar h3,
+.info-sidebar-title,
+.info-sidebar .sidebar-title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.info-sidebar .place-description,
+.info-sidebar p,
+.info-sidebar-desc,
+.info-sidebar .sidebar-description {
+  color: #cbd5e1 !important;
+  line-height: 1.5 !important;
+}
+
+.info-sidebar .rating-text,
+.info-sidebar-rating,
+.info-sidebar .rating-score,
+.info-sidebar .sidebar-rating span {
+  color: #f1f5f9 !important;
+}
+
+.info-sidebar .opening-days,
+.info-sidebar-days,
+.info-sidebar .days-badge,
+.info-sidebar .sidebar-hours span {
+  color: #94a3b8 !important;
+}
+
+/* Resultados de Búsqueda predictiva en el Mapa */
+.search-results-dropdown,
+.map-search-results,
+.search-suggestions-container,
+.search-box .results-list,
+#results-list {
+  background: #13293D !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.result-item,
+.search-suggestion-item,
+.results-list li {
+  color: #f8fafc !important;
+}
+
+.result-item-title,
+.search-result-name,
+.suggestion-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.result-item:hover,
+.search-suggestion-item:hover,
+.results-list li:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tema Oscuro (Defecto) - Inputs y Legend */
+.legend-item,
+button.legend-item,
+.legend-item span {
+  color: #f1f5f9;
+}
+
+.legend-item.active,
+button.legend-item.active,
+.legend-item.active span {
+  color: #ffffff !important;
+}
+
+#search-input {
+  color: #f8fafc !important;
+}
+
+#search-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Tema Claro */
+[data-theme="light"] .info-sidebar,
+[data-theme="light"] .place-info-card,
+[data-theme="light"] .map-sidebar-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .info-sidebar .place-title,
+[data-theme="light"] .info-sidebar h3,
+[data-theme="light"] .info-sidebar-title,
+[data-theme="light"] .info-sidebar .sidebar-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .info-sidebar .place-description,
+[data-theme="light"] .info-sidebar p,
+[data-theme="light"] .info-sidebar-desc,
+[data-theme="light"] .info-sidebar .sidebar-description {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .info-sidebar .rating-text,
+[data-theme="light"] .info-sidebar-rating,
+[data-theme="light"] .info-sidebar .rating-score,
+[data-theme="light"] .info-sidebar .sidebar-rating span {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .info-sidebar .opening-days,
+[data-theme="light"] .info-sidebar-days,
+[data-theme="light"] .info-sidebar .days-badge,
+[data-theme="light"] .info-sidebar .sidebar-hours span {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .search-results-dropdown,
+[data-theme="light"] .map-search-results,
+[data-theme="light"] .search-suggestions-container,
+[data-theme="light"] .search-box .results-list,
+[data-theme="light"] #results-list {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .result-item,
+[data-theme="light"] .search-suggestion-item,
+[data-theme="light"] .results-list li {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .result-item-title,
+[data-theme="light"] .search-result-name,
+[data-theme="light"] .suggestion-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .result-item:hover,
+[data-theme="light"] .search-suggestion-item:hover,
+[data-theme="light"] .results-list li:hover {
+  background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .legend-item,
+[data-theme="light"] button.legend-item {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #13293d !important;
+}
+
+[data-theme="light"] .legend-item span {
+  color: #13293d !important;
+}
+
+[data-theme="light"] .legend-item:hover,
+[data-theme="light"] button.legend-item:hover {
+  border-color: #006494 !important;
+}
+
+[data-theme="light"] .legend-item.active,
+[data-theme="light"] button.legend-item.active {
+  background: #006494 !important;
+  color: #ffffff !important;
+  border-color: #006494 !important;
+}
+
+[data-theme="light"] .legend-item.active span {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] #search-input {
+  color: #13293d !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] #search-input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* END === WCAG AA CONTRAST AUDIT FIXES - MAPA === */
+
+
+/* ==========================================================================
+   TOOLTIPS / POPUPS DE MAPBOX GL JS (ACCESIBILIDAD WCAG AA)
+   ========================================================================== */
+
+/* 1. Tema Oscuro (Defecto / data-theme="dark"): fondo marino y texto blanco */
+.mapboxgl-popup-content {
+  background-color: var(--bg-surface, #13293D) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 10px !important;
+  padding: 8px 14px !important;
+  box-shadow: 0 8px 24px rgba(11, 34, 57, 0.45) !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Flechas indicadoras (Tip) en Tema Oscuro */
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: var(--bg-surface, #13293D) !important;
+}
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: var(--bg-surface, #13293D) !important;
+}
+
+/* 2. Tema Claro (data-theme="light"): fondo blanco y texto oscuro */
+[data-theme="light"] .mapboxgl-popup-content {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Flechas indicadoras (Tip) en Tema Claro */
+[data-theme="light"] .mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: #ffffff !important;
+}
+[data-theme="light"] .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: #ffffff !important;
 }

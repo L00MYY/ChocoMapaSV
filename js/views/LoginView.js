@@ -6,16 +6,24 @@
  */
 
 export const LoginView = {
+    _mockElements: null,
     /**
      * Referencias a los elementos del DOM centralizadas
      */
-    elements: {
-        form: document.getElementById('login-form'),
-        emailInput: document.getElementById('email'),
-        passwordInput: document.getElementById('password'),
-        submitBtn: document.getElementById('btn-submit'),
-        errorMsgContainer: document.getElementById('error-message'),
-        passwordToggleBtn: document.getElementById('btn-toggle-password')
+    get elements() {
+        if (this._mockElements) return this._mockElements;
+        if (typeof document === 'undefined') return this._mockElements || {};
+        return {
+            form: document.getElementById('login-form'),
+            emailInput: document.getElementById('email'),
+            passwordInput: document.getElementById('password'),
+            submitBtn: document.getElementById('btn-submit'),
+            errorMsgContainer: document.getElementById('error-message'),
+            passwordToggleBtn: document.getElementById('btn-toggle-password')
+        };
+    },
+    set elements(val) {
+        this._mockElements = val;
     },
 
     /**
@@ -38,7 +46,86 @@ export const LoginView = {
     },
 
     /**
-     * Oculta y limpia el contenedor de mensajes de error.
+     * Resuelve el elemento de entrada correspondiente a una clave o id
+     * @private
+     */
+    _resolverInput(inputKey) {
+        if (!inputKey) return null;
+        if (typeof inputKey !== 'string') return inputKey;
+
+        const mapa = {
+            email: this.elements.emailInput,
+            emailInput: this.elements.emailInput,
+            password: this.elements.passwordInput,
+            passwordInput: this.elements.passwordInput
+        };
+
+        return mapa[inputKey] || document.getElementById(inputKey) || null;
+    },
+
+    /**
+     * Muestra un mensaje de error específico debajo de un campo individual.
+     * 
+     * @param {'email' | 'password' | string} campo - Identificador del campo
+     * @param {string} mensaje - Mensaje de validación
+     */
+    mostrarErrorCampo(campo, mensaje) {
+        const input = this._resolverInput(campo);
+        if (!input) return;
+
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        formGroup.classList.add('has-error');
+        input.classList.add('is-invalid');
+
+        let errorContainer = formGroup.querySelector('.field-error-message');
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'field-error-message show';
+            errorContainer.setAttribute('role', 'alert');
+            formGroup.appendChild(errorContainer);
+        }
+
+        let errorTextSpan = errorContainer.querySelector('.error-text');
+        if (!errorTextSpan) {
+            errorTextSpan = document.createElement('span');
+            errorTextSpan.className = 'error-text';
+            errorContainer.appendChild(errorTextSpan);
+        }
+
+        errorTextSpan.textContent = mensaje || 'Campo obligatorio';
+        errorContainer.classList.add('show');
+        errorContainer.classList.remove('hidden');
+        errorContainer.style.display = 'flex';
+    },
+
+    /**
+     * Limpia los indicadores visuales y el mensaje de error de un campo individual.
+     * 
+     * @param {'email' | 'password' | string} campo
+     */
+    limpiarErrorCampo(campo) {
+        const input = this._resolverInput(campo);
+        if (!input) return;
+
+        const formGroup = typeof input.closest === 'function' ? input.closest('.form-group') : null;
+        if (formGroup) {
+            formGroup.classList.remove('has-error');
+            const errorContainer = formGroup.querySelector('.field-error-message');
+            if (errorContainer) {
+                errorContainer.classList.remove('show');
+                errorContainer.style.display = 'none';
+                const textSpan = errorContainer.querySelector('.error-text');
+                if (textSpan) textSpan.textContent = '';
+            }
+        }
+
+        if (input.classList?.remove) input.classList.remove('is-invalid');
+    },
+
+    /**
+     * Oculta y limpia el contenedor de mensajes de error global y por campo.
      */
     limpiarError() {
         const { errorMsgContainer, emailInput, passwordInput } = this.elements;
@@ -49,8 +136,18 @@ export const LoginView = {
             errorMsgContainer.setAttribute('aria-hidden', 'true');
         }
 
-        emailInput?.classList.remove('is-invalid');
-        passwordInput?.classList.remove('is-invalid');
+        if (emailInput?.classList?.remove) emailInput.classList.remove('is-invalid');
+        if (passwordInput?.classList?.remove) passwordInput.classList.remove('is-invalid');
+
+        this.limpiarErrorCampo('email');
+        this.limpiarErrorCampo('password');
+    },
+
+    /**
+     * Limpia todos los errores tanto por campo como alertas globales.
+     */
+    limpiarErrores() {
+        this.limpiarError();
     },
 
     /**
@@ -65,16 +162,16 @@ export const LoginView = {
 
         if (estaCargando) {
             submitBtn.disabled = true;
-            submitBtn.classList.add('is-loading');
-            submitBtn.setAttribute('aria-busy', 'true');
+            if (submitBtn.classList?.add) submitBtn.classList.add('is-loading');
+            if (submitBtn.setAttribute) submitBtn.setAttribute('aria-busy', 'true');
             submitBtn.textContent = 'Ingresando...';
 
             if (emailInput) emailInput.disabled = true;
             if (passwordInput) passwordInput.disabled = true;
         } else {
             submitBtn.disabled = false;
-            submitBtn.classList.remove('is-loading');
-            submitBtn.removeAttribute('aria-busy');
+            if (submitBtn.classList?.remove) submitBtn.classList.remove('is-loading');
+            if (submitBtn.removeAttribute) submitBtn.removeAttribute('aria-busy');
             submitBtn.textContent = 'Ingresar';
 
             if (emailInput) emailInput.disabled = false;

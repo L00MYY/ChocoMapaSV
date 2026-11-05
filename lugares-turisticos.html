@@ -169,6 +169,22 @@
                         </button>
                         <!-- Píldoras adicionales inyectadas dinámicamente según categorías existentes -->
                     </div>
+
+                    <!-- Filtro por Calificación (CA-03) -->
+                    <div class="rating-filter-wrapper" role="radiogroup" aria-label="Filtrar por calificación de estrellas">
+                        <span class="rating-filter-label">Calificación:</span>
+                        <div class="rating-pills" id="rating-pills">
+                            <button type="button" class="pill-btn rating-pill-btn active" data-rating="0" role="radio" aria-checked="true">
+                                Todas
+                            </button>
+                            <button type="button" class="pill-btn rating-pill-btn" data-rating="4" role="radio" aria-checked="false">
+                                ★ 4 o más
+                            </button>
+                            <button type="button" class="pill-btn rating-pill-btn" data-rating="3" role="radio" aria-checked="false">
+                                ★ 3 o más
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Metadatos de Resultados -->

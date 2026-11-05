@@ -1,41 +1,48 @@
-/**
- * js/controllers/MisToursController.js
- * Controlador del Historial de Tours para ChocoMapaSV (MITUR)
- * Orquestador entre el modelo (MisToursModel) y la vista (MisToursView).
- * Aplica guardias de autenticación y gestiona el flujo de navegación.
- */
-
+import { AuthModel } from '../models/AuthModel.js';
 import { MisToursModel } from '../models/MisToursModel.js';
 import { MisToursView } from '../views/MisToursView.js';
 
 /**
- * Controlador del historial de tours y reservas del usuario autenticado.
  * @namespace MisToursController
+ * @description Controlador para el historial personal de reservaciones de tours del turista autenticado.
+ * Supervisa el ciclo de vida de la sesión, consulta de reservas por estado y navegación hacia el detalle.
  */
 export const MisToursController = {
-    /** @type {Object|null} Usuario en sesión actual */
+    /** @type {Object|null} */
     usuarioActual: null,
+    /** @type {Function|null} */
+    unsubscribeAuth: null,
 
     /**
-     * Inicializa el controlador y valida la sesión del usuario
+     * @description Inicializa la suscripción a eventos de autenticación, verifica la sesión del usuario
+     * y dispara la carga del historial de tours.
+     * @returns {Promise<void>}
      */
      * @returns {Promise<void>}
     async init() {
+        this.inicializarSuscripcionAuth();
+
         try {
+            const sesion = await AuthModel.obtenerSesionActual();
+            if (!sesion || !sesion.user) {
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
+                return;
+            }
+
             MisToursView.renderLoading();
 
-            // Criterio 1: Guardia de autenticación
-            // Si NO ha iniciado sesión, redirige inmediatamente a login.html?redirect=mis-tours.html
-            const usuario = await MisToursModel.verificarSesion();
+            const usuario = (await MisToursModel.verificarSesion()) || sesion.user;
             if (!usuario) {
-                window.location.href = 'login.html?redirect=mis-tours.html';
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
                 return;
             }
 
             this.usuarioActual = usuario;
             await this.cargarHistorial();
         } catch (error) {
-            console.error('Error durante la inicialización de MisToursController:', error);
+            console.error(error);
             MisToursView.renderError(
                 'Ocurrió un problema de comunicación con el servidor de autenticación.',
                 () => this.init()
@@ -44,7 +51,38 @@ export const MisToursController = {
     },
 
     /**
-     * Carga el historial de reservaciones desde el modelo y solicita a la vista renderizarlo
+     * @description Configura la reactividad ante cambios de sesión, expulsando a login si se cierra la sesión.
+     * @returns {void}
+     */
+    inicializarSuscripcionAuth() {
+        if (this.unsubscribeAuth) {
+            this.unsubscribeAuth();
+        }
+
+        this.unsubscribeAuth = AuthModel.onCambioEstadoAuth((evento, sesion) => {
+            if (evento === 'SIGNED_OUT' || !sesion?.user) {
+                this.usuarioActual = null;
+                this.limpiarVista();
+                window.location.replace(`login.html?redirect=${encodeURIComponent(window.location.href)}`);
+            }
+        });
+    },
+
+    /**
+     * @description Limpia de forma segura el contenedor del historial en la vista.
+     * @returns {void}
+     */
+    limpiarVista() {
+        if (typeof MisToursView.limpiar === 'function') {
+            MisToursView.limpiar();
+        } else if (MisToursView.container) {
+            MisToursView.container.innerHTML = '';
+        }
+    },
+
+    /**
+     * @description Recupera el listado de reservas del usuario y renderiza las tarjetas de historial o estados vacíos.
+     * @returns {Promise<void>}
      */
      * @returns {Promise<void>}
     async cargarHistorial() {
@@ -54,16 +92,29 @@ export const MisToursController = {
             MisToursView.renderLoading();
             const reservas = await MisToursModel.obtenerHistorial(this.usuarioActual.id);
 
-            // Criterio 2: Si no tiene reservas, muestra "Aún no tienes tours"
+            // Extraer posible alerta desde URL (?alerta=...) o sessionStorage
+            let alertaTexto = null;
+            if (typeof window !== 'undefined') {
+                const params = new URLSearchParams(window.location.search);
+                alertaTexto = params.get('alerta');
+                try {
+                    const alertaStorage = sessionStorage.getItem('mis_tours_alerta');
+                    if (alertaStorage) {
+                        alertaTexto = alertaTexto || alertaStorage;
+                        sessionStorage.removeItem('mis_tours_alerta');
+                    }
+                } catch (error) {
+                    console.warn('Error al leer alerta de sessionStorage:', error);
+                }
+            }
+
             if (!reservas || reservas.length === 0) {
-                MisToursView.renderEstadoVacio();
+                MisToursView.renderEstadoVacio(alertaTexto);
                 return;
             }
 
-            // Renderizar tarjetas con sus estados normalizados ("Pendiente de confirmar", "Confirmado", "Pasado")
-            MisToursView.renderHistorial(reservas);
+            MisToursView.renderHistorial(reservas, alertaTexto);
 
-            // Criterio 3: Enlace de navegación hacia tour-detalle.html?id=[TOUR_ID]&from=historial&reservaId=[RESERVATION_ID]
             MisToursView.bindVerDetalleTour((tourId, reservaId) => {
                 const params = new URLSearchParams({
                     id: tourId,
@@ -73,7 +124,7 @@ export const MisToursController = {
                 window.location.href = `tour-detalle.html?${params.toString()}`;
             });
         } catch (error) {
-            console.error('Error al cargar historial en MisToursController:', error);
+            console.error(error);
             MisToursView.renderError(
                 'No fue posible obtener las reservas desde la base de datos.',
                 () => this.cargarHistorial()
@@ -82,11 +133,12 @@ export const MisToursController = {
     }
 };
 
-// Inicialización automática
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => MisToursController.init(), { once: true });
-} else {
-    MisToursController.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => MisToursController.init(), { once: true });
+    } else {
+        MisToursController.init();
+    }
 }
 
 export default MisToursController;

@@ -9,9 +9,8 @@ import { ToursModel } from '../models/ToursModel.js';
 import { ToursView } from '../views/ToursView.js';
 
 /**
- * Redirige al usuario hacia la página de detalle del tour seleccionado.
- * @function redirigirADetalle
- * @param {string} id - Identificador único del tour.
+ * @description Redirige a la página de detalle del tour seleccionado.
+ * @param {string} id - Identificador único UUID del tour.
  * @returns {void}
  */
 function redirigirADetalle(id) {
@@ -20,13 +19,14 @@ function redirigirADetalle(id) {
 }
 
 /**
- * Objeto controlador que gestiona la lógica y filtrado del catálogo de tours.
  * @namespace ToursController
+ * @description Controlador del catálogo general de experiencias y tours turísticos.
+ * Administra el filtrado multifacético (por departamento, sitio turístico, ofertas y fecha de salida)
+ * y la persistencia de estados de interfaz.
  */
 export const ToursController = {
     /**
-     * Inicializa los eventos, la carga de datos del catálogo y el mecanismo de seguridad.
-     * @function init
+     * @description Inicializa los eventos del DOM, carga el catálogo y activa el seguro contra bloqueos (failsafe).
      * @returns {void}
      */
     init() {
@@ -36,8 +36,7 @@ export const ToursController = {
     },
 
     /**
-     * Vincula los controladores de eventos para los filtros y botones de restablecimiento.
-     * @function inicializarEventos
+     * @description Configura los escuchadores de cambio en filtros de selección y botones de reseteo.
      * @returns {void}
      */
     inicializarEventos() {
@@ -50,9 +49,7 @@ export const ToursController = {
     },
 
     /**
-     * Carga el catálogo de tours y sitios para filtros desde ToursModel y actualiza la vista.
-     * @async
-     * @function cargarDatos
+     * @description Realiza la petición asíncrona a Supabase para cargar tours vigentes y sitios turísticos asociados.
      * @returns {Promise<void>}
      */
     async cargarDatos() {
@@ -75,8 +72,7 @@ export const ToursController = {
     },
 
     /**
-     * Aplica los filtros seleccionados a través de ToursModel y solicita la renderización a ToursView.
-     * @function aplicarFiltros
+     * @description Ejecuta el motor de filtrado del modelo según los selectores activos y renderiza las tarjetas de tour.
      * @returns {void}
      */
     aplicarFiltros() {
@@ -88,8 +84,7 @@ export const ToursController = {
     },
 
     /**
-     * Limpia los valores de todos los selectores de filtro y vuelve a renderizar el catálogo completo.
-     * @function restablecerFiltros
+     * @description Restablece todos los filtros de búsqueda a su estado por defecto y recarga la vista completa.
      * @returns {void}
      */
     restablecerFiltros() {
@@ -101,8 +96,7 @@ export const ToursController = {
     },
 
     /**
-     * Establece un temporizador de seguridad de 3.5 segundos para evitar estados de carga congelados.
-     * @function inicializarFailsafe
+     * @description Seguro temporal que oculta el loader si la respuesta de red excede el tiempo tolerable (failsafe).
      * @returns {void}
      */
     inicializarFailsafe() {

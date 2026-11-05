@@ -186,7 +186,7 @@
                                 <!-- Las 5 estrellas serán inyectadas de forma segura por JS -->
                             </div>
                         </div>
-                        <span class="rating-caption-label">Calificación promedio de visitantes</span>
+                        <span class="rating-caption-label" id="rating-caption-label">Calificación promedio de visitantes</span>
                     </div>
                 </header>
 
@@ -351,6 +351,26 @@
                                     <p class="schedule-note-text" id="schedule-note-text">
                                         Recomendación: Se sugiere llegar al menos 1 hora antes del horario de cierre para disfrutar la experiencia completa.
                                     </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Panel de Calificación del Visitante (CA-04 y CA-05) -->
+                        <section class="card-panel rating-action-panel" id="rating-action-panel" aria-labelledby="rating-action-heading">
+                            <div class="panel-header">
+                                <div class="panel-icon-wrap" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                                <div class="panel-heading-texts">
+                                    <h2 class="panel-title" id="rating-action-heading">Tu Calificación</h2>
+                                    <p class="panel-subtitle">Comparte tu valoración como visitante</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="rating-widget-container" id="rating-widget-container">
+                                    <p class="rating-widget-status">Cargando estado de calificación...</p>
                                 </div>
                             </div>
                         </section>

@@ -1,7 +1,15 @@
-import { formatearFechaLarga, formatearMonedaUSD } from '../models/ToursModel.js';
+import { formatearFechaLarga, formatearMonedaUSD, esFechaPasada } from '../models/ToursModel.js';
 
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const LUGAR_FALLBACK = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80';
+
+function obtenerFechaHoyLocal() {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
 
 function crearIconoCalendario() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -33,49 +41,110 @@ function crearIconoCalendario() {
 }
 
 export const TourDetalleView = {
-    elements: {
-        btnReturn: document.getElementById('btn-return'),
-        stateLoading: document.getElementById('state-loading'),
-        stateError: document.getElementById('state-error'),
-        stateContent: document.getElementById('state-content'),
-        departmentBadge: document.getElementById('tour-department-badge'),
-        discountBadge: document.getElementById('tour-discount-badge'),
-        spotsBadge: document.getElementById('tour-spots-badge'),
-        title: document.getElementById('tour-title'),
-        guideName: document.getElementById('tour-guide-name'),
-        heroImage: document.getElementById('tour-hero-image'),
-        thumbnailsStrip: document.getElementById('tour-thumbnails-strip'),
-        fullDescription: document.getElementById('tour-full-description'),
-        placesList: document.getElementById('tour-places-list'),
-        departureTime: document.getElementById('tour-departure-time'),
-        datesChips: document.getElementById('tour-dates-chips'),
-        pricingRow: document.getElementById('pricing-row'),
-        availableSpots: document.getElementById('tour-available-spots'),
-        btnOpenReserve: document.getElementById('btn-open-reserve'),
-        reservationCard: document.getElementById('reservation-card'),
-        reservationForm: document.getElementById('reservation-form'),
-        inputName: document.getElementById('tourist_name'),
-        inputEmail: document.getElementById('tourist_email'),
-        inputPhone: document.getElementById('tourist_phone'),
-        selectDate: document.getElementById('tour_date'),
-        inputSpots: document.getElementById('spots_reserved'),
-        btnConfirmReserve: document.getElementById('btn-confirm-reserve'),
-        errorName: document.getElementById('error-name'),
-        errorEmail: document.getElementById('error-email'),
-        errorPhone: document.getElementById('error-phone'),
-        errorDate: document.getElementById('error-date'),
-        errorSpots: document.getElementById('error-spots'),
-        reservationSuccessCard: document.getElementById('reservation-success-card'),
-        summaryTourName: document.getElementById('summary-tour-name'),
-        summaryTourDate: document.getElementById('summary-tour-date'),
-        summarySpots: document.getElementById('summary-spots'),
-        summaryTouristName: document.getElementById('summary-tourist-name'),
-        historialCard: document.getElementById('historial-reservation-card'),
-        historialStatusBadge: document.getElementById('historial-status-badge'),
-        historialSpotsCount: document.getElementById('historial-spots-count'),
-        historialTourDate: document.getElementById('historial-tour-date'),
-        btnVolverMisTours: document.getElementById('btn-volver-mis-tours'),
-        bookingCard: document.getElementById('booking-card')
+    timerId: null,
+
+    _mockElements: null,
+    get elements() {
+        if (this._mockElements) return this._mockElements;
+        if (typeof document === 'undefined') return this._mockElements || {};
+        return {
+            btnReturn: document.getElementById('btn-return'),
+            stateLoading: document.getElementById('state-loading'),
+            stateError: document.getElementById('state-error'),
+            stateContent: document.getElementById('state-content'),
+            departmentBadge: document.getElementById('tour-department-badge'),
+            discountBadge: document.getElementById('tour-discount-badge'),
+            spotsBadge: document.getElementById('tour-spots-badge'),
+            title: document.getElementById('tour-title'),
+            guideName: document.getElementById('tour-guide-name'),
+            heroImage: document.getElementById('tour-hero-image'),
+            thumbnailsStrip: document.getElementById('tour-thumbnails-strip'),
+            fullDescription: document.getElementById('tour-full-description'),
+            placesList: document.getElementById('tour-places-list'),
+            departureTime: document.getElementById('tour-departure-time'),
+            datesChips: document.getElementById('tour-dates-chips'),
+            pricingRow: document.getElementById('pricing-row'),
+            availableSpots: document.getElementById('tour-available-spots'),
+            btnOpenReserve: document.getElementById('btn-open-reserve'),
+            reservationCard: document.getElementById('reservation-card'),
+            reservationForm: document.getElementById('reservation-form'),
+            inputName: document.getElementById('tourist_name'),
+            inputEmail: document.getElementById('tourist_email'),
+            inputPhone: document.getElementById('tourist_phone'),
+            selectDate: document.getElementById('tour_date'),
+            inputSpots: document.getElementById('spots_reserved'),
+            btnConfirmReserve: document.getElementById('btn-confirm-reserve'),
+            errorName: document.getElementById('error-name'),
+            errorEmail: document.getElementById('error-email'),
+            errorPhone: document.getElementById('error-phone'),
+            errorDate: document.getElementById('error-date'),
+            errorSpots: document.getElementById('error-spots'),
+            reservationSuccessCard: document.getElementById('reservation-success-card'),
+            summaryTourName: document.getElementById('summary-tour-name'),
+            summaryTourDate: document.getElementById('summary-tour-date'),
+            summarySpots: document.getElementById('summary-spots'),
+            summaryTouristName: document.getElementById('summary-tourist-name'),
+            historialCard: document.getElementById('historial-reservation-card'),
+            historialStatusBadge: document.getElementById('historial-status-badge'),
+            historialSpotsCount: document.getElementById('historial-spots-count'),
+            historialTourDate: document.getElementById('historial-tour-date'),
+            btnVolverMisTours: document.getElementById('btn-volver-mis-tours'),
+            bookingCard: document.getElementById('booking-card'),
+            reservationCardDefault: document.getElementById('booking-card'),
+            reservaPendienteCard: document.getElementById('reserva-pendiente-card'),
+            pendienteCodigo: document.getElementById('pendiente-codigo'),
+            pendienteCupos: document.getElementById('pendiente-cupos'),
+            pendienteFecha: document.getElementById('pendiente-fecha'),
+            alertaTiempoRestante: document.getElementById('alerta-tiempo-restante'),
+            textoTiempoRestante: document.getElementById('texto-tiempo-restante'),
+            btnCompletarPago: document.getElementById('btn-completar-pago'),
+            reservaValidacionCard: document.getElementById('reserva-validacion-card'),
+            validacionCodigo: document.getElementById('validacion-codigo')
+        };
+    },
+    set elements(val) {
+        this._mockElements = val;
+    },
+
+    limpiarTimer() {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+    },
+
+    iniciarTemporizador(expiresAt, createdAt, onExpirado) {
+        this.limpiarTimer();
+        const texto = this.elements.textoTiempoRestante;
+        if (!texto) return;
+
+        let target = null;
+        if (expiresAt) {
+            target = new Date(expiresAt).getTime();
+        } else if (createdAt) {
+            target = new Date(createdAt).getTime() + 3600000;
+        } else {
+            target = Date.now() + 3600000;
+        }
+
+        const actualizar = () => {
+            const diff = target - Date.now();
+            if (diff <= 0) {
+                this.limpiarTimer();
+                texto.textContent = 'Tiempo de reserva expirado';
+                if (typeof onExpirado === 'function') {
+                    onExpirado();
+                }
+                return;
+            }
+
+            const minutos = Math.floor(diff / 60000);
+            const segundos = Math.floor((diff % 60000) / 1000);
+            texto.textContent = `Tiempo restante para transferir: ${minutos}m ${String(segundos).padStart(2, '0')}s`;
+        };
+
+        actualizar();
+        this.timerId = setInterval(actualizar, 1000);
     },
 
     mostrarEstado(estado, titulo, mensaje) {
@@ -104,7 +173,6 @@ export const TourDetalleView = {
         if (e.guideName) e.guideName.textContent = tour.guide_name || 'Guía Certificado MITUR';
         if (e.fullDescription) e.fullDescription.textContent = tour.full_description || tour.short_description || 'Sin descripción detallada disponible.';
         if (e.departureTime) e.departureTime.textContent = this.formatearHora(tour.departure_time);
-        this.actualizarCupos(tour.available_spots);
         this.renderizarPrecios(tour);
         this.renderizarGaleria(tour);
         this.renderizarLugares(tour);
@@ -125,7 +193,11 @@ export const TourDetalleView = {
         }
         if (e.inputSpots) {
             e.inputSpots.max = String(cantidad);
-            if (cantidad > 0 && Number(e.inputSpots.value) > cantidad) e.inputSpots.value = String(cantidad);
+            if (cantidad > 0 && Number(e.inputSpots.value) > cantidad) {
+                e.inputSpots.value = String(cantidad);
+            } else if (cantidad <= 0) {
+                e.inputSpots.value = '0';
+            }
         }
     },
 
@@ -216,26 +288,38 @@ export const TourDetalleView = {
         places.forEach((entry, index) => {
             const place = entry.places || {};
             const item = document.createElement('li');
-            item.className = 'place-item-card';
+            item.className = 'place-item-card tour-place-item itinerary-item itinerary-card';
+
             const number = document.createElement('span');
-            number.className = 'step-num';
+            number.className = 'step-num tour-place-order place-step-badge place-order-badge';
             number.textContent = String(entry.visit_order || index + 1);
             number.setAttribute('aria-label', `Parada número ${entry.visit_order || index + 1}`);
+
             const image = document.createElement('img');
+            image.className = 'place-item-thumb tour-place-thumb tour-place-image';
             image.src = place.image_url || LUGAR_FALLBACK;
             image.alt = place.name || `Parada ${index + 1}`;
             image.loading = 'lazy';
             image.onerror = () => { image.src = LUGAR_FALLBACK; };
-            const title = document.createElement('h3');
-            title.className = 'place-name';
+
+            const headerInfo = document.createElement('div');
+            headerInfo.className = 'tour-place-header-info place-info-wrap place-header-info';
+
+            const title = document.createElement('h4');
+            title.className = 'place-name tour-place-title';
             title.textContent = place.name || `Parada ${index + 1}`;
+
             const department = document.createElement('span');
-            department.className = 'place-depto-tag';
+            department.className = 'place-depto-tag place-badge tour-place-badge';
             department.textContent = place.department || tour.department || 'El Salvador';
+
+            headerInfo.append(title, department);
+
             const description = document.createElement('p');
-            description.className = 'place-desc';
+            description.className = 'place-desc tour-place-desc tour-place-description';
             description.textContent = place.short_description || 'Visita guiada oficial y tiempo libre para exploración.';
-            item.append(number, image, title, department, description);
+
+            item.append(number, image, headerInfo, description);
             list.appendChild(item);
         });
     },
@@ -250,37 +334,140 @@ export const TourDetalleView = {
             message.className = 'no-dates-notice';
             message.textContent = 'Próximas fechas por confirmar';
             e.datesChips?.appendChild(message);
+            this.actualizarCupos(0);
             return;
         }
-        fechas.forEach(entry => {
+
+        fechas.forEach((entry, index) => {
             const rawDate = typeof entry === 'string' ? entry : entry.departure_date;
             if (!rawDate) return;
+            const dateId = entry.id || `date-${index}`;
+            const spots = entry.available_spots !== undefined ? Number(entry.available_spots) : 0;
             const label = formatearFechaLarga(rawDate);
-            const chip = document.createElement('div');
+            const esPasada = esFechaPasada(rawDate);
+
+            const option = document.createElement('option');
+            option.value = dateId;
+            option.dataset.departureDate = rawDate;
+            option.dataset.spots = String(spots);
+            if (esPasada) {
+                option.disabled = true;
+                option.textContent = `${label} (${rawDate}) - Fecha pasada`;
+            } else {
+                option.textContent = `${label} (${rawDate})`;
+            }
+            e.selectDate?.appendChild(option);
+
+            const chip = document.createElement('button');
+            chip.type = 'button';
             chip.className = 'date-chip';
+            chip.dataset.dateId = dateId;
+            chip.dataset.departureDate = rawDate;
+            chip.dataset.spots = String(spots);
             chip.append(crearIconoCalendario());
             const chipText = document.createElement('span');
-            chipText.textContent = label;
+            chipText.textContent = esPasada ? `${label} (Pasada)` : label;
             chip.appendChild(chipText);
+
+            if (esPasada) {
+                chip.disabled = true;
+                chip.setAttribute('aria-disabled', 'true');
+                chip.classList.add('disabled', 'date-chip-disabled');
+                chip.setAttribute('aria-label', `${label}, fecha no disponible por haber pasado`);
+            } else {
+                chip.setAttribute('aria-label', `${label}, ${spots} cupos disponibles`);
+                chip.addEventListener('click', () => {
+                    this.marcarFechaSeleccionada(dateId);
+                    if (e.selectDate) {
+                        e.selectDate.value = dateId;
+                        e.selectDate.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            }
+
             e.datesChips?.appendChild(chip);
-            e.selectDate?.appendChild(new Option(`${label} (${rawDate})`, rawDate));
         });
+    },
+
+    marcarFechaSeleccionada(dateId) {
+        const e = this.elements;
+        if (!dateId) {
+            if (e.selectDate) e.selectDate.value = '';
+            if (e.datesChips) {
+                e.datesChips.querySelectorAll('.date-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    chip.setAttribute('aria-pressed', 'false');
+                });
+            }
+            const radios = document.querySelectorAll('input[name="tour_date"], input[name="tour_date_id"]');
+            radios.forEach(r => { r.checked = false; });
+            return;
+        }
+        if (e.selectDate && e.selectDate.value !== String(dateId)) {
+            e.selectDate.value = String(dateId);
+        }
+        if (e.datesChips) {
+            e.datesChips.querySelectorAll('.date-chip').forEach(chip => {
+                const isMatching = chip.dataset.dateId === String(dateId);
+                const isActive = isMatching && !chip.disabled && !chip.classList.contains('disabled');
+                chip.classList.toggle('active', isActive);
+                chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+        const radio = document.querySelector(`input[name="tour_date"][value="${dateId}"], input[name="tour_date_id"][value="${dateId}"]`);
+        if (radio && !radio.disabled) {
+            radio.checked = true;
+        }
+    },
+
+    seleccionarFecha(dateId) {
+        this.marcarFechaSeleccionada(dateId);
+    },
+
+    actualizarCuposEnOpcion(dateId, nuevosCupos) {
+        const e = this.elements;
+        if (e.selectDate) {
+            const opt = Array.from(e.selectDate.options).find(o => o.value === String(dateId));
+            if (opt) {
+                opt.dataset.spots = String(nuevosCupos);
+            }
+        }
+        if (e.datesChips) {
+            const chip = e.datesChips.querySelector(`[data-date-id="${dateId}"]`);
+            if (chip) {
+                chip.dataset.spots = String(nuevosCupos);
+            }
+        }
     },
 
     obtenerDatosReserva() {
         const e = this.elements;
+        const radioChecked = document.querySelector('input[name="tour_date"]:checked, input[name="tour_date_id"]:checked');
+        const selectedDateId = e.selectDate?.value.trim() || radioChecked?.value.trim() || '';
+
+        let rawDate = '';
+        if (e.selectDate && e.selectDate.selectedIndex >= 0) {
+            const opt = e.selectDate.options[e.selectDate.selectedIndex];
+            rawDate = opt?.dataset?.departureDate || '';
+        }
+        if (!rawDate && radioChecked) {
+            rawDate = radioChecked.dataset?.departureDate || '';
+        }
+
         return {
             nombre: e.inputName?.value.trim() || '',
             email: e.inputEmail?.value.trim() || '',
             telefono: e.inputPhone?.value.trim() || '',
-            fecha: e.selectDate?.value.trim() || '',
+            tour_date_id: selectedDateId,
+            tour_date: rawDate,
+            fecha: rawDate || selectedDateId,
             cupos: e.inputSpots?.value.trim() || ''
         };
     },
 
     limpiarErrores() {
         const e = this.elements;
-        [e.inputName, e.inputEmail, e.inputPhone, e.selectDate, e.inputSpots].forEach(input => input?.classList.remove('is-invalid'));
+        [e.inputName, e.inputEmail, e.inputPhone, e.selectDate, e.inputSpots].forEach(input => input?.classList?.remove?.('is-invalid'));
         [e.errorName, e.errorEmail, e.errorPhone, e.errorDate, e.errorSpots].forEach(error => {
             if (error) {
                 error.textContent = '';
@@ -330,6 +517,11 @@ export const TourDetalleView = {
     limpiarFormularioReserva() {
         const e = this.elements;
         e.reservationForm?.reset();
+        if (e.inputName) e.inputName.value = '';
+        if (e.inputEmail) e.inputEmail.value = '';
+        if (e.inputPhone) e.inputPhone.value = '';
+        if (e.selectDate) e.selectDate.value = '';
+        if (e.inputSpots) e.inputSpots.value = '1';
         this.limpiarErrores();
     },
 
@@ -339,16 +531,43 @@ export const TourDetalleView = {
         }
     },
 
-    mostrarConfirmacion(tour, reserva) {
+    mostrarReservacionExitosa(datos, tour = null) {
         const e = this.elements;
-        if (e.summaryTourName) e.summaryTourName.textContent = tour.name || 'Tour Oficial MITUR';
-        if (e.summaryTourDate) e.summaryTourDate.textContent = formatearFechaLarga(reserva.tour_date);
-        if (e.summarySpots) e.summarySpots.textContent = `${reserva.spots_reserved} cupo(s)`;
-        if (e.summaryTouristName) e.summaryTouristName.textContent = reserva.tourist_name;
+        let res = datos || {};
+        let t = tour || {};
+        if (datos && datos.id && !datos.spots_reserved && tour && tour.spots_reserved) {
+            t = datos;
+            res = tour;
+        }
+
+        const tourNombre = t.name || res.tour_name || res.tourName || (res.tours && res.tours.name) || 'Tour Oficial MITUR';
+        const fecha = res.tour_date || res.tourDate;
+        const cupos = res.spots_reserved ?? res.cuposReservados ?? 1;
+        const nombreTurista = res.tourist_name || res.nombre || '--';
+
+        if (e.summaryTourName) e.summaryTourName.textContent = tourNombre;
+        if (e.summaryTourDate) e.summaryTourDate.textContent = formatearFechaLarga(fecha) || fecha;
+        if (e.summarySpots) e.summarySpots.textContent = `${cupos} cupo(s)`;
+        if (e.summaryTouristName) e.summaryTouristName.textContent = nombreTurista;
+
+        if (e.historialCard) {
+            e.historialCard.classList.add('hidden');
+        }
+        if (e.reservaPendienteCard) {
+            e.reservaPendienteCard.classList.add('hidden');
+        }
+        if (e.reservaValidacionCard) {
+            e.reservaValidacionCard.classList.add('hidden');
+        }
+
         e.reservationSuccessCard?.classList.remove('hidden');
         e.reservationSuccessCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         e.reservationCard?.classList.add('hidden');
         e.reservationForm?.reset();
+    },
+
+    mostrarConfirmacion(tour, reserva) {
+        return this.mostrarReservacionExitosa(reserva, tour);
     },
 
     formatearHora(hora) {
@@ -359,59 +578,147 @@ export const TourDetalleView = {
         return `${numeric % 12 || 12}:${minutes || '00'} ${numeric >= 12 ? 'PM' : 'AM'}`;
     },
 
-    /**
-     * Renderiza la vista en modo historial:
-     * - Muestra el bloque informativo con el estado ("Pendiente de confirmar", "Confirmado" o "Pasado")
-     *   y los cupos reservados (Criterio 3).
-     * - Configura el botón o enlace con el texto exacto: "Volver a mis tours" (Criterio 3).
-     * - Oculta el formulario o botón de "Reservar cupo" (Criterio 4).
-     * 
-     * @param {Object} reserva - { status, spots_reserved, tour_date }
-     * @param {Object} [tour] - Objeto del tour
-     */
-    renderizarModoHistorial(reserva, tour) {
+    mostrarReservaPendientePago(reserva, onExpirado) {
+        this.limpiarTimer();
         const e = this.elements;
-        const card = e.historialCard || document.getElementById('historial-reservation-card');
-        const badge = e.historialStatusBadge || document.getElementById('historial-status-badge');
-        const spots = e.historialSpotsCount || document.getElementById('historial-spots-count');
-        const dateEl = e.historialTourDate || document.getElementById('historial-tour-date');
-        const btnVolver = e.btnVolverMisTours || document.getElementById('btn-volver-mis-tours');
-        const btnReturn = e.btnReturn || document.getElementById('btn-return');
+        const codigo = reserva.reservation_code || reserva.id;
+        const cupos = Number(reserva.spots_reserved) || 1;
+        const fechaStr = formatearFechaLarga(reserva.tour_date) || reserva.tour_date || '--';
 
-        if (card) {
-            card.classList.remove('hidden');
+        if (e.bookingCard) {
+            e.bookingCard.classList.add('hidden');
+            e.bookingCard.style.display = 'none';
+        }
+        if (e.reservationCard) {
+            e.reservationCard.classList.add('hidden');
+            e.reservationCard.style.display = 'none';
+        }
+        if (e.historialCard) {
+            e.historialCard.classList.add('hidden');
+            e.historialCard.style.display = 'none';
+        }
+        if (e.reservaValidacionCard) {
+            e.reservaValidacionCard.classList.add('hidden');
+            e.reservaValidacionCard.style.display = 'none';
+        }
+        if (e.reservationSuccessCard) {
+            e.reservationSuccessCard.classList.add('hidden');
         }
 
-        if (badge && reserva) {
-            const estado = reserva.status || 'Confirmado';
-            badge.textContent = estado;
-            badge.classList.remove('status-confirmado', 'status-pendiente', 'status-pasado');
-            if (estado === 'Confirmado') {
-                badge.classList.add('status-confirmado');
-            } else if (estado === 'Pasado') {
-                badge.classList.add('status-pasado');
-            } else {
-                badge.classList.add('status-pendiente');
-            }
+        if (e.reservaPendienteCard) {
+            e.reservaPendienteCard.classList.remove('hidden');
+            e.reservaPendienteCard.style.display = 'block';
         }
 
-        if (spots && reserva) {
-            const cantidad = reserva.spots_reserved || 1;
-            spots.textContent = `${cantidad} ${cantidad === 1 ? 'cupo' : 'cupos'}`;
+        if (e.pendienteCodigo) e.pendienteCodigo.textContent = codigo;
+        if (e.pendienteCupos) e.pendienteCupos.textContent = `${cupos} ${cupos === 1 ? 'cupo' : 'cupos'}`;
+        if (e.pendienteFecha) e.pendienteFecha.textContent = fechaStr;
+
+        if (e.btnCompletarPago) {
+            e.btnCompletarPago.onclick = () => {
+                window.location.href = `pago-comprobante.html?reservaId=${encodeURIComponent(reserva.id)}&codigo=${encodeURIComponent(codigo)}`;
+            };
         }
 
-        if (dateEl && reserva?.tour_date) {
-            dateEl.textContent = formatearFechaLarga(reserva.tour_date) || reserva.tour_date;
+        this.iniciarTemporizador(reserva.expires_at, reserva.created_at, onExpirado);
+    },
+
+    mostrarReservaEnValidacion(reserva) {
+        this.limpiarTimer();
+        const e = this.elements;
+        const codigo = reserva.reservation_code || reserva.id;
+
+        if (e.bookingCard) {
+            e.bookingCard.classList.add('hidden');
+            e.bookingCard.style.display = 'none';
+        }
+        if (e.reservationCard) {
+            e.reservationCard.classList.add('hidden');
+            e.reservationCard.style.display = 'none';
+        }
+        if (e.historialCard) {
+            e.historialCard.classList.add('hidden');
+            e.historialCard.style.display = 'none';
+        }
+        if (e.reservaPendienteCard) {
+            e.reservaPendienteCard.classList.add('hidden');
+            e.reservaPendienteCard.style.display = 'none';
+        }
+        if (e.reservationSuccessCard) {
+            e.reservationSuccessCard.classList.add('hidden');
         }
 
-        // Criterio 3: Enlace exacto hacia mis-tours.html
-        if (btnVolver) {
-            btnVolver.href = 'mis-tours.html';
+        if (e.reservaValidacionCard) {
+            e.reservaValidacionCard.classList.remove('hidden');
+            e.reservaValidacionCard.style.display = 'block';
         }
 
-        // Adaptar botón superior de retorno si viene explícitamente desde historial
+        if (e.validacionCodigo) e.validacionCodigo.textContent = codigo;
+    },
+
+    mostrarReservaConfirmada(reserva) {
+        this.limpiarTimer();
+        const e = this.elements;
+
+        if (e.bookingCard) {
+            e.bookingCard.classList.add('hidden');
+            e.bookingCard.style.display = 'none';
+        }
+        if (e.reservationCard) {
+            e.reservationCard.classList.add('hidden');
+            e.reservationCard.style.display = 'none';
+        }
+        if (e.reservaPendienteCard) {
+            e.reservaPendienteCard.classList.add('hidden');
+            e.reservaPendienteCard.style.display = 'none';
+        }
+        if (e.reservaValidacionCard) {
+            e.reservaValidacionCard.classList.add('hidden');
+            e.reservaValidacionCard.style.display = 'none';
+        }
+        if (e.reservationSuccessCard) {
+            e.reservationSuccessCard.classList.add('hidden');
+        }
+
+        if (e.historialCard) {
+            e.historialCard.classList.remove('hidden');
+            e.historialCard.style.display = 'block';
+        }
+
+        if (e.historialStatusBadge) {
+            e.historialStatusBadge.textContent = 'Confirmado';
+            e.historialStatusBadge.className = 'badge-reserva-status status-confirmado';
+        }
+
+        if (e.historialSpotsCount) {
+            const cantidad = Number(reserva.spots_reserved) || 1;
+            e.historialSpotsCount.textContent = `${cantidad} ${cantidad === 1 ? 'cupo' : 'cupos'}`;
+        }
+
+        if (e.historialTourDate && reserva.tour_date) {
+            e.historialTourDate.textContent = formatearFechaLarga(reserva.tour_date) || reserva.tour_date;
+        }
+
+        if (e.btnVolverMisTours) {
+            e.btnVolverMisTours.href = 'mis-tours.html';
+        }
+    },
+
+    renderizarModoHistorial(reserva, tour) {
+        if (!reserva) return;
+        const st = String(reserva.status_original || reserva.status || '').toLowerCase().trim();
+
+        if (st === 'pendiente_pago') {
+            this.mostrarReservaPendientePago(reserva);
+        } else if (st === 'en_validacion') {
+            this.mostrarReservaEnValidacion(reserva);
+        } else {
+            this.mostrarReservaConfirmada(reserva);
+        }
+
         const params = new URLSearchParams(window.location.search);
         const fromHistorial = params.get('from') === 'historial';
+        const btnReturn = this.elements.btnReturn;
         if (btnReturn && fromHistorial) {
             btnReturn.href = 'mis-tours.html';
             const spanText = btnReturn.querySelector('span');
@@ -419,39 +726,108 @@ export const TourDetalleView = {
                 spanText.textContent = 'Volver a mis tours';
             }
         }
-
-        // Criterio 4: Ocultar o deshabilitar botón y formulario de reserva
-        if (e.btnOpenReserve) {
-            e.btnOpenReserve.classList.add('hidden');
-            e.btnOpenReserve.style.display = 'none';
-        }
-
-        if (e.reservationCard) {
-            e.reservationCard.classList.add('hidden');
-            e.reservationCard.style.display = 'none';
-        }
-
-        if (e.reservationSuccessCard) {
-            e.reservationSuccessCard.classList.add('hidden');
-        }
     },
 
-    /**
-     * Criterio 4: Si el tour ya pasó, no permitir reservar cupos (deshabilitar o esconder acción)
-     */
     deshabilitarReservaPorTourPasado() {
         const e = this.elements;
+        if (e.availableSpots) {
+            e.availableSpots.textContent = '0';
+        }
         if (e.btnOpenReserve) {
             e.btnOpenReserve.disabled = true;
             e.btnOpenReserve.classList.add('disabled');
-            e.btnOpenReserve.textContent = 'Tour no disponible para reserva';
+            e.btnOpenReserve.textContent = 'Tour sin fechas vigentes';
         }
         if (e.spotsBadge) {
-            e.spotsBadge.textContent = 'Tour pasado';
+            e.spotsBadge.textContent = 'Sin fechas vigentes';
             e.spotsBadge.classList.add('sold-out');
         }
         if (e.reservationCard) {
             e.reservationCard.classList.add('hidden');
         }
+    },
+
+    restablecerModoPublico(tour) {
+        this.limpiarTimer();
+        const e = this.elements;
+
+        if (e.historialCard) {
+            e.historialCard.classList.add('hidden');
+            e.historialCard.style.display = 'none';
+        }
+        if (e.reservaPendienteCard) {
+            e.reservaPendienteCard.classList.add('hidden');
+            e.reservaPendienteCard.style.display = 'none';
+        }
+        if (e.reservaValidacionCard) {
+            e.reservaValidacionCard.classList.add('hidden');
+            e.reservaValidacionCard.style.display = 'none';
+        }
+
+        this.ocultarFormularioReserva();
+        this.limpiarFormularioReserva();
+
+        if (e.reservationSuccessCard) {
+            e.reservationSuccessCard.classList.add('hidden');
+            e.reservationSuccessCard.style.display = 'none';
+        }
+
+        const cardDefault = e.reservationCardDefault || e.bookingCard;
+        if (cardDefault) {
+            cardDefault.classList.remove('hidden');
+            cardDefault.style.display = '';
+        }
+
+        const btnOpen = e.btnOpenReserve;
+        if (btnOpen) {
+            btnOpen.disabled = false;
+            btnOpen.classList.remove('hidden');
+            btnOpen.style.display = '';
+            btnOpen.textContent = 'Reservar cupo';
+        }
+
+        const btnReturn = e.btnReturn;
+        if (btnReturn) {
+            btnReturn.href = 'tours.html';
+            const spanText = btnReturn.querySelector('span');
+            if (spanText) {
+                spanText.textContent = 'Volver';
+            }
+        }
+
+        let cupos = 0;
+        const hoyStr = obtenerFechaHoyLocal();
+
+        if (e.selectDate && e.selectDate.value) {
+            const selectedOpt = Array.from(e.selectDate.options).find(o => o.value === e.selectDate.value && !o.disabled);
+            if (selectedOpt && selectedOpt.dataset.spots !== undefined) {
+                cupos = Number(selectedOpt.dataset.spots) || 0;
+            } else {
+                this.marcarFechaSeleccionada(null);
+            }
+        } else if (tour && Array.isArray(tour.tour_dates) && tour.tour_dates.length > 0) {
+            const fechasOrdenadas = [...tour.tour_dates].sort((a, b) => new Date(a.departure_date || a) - new Date(b.departure_date || b));
+            const proxima = fechasOrdenadas.find(f => String(f.departure_date || f).split('T')[0] > hoyStr) || null;
+            if (proxima) {
+                this.marcarFechaSeleccionada(proxima.id);
+                cupos = Number(proxima.available_spots) || 0;
+            } else {
+                this.marcarFechaSeleccionada(null);
+                cupos = 0;
+            }
+        }
+
+        this.actualizarCupos(cupos);
+
+        const fechas = tour?.tour_dates || [];
+        const tieneFechasFuturas = fechas.some(d => {
+            const fechaStr = typeof d === 'string' ? d : d.departure_date;
+            return String(fechaStr).split('T')[0] > hoyStr;
+        });
+        if (fechas.length > 0 && !tieneFechasFuturas) {
+            this.deshabilitarReservaPorTourPasado();
+        }
     }
 };
+
+export default TourDetalleView;

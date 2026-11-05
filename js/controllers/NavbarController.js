@@ -2,49 +2,148 @@
  * js/controllers/NavbarController.js
  * Controlador del Componente Navbar Institucional para ChocoMapaSV (MITUR)
  * Conecta el modelo de autenticación (AuthModel) con la vista (NavbarView)
- * para proporcionar reactividad en tiempo real en todas las vistas.
+ * y orquesta el sistema unificado de Temas (Claro y Oscuro) persistido en localStorage.
  */
 
 import { AuthModel } from '../models/AuthModel.js';
 import { NavbarView } from '../views/NavbarView.js';
 
+const THEME_STORAGE_KEY = 'chocomapa_theme';
+
 /**
- * Controlador de la barra de navegación institucional.
- * Rol en el MVC: Controlador (Controller). Gestiona el estado de autenticación visible,
- * interacción con el menú desplegable de usuario y navegación protegida hacia reservas.
- * @namespace NavbarController
+ * @description Resuelve el tema visual preferido evaluando el almacenamiento local
+ * o la preferencia del sistema operativo (prefers-color-scheme), retornando 'dark' por defecto.
+ * @returns {'dark' | 'light'} Identificador del tema preferido.
+ */
+export function resolverTemaPreferido() {
+    try {
+        const temaGuardado = localStorage.getItem(THEME_STORAGE_KEY);
+        if (temaGuardado === 'light' || temaGuardado === 'dark') {
+            return temaGuardado;
+        }
+        if (typeof window !== 'undefined' && window.matchMedia) {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+    } catch (error) {
+        console.warn('Advertencia al resolver tema preferido desde storage:', error);
+    }
+    return 'dark';
+}
+
+// Detección y aplicación temprana inmediata antes de terminar el render para evitar parpadeos
+if (typeof document !== 'undefined' && document.documentElement) {
+    const temaInicial = resolverTemaPreferido();
+    document.documentElement.setAttribute('data-theme', temaInicial);
+}
+
+/**
+ * Objeto controlador que gestiona el ciclo de vida, eventos de UI y sincronización del navbar
  */
 export const NavbarController = {
     /** @type {boolean} Indicador para asegurar ejecución única del controlador */
     initialized: false,
     /** @type {Function|null} Función de cancelación de suscripción a eventos de autenticación */
     unsubscribeAuth: null,
+    logoutCallbacks: new Set(),
 
     /**
-     * Inicializa el controlador del navbar de forma idempotente
+     * @description Inicializa el controlador del navbar de forma idempotente,
+     * aplicando el tema persistido y cableando escuchadores de eventos y observadores de autenticación.
+     * @returns {Promise<void>}
      */
      * @returns {Promise<void>}
     async init() {
         if (this.initialized) {
-            // Si ya se inicializó, sincronizar estado actual por si acaso
             await this.actualizarEstadoDesdeModelo();
             return;
         }
 
         this.initialized = true;
+
+        const temaActual = this.obtenerTemaActual();
+        if (typeof document !== 'undefined' && document.documentElement) {
+            document.documentElement.setAttribute('data-theme', temaActual);
+        }
+        NavbarView.actualizarIndicadorTema(temaActual);
+
         this.inicializarEventos();
         this.inicializarSuscripcionAuth();
+        this.inicializarEscuchaPreferenciaSistema();
         await this.actualizarEstadoDesdeModelo();
     },
 
     /**
-     * Configura los escuchadores de eventos del DOM
+     * @description Retorna el tema actual activo en el documento HTML.
+     * @returns {'dark' | 'light'} Tema activo.
+     */
+    obtenerTemaActual() {
+        if (typeof document !== 'undefined' && document.documentElement) {
+            const attr = document.documentElement.getAttribute('data-theme');
+            if (attr === 'dark' || attr === 'light') {
+                return attr;
+            }
+        }
+        return resolverTemaPreferido();
+    },
+
+    /**
+     * @description Aplica el nuevo tema en el documento, persiste la selección en localStorage y sincroniza la vista.
+     * @param {'dark' | 'light'} nuevoTema - Tema a activar.
+     */
+    aplicarTema(nuevoTema) {
+        const tema = nuevoTema === 'light' ? 'light' : 'dark';
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, tema);
+        } catch (error) {
+            console.warn('No se pudo guardar la preferencia de tema en localStorage:', error);
+        }
+
+        if (typeof document !== 'undefined' && document.documentElement) {
+            document.documentElement.setAttribute('data-theme', tema);
+        }
+
+        NavbarView.actualizarIndicadorTema(tema);
+
+        if (typeof window !== 'undefined' && window.dispatchEvent) {
+            window.dispatchEvent(new CustomEvent('chocomapa:themechange', { detail: { theme: tema } }));
+        }
+    },
+
+    /**
+     * @description Alterna suavemente entre el modo Claro y Oscuro.
+     */
+    alternarTema() {
+        const actual = this.obtenerTemaActual();
+        const siguiente = actual === 'dark' ? 'light' : 'dark';
+        this.aplicarTema(siguiente);
+    },
+
+    /**
+     * @description Escucha cambios en la preferencia del sistema operativo si no existe una configuración explícita.
+     */
+    inicializarEscuchaPreferenciaSistema() {
+        if (typeof window === 'undefined' || !window.matchMedia) return;
+
+        try {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                const tienePreferenciaGuardada = !!localStorage.getItem(THEME_STORAGE_KEY);
+                if (!tienePreferenciaGuardada) {
+                    this.aplicarTema(e.matches ? 'dark' : 'light');
+                }
+            });
+        } catch (error) {
+            console.warn('Advertencia al configurar mediaQuery listener de tema:', error);
+        }
+    },
+
+    /**
+     * @description Configura los escuchadores de eventos del DOM para dropdown, atajos de teclado y clics externos.
      */
      * @returns {void}
     inicializarEventos() {
         const { btnUser, btnLogout, btnLogin, dropdownMenu, userContainer } = NavbarView.elements;
 
-        // 1. Abrir/Cerrar Dropdown al hacer clic o toque en el botón circular de usuario (móvil y escritorio)
         let lastToggleTime = 0;
         const toggleDropdown = (event) => {
             const now = Date.now();
@@ -62,14 +161,36 @@ export const NavbarController = {
         btnUser?.addEventListener('click', toggleDropdown);
         btnUser?.addEventListener('touchend', toggleDropdown);
 
-        // 2. Prevenir que clics y toques dentro del dropdown (excepto botones de acción) lo cierren
         const stopPropagationHandler = (event) => {
+            if (event.target.closest('#nav-btn-logout') || event.target.closest('#nav-link-historial')) {
+                return;
+            }
             event.stopPropagation();
         };
         dropdownMenu?.addEventListener('click', stopPropagationHandler);
         dropdownMenu?.addEventListener('touchend', stopPropagationHandler);
 
-        // 3. Cerrar dropdown automáticamente al hacer clic o toque en cualquier lugar fuera del menú
+        const handleThemeToggle = (event) => {
+            const btnToggle = event.target.closest('#btn-theme-toggle');
+            if (btnToggle) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.alternarTema();
+            }
+        };
+
+        dropdownMenu?.addEventListener('click', handleThemeToggle);
+        dropdownMenu?.addEventListener('touchend', handleThemeToggle);
+
+        dropdownMenu?.addEventListener('keydown', (event) => {
+            const btnToggle = event.target.closest('#btn-theme-toggle');
+            if (btnToggle && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.alternarTema();
+            }
+        });
+
         const outsideHandler = (event) => {
             if (!NavbarView.isDropdownAbierto()) return;
 
@@ -81,7 +202,6 @@ export const NavbarController = {
         document.addEventListener('click', outsideHandler);
         document.addEventListener('touchend', outsideHandler);
 
-        // 4. Cerrar dropdown automáticamente al presionar la tecla Escape
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && NavbarView.isDropdownAbierto()) {
                 NavbarView.cerrarDropdown();
@@ -89,13 +209,11 @@ export const NavbarController = {
             }
         });
 
-        // 5. Acción de Cerrar Sesión
         btnLogout?.addEventListener('click', async (event) => {
             event.preventDefault();
             await this.manejarCerrarSesion();
         });
 
-        // 6. Clic en "Iniciar sesión": Asegurar parámetro de retorno si estamos en tour-detalle.html o mis-tours.html
         btnLogin?.addEventListener('click', (event) => {
             const urlDestino = NavbarView.obtenerUrlLogin();
             if (urlDestino !== 'login.html') {
@@ -104,12 +222,10 @@ export const NavbarController = {
             }
         });
 
-        // 7. Clic en enlace "Mis tours" en dropdown: cerrar menú
         NavbarView.elements.linkHistorial?.addEventListener('click', () => {
             NavbarView.cerrarDropdown();
         });
 
-        // 8. Clic en enlace "Mis tours" en navegación principal: guardia si no hay sesión
         NavbarView.elements.navMisTours?.addEventListener('click', async (event) => {
             const sesion = await AuthModel.obtenerSesionActual();
             if (!sesion || !sesion.user) {
@@ -120,7 +236,7 @@ export const NavbarController = {
     },
 
     /**
-     * Suscribe un observador a los eventos del AuthModel para actualizar la UI reactivamente
+     * @description Suscribe un observador a los eventos de AuthModel para reflejar cambios reactivamente en el navbar.
      */
      * @returns {void}
     inicializarSuscripcionAuth() {
@@ -131,6 +247,7 @@ export const NavbarController = {
         this.unsubscribeAuth = AuthModel.onCambioEstadoAuth((evento, sesion) => {
             if (evento === 'SIGNED_IN' || evento === 'TOKEN_REFRESHED') {
                 NavbarView.mostrarEstadoAutenticado(sesion);
+                NavbarView.actualizarIndicadorTema(this.obtenerTemaActual());
             } else if (evento === 'SIGNED_OUT') {
                 NavbarView.mostrarEstadoNoAutenticado();
             }
@@ -138,7 +255,8 @@ export const NavbarController = {
     },
 
     /**
-     * Consulta el estado de sesión actual en AuthModel y actualiza la vista
+     * @description Consulta el estado de sesión actual en AuthModel y sincroniza la vista del navbar.
+     * @returns {Promise<void>}
      */
      * @returns {Promise<void>}
     async actualizarEstadoDesdeModelo() {
@@ -146,6 +264,7 @@ export const NavbarController = {
             const sesion = await AuthModel.obtenerSesionActual();
             if (sesion && sesion.user) {
                 NavbarView.mostrarEstadoAutenticado(sesion);
+                NavbarView.actualizarIndicadorTema(this.obtenerTemaActual());
             } else {
                 NavbarView.mostrarEstadoNoAutenticado();
             }
@@ -156,7 +275,21 @@ export const NavbarController = {
     },
 
     /**
-     * Ejecuta el cierre de sesión a través del AuthModel y actualiza la interfaz
+     * @description Registra un callback que se invocará cuando el usuario cierre sesión desde el navbar.
+     * @param {Function} callback - Función a ejecutar en cierre de sesión.
+     * @returns {Function} Función para cancelar la suscripción.
+     */
+    onLogout(callback) {
+        if (typeof callback === 'function') {
+            this.logoutCallbacks.add(callback);
+            return () => this.logoutCallbacks.delete(callback);
+        }
+        return () => {};
+    },
+
+    /**
+     * @description Ejecuta el cierre de sesión a través del AuthModel y actualiza la interfaz.
+     * @returns {Promise<void>}
      */
      * @returns {Promise<void>}
     async manejarCerrarSesion() {
@@ -164,18 +297,32 @@ export const NavbarController = {
             NavbarView.cerrarDropdown();
             await AuthModel.cerrarSesion();
             NavbarView.mostrarEstadoNoAutenticado();
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('auth:logout'));
+            }
+            this.logoutCallbacks.forEach(cb => {
+                try { cb(); } catch (err) { console.error('Error en callback logout:', err); }
+            });
         } catch (error) {
             console.error('Error al cerrar sesión desde el Navbar:', error);
             NavbarView.mostrarEstadoNoAutenticado();
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('auth:logout'));
+            }
+            this.logoutCallbacks.forEach(cb => {
+                try { cb(); } catch (err) { console.error('Error en callback logout:', err); }
+            });
         }
     }
 };
 
-// Inicialización automática al cargar el documento
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => NavbarController.init(), { once: true });
-} else {
-    NavbarController.init();
+// Inicialización automática al cargar el documento en el navegador
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => NavbarController.init(), { once: true });
+    } else {
+        NavbarController.init();
+    }
 }
 
 export default NavbarController;
