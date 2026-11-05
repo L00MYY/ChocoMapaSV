@@ -58,9 +58,9 @@ console.log('Variables de entorno verificadas correctamente.');
 // No incluyas aquí contraseñas ni claves privilegiadas.
 
 
-const emailjsServiceId = process.env.EMAILJS_SERVICE_ID || 'service_5fxcq7c';
-const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID || 'template_9uf3e0d';
-const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY || 'acny_NrtqcvTUzgbJ';
+const emailjsServiceId = process.env.EMAILJS_SERVICE_ID || '';
+const emailjsTemplateId = process.env.EMAILJS_TEMPLATE_ID || '';
+const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY || '';
 
 const encodedMapboxToken = Buffer.from(mapboxToken).toString('base64');
 const encodedSupabaseUrl = Buffer.from(supabaseUrl).toString('base64');
