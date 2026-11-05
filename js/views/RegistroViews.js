@@ -20,7 +20,6 @@ export const RegistroViews = {
         email: null,
         password: null,
         confirmPassword: null,
-        terms: null,
         submitBtn: null,
         alertSuccess: null,
         alertError: null,
@@ -59,7 +58,6 @@ export const RegistroViews = {
         this.elements.email = document.getElementById('reg-email');
         this.elements.password = document.getElementById('reg-password');
         this.elements.confirmPassword = document.getElementById('reg-confirm-password');
-        this.elements.terms = document.getElementById('reg-terms');
         this.elements.submitBtn = document.getElementById('btn-crear-cuenta');
 
         this.elements.alertSuccess = document.getElementById('alert-success');
@@ -171,14 +169,6 @@ export const RegistroViews = {
             });
         }
 
-        // Checkbox de términos
-        if (this.elements.terms) {
-            this.elements.terms.addEventListener('change', () => {
-                if (this.elements.terms.checked) {
-                    this.limpiarErrorCampo('terms');
-                }
-            });
-        }
     },
 
     // -------------------------------------------------------------------------
@@ -314,7 +304,7 @@ export const RegistroViews = {
     },
 
     limpiarTodosLosErrores() {
-        ['nombre', 'email', 'password', 'confirmPassword', 'terms'].forEach(campo => {
+        ['nombre', 'email', 'password', 'confirmPassword'].forEach(campo => {
             this.limpiarErrorCampo(campo);
         });
         this.ocultarErrorGlobal();
@@ -459,15 +449,6 @@ export const RegistroViews = {
             this.marcarCampoValido(this.elements.confirmPassword, true);
         }
 
-        // 5. Términos y condiciones
-        if (this.elements.terms && !this.elements.terms.checked) {
-            this.mostrarErrorCampo('terms', 'Debes aceptar los términos y la política de privacidad.');
-            hayErrores = true;
-            if (!primerCampoInvalido) primerCampoInvalido = this.elements.terms;
-        } else {
-            this.limpiarErrorCampo('terms');
-        }
-
         // Si existen errores gráficos
         if (hayErrores) {
             this.mostrarErrorGlobal(
@@ -493,8 +474,7 @@ export const RegistroViews = {
             nombre: this.elements.nombre ? this.elements.nombre.value.trim() : '',
             email: this.elements.email ? this.elements.email.value.trim() : '',
             password: this.elements.password ? this.elements.password.value : '',
-            confirmPassword: this.elements.confirmPassword ? this.elements.confirmPassword.value : '',
-            terminosAceptados: this.elements.terms ? this.elements.terms.checked : false
+            confirmPassword: this.elements.confirmPassword ? this.elements.confirmPassword.value : ''
         };
     },
 

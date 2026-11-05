@@ -44,8 +44,7 @@ export const RegistroController = {
             inputNombre,
             inputEmail,
             inputPassword,
-            inputConfirm,
-            inputTerms
+            inputConfirm
         } = RegistroView.elements;
 
         inputNombre?.addEventListener('input', () => {
@@ -72,10 +71,6 @@ export const RegistroController = {
             RegistroView.limpiarErrorCampo('inputConfirm');
         });
 
-        inputTerms?.addEventListener('change', () => {
-            RegistroView.limpiarErrorCampo('inputTerms');
-        });
-
         const botonesToggle = document.querySelectorAll('.btn-toggle-password');
         botonesToggle.forEach(boton => {
             boton.addEventListener('click', (event) => {
@@ -92,7 +87,7 @@ export const RegistroController = {
 
     /**
      * @description Valida los datos del formulario aplicando las reglas de negocio del modelo.
-     * @param {{ nombre: string, email: string, password: string, confirm: string, terms: boolean }} datos - Datos del formulario.
+     * @param {{ nombre: string, email: string, password: string, confirm: string }} datos - Datos del formulario.
      * @returns {Array<[string, string]>} Lista de pares [campo, mensajeError].
      */
     validar(datos) {
@@ -103,7 +98,6 @@ export const RegistroController = {
         if (errs.email) errores.push(['inputEmail', errs.email]);
         if (errs.password) errores.push(['inputPassword', errs.password]);
         if (errs.confirmacion) errores.push(['inputConfirm', errs.confirmacion]);
-        if (errs.terminos) errores.push(['inputTerms', errs.terminos]);
 
         return errores;
     },

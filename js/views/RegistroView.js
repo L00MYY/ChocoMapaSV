@@ -31,7 +31,6 @@ export const RegistroView = {
             inputEmail: document.getElementById('reg-email'),
             inputPassword: document.getElementById('reg-password'),
             inputConfirm: document.getElementById('reg-confirm-password'),
-            inputTerms: document.getElementById('reg-terms'),
             submitBtn: document.getElementById('btn-crear-cuenta'),
             alertSuccess: document.getElementById('alert-success'),
             alertError: document.getElementById('alert-error'),
@@ -62,10 +61,7 @@ export const RegistroView = {
             confirm: this.elements.inputConfirm,
             confirmPassword: this.elements.inputConfirm,
             inputConfirm: this.elements.inputConfirm,
-            'reg-confirm-password': this.elements.inputConfirm,
-            terms: this.elements.inputTerms,
-            inputTerms: this.elements.inputTerms,
-            'reg-terms': this.elements.inputTerms
+            'reg-confirm-password': this.elements.inputConfirm
         };
 
         return mapa[inputKey] || document.getElementById(inputKey) || null;
@@ -290,7 +286,7 @@ export const RegistroView = {
      * @param {boolean} estaCargando - True si la solicitud está en curso
      */
     mostrarCargando(estaCargando) {
-        const { submitBtn, inputNombre, inputEmail, inputPassword, inputConfirm, inputTerms } = this.elements;
+        const { submitBtn, inputNombre, inputEmail, inputPassword, inputConfirm } = this.elements;
         if (!submitBtn) return;
 
         if (estaCargando) {
@@ -305,7 +301,6 @@ export const RegistroView = {
             if (inputEmail) inputEmail.disabled = true;
             if (inputPassword) inputPassword.disabled = true;
             if (inputConfirm) inputConfirm.disabled = true;
-            if (inputTerms) inputTerms.disabled = true;
         } else {
             submitBtn.disabled = false;
             submitBtn.classList.remove('is-loading');
@@ -318,22 +313,20 @@ export const RegistroView = {
             if (inputEmail) inputEmail.disabled = false;
             if (inputPassword) inputPassword.disabled = false;
             if (inputConfirm) inputConfirm.disabled = false;
-            if (inputTerms) inputTerms.disabled = false;
         }
     },
 
     /**
      * Extrae de forma limpia los valores ingresados en el formulario de registro.
      * 
-     * @returns {{ nombre: string, email: string, password: string, confirm: string, terms: boolean }}
+     * @returns {{ nombre: string, email: string, password: string, confirm: string }}
      */
     obtenerDatos() {
         return {
             nombre: this.elements.inputNombre?.value?.trim() || '',
             email: this.elements.inputEmail?.value?.trim() || '',
             password: this.elements.inputPassword?.value || '',
-            confirm: this.elements.inputConfirm?.value || '',
-            terms: Boolean(this.elements.inputTerms?.checked)
+            confirm: this.elements.inputConfirm?.value || ''
         };
     }
 };

@@ -399,18 +399,9 @@ export function validarConfirmacionPassword(pass, confirmPass) {
 }
 
 /**
- * @description Valida que la casilla de términos y condiciones haya sido aceptada (Criterio 4.6).
- * @param {*} terminosAceptados - Valor booleano de la casilla.
- * @returns {boolean} True si es estrictamente el booleano true.
- */
-export function validarTerminos(terminosAceptados) {
-    return terminosAceptados === true;
-}
-
-/**
  * @description Orquesta la validación integral del formulario de registro y genera el mapa de errores
  * específicos por campo si alguna regla falla (Criterios 4.1 y 5).
- * @param {Object} datos - Objeto con datos del formulario { nombre, email, password, confirm, terms }.
+ * @param {Object} datos - Objeto con datos del formulario { nombre, email, password, confirm }.
  * @returns {{ esValido: boolean, errores: Object }} Resultado y detalle de errores de validación.
  */
 export function validarFormularioRegistro(datos) {
@@ -421,8 +412,6 @@ export function validarFormularioRegistro(datos) {
     const emailRaw = payload.email ?? payload.correo;
     const passwordRaw = payload.password ?? payload.clave;
     const confirmRaw = payload.confirm ?? payload.confirmPassword ?? payload.confirmacion;
-    const termsRaw = payload.terms ?? payload.terminos ?? payload.terminosAceptados;
-
     // Criterios 4.1 y 4.2: Nombre completo
     if (nombreRaw === undefined || nombreRaw === null || typeof nombreRaw !== 'string' || nombreRaw.trim().length === 0) {
         errores.nombre = 'El nombre completo es obligatorio.';
@@ -451,23 +440,10 @@ export function validarFormularioRegistro(datos) {
         errores.confirmacion = 'La confirmación de contraseña debe coincidir exactamente con la contraseña.';
     }
 
-    // Criterios 4.1 y 4.6: Casilla de términos y condiciones
-    if (!validarTerminos(termsRaw)) {
-        errores.terminos = 'Debe aceptar obligatoriamente los términos y condiciones.';
-    }
-
-    // Definir propiedades no enumerables para compatibilidad con accesos tipo errores.confirm o errores.terms
+    // Definir propiedad no enumerable para compatibilidad con acceso errores.confirm
     if (errores.confirmacion) {
         Object.defineProperty(errores, 'confirm', {
             value: errores.confirmacion,
-            writable: true,
-            enumerable: false,
-            configurable: true
-        });
-    }
-    if (errores.terminos) {
-        Object.defineProperty(errores, 'terms', {
-            value: errores.terminos,
             writable: true,
             enumerable: false,
             configurable: true
@@ -608,7 +584,6 @@ export const AuthModel = {
     validarEmail,
     validarPassword,
     validarConfirmacionPassword,
-    validarTerminos,
     validarFormularioRegistro,
     validarFormularioLogin,
     formatearPerfilSesion,

@@ -5,7 +5,6 @@ import {
     validarEmail,
     validarPassword,
     validarConfirmacionPassword,
-    validarTerminos,
     validarFormularioRegistro,
     puedeReservarTour,
     validarTelefonoSV,
@@ -183,35 +182,13 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
         });
     });
 
-    describe('Criterio 4.6: Casilla de términos y condiciones', () => {
-        it('debe retornar true si el valor es estrictamente el booleano true', () => {
-            assert.equal(validarTerminos(true), true);
-        });
-
-        it('debe retornar false cuando la casilla no está marcada (false)', () => {
-            assert.equal(validarTerminos(false), false);
-        });
-
-        it('debe rechazar valores no booleanos o truthy ambiguos (casos límite: strings, números, objetos, null, undefined)', () => {
-            assert.equal(validarTerminos('true'), false);
-            assert.equal(validarTerminos('1'), false);
-            assert.equal(validarTerminos(1), false);
-            assert.equal(validarTerminos(0), false);
-            assert.equal(validarTerminos(null), false);
-            assert.equal(validarTerminos(undefined), false);
-            assert.equal(validarTerminos({}), false);
-            assert.equal(validarTerminos([]), false);
-        });
-    });
-
     describe('Criterios 4.1 y 5: Validación integral del formulario y mapa de errores', () => {
         it('debe validar con éxito un formulario con todos los datos correctos y retornar esValido: true con errores vacío', () => {
             const datosValidos = {
                 nombre: 'Carlos Rivas',
                 email: 'turista@mitur.gob.sv',
                 password: 'Password123!',
-                confirm: 'Password123!',
-                terms: true
+                confirm: 'Password123!'
             };
             const resultado = validarFormularioRegistro(datosValidos);
 
@@ -228,8 +205,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
             assert.equal(resultado.errores.email, 'El correo electrónico es obligatorio.');
             assert.equal(resultado.errores.password, 'La contraseña es obligatoria.');
             assert.equal(resultado.errores.confirmacion, 'La confirmación de contraseña es obligatoria.');
-            assert.equal(resultado.errores.terminos, 'Debe aceptar obligatoriamente los términos y condiciones.');
-            assert.equal(Object.keys(resultado.errores).length, 5);
+            assert.equal(Object.keys(resultado.errores).length, 4);
         });
 
         it('debe generar error específico si solo el nombre no cumple la regla de longitud (< 3 caracteres)', () => {
@@ -237,8 +213,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
                 nombre: 'Al',
                 email: 'turista@mitur.gob.sv',
                 password: 'Password123!',
-                confirm: 'Password123!',
-                terms: true
+                confirm: 'Password123!'
             };
             const resultado = validarFormularioRegistro(datos);
 
@@ -247,7 +222,6 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
             assert.equal(resultado.errores.email, undefined);
             assert.equal(resultado.errores.password, undefined);
             assert.equal(resultado.errores.confirmacion, undefined);
-            assert.equal(resultado.errores.terminos, undefined);
         });
 
         it('debe generar error específico si solo el correo tiene formato inválido', () => {
@@ -255,8 +229,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
                 nombre: 'Carlos Rivas',
                 email: 'correo-invalido@',
                 password: 'Password123!',
-                confirm: 'Password123!',
-                terms: true
+                confirm: 'Password123!'
             };
             const resultado = validarFormularioRegistro(datos);
 
@@ -270,8 +243,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
                 nombre: 'Carlos Rivas',
                 email: 'turista@mitur.gob.sv',
                 password: 'chocosinglesa',
-                confirm: 'chocosinglesa',
-                terms: true
+                confirm: 'chocosinglesa'
             };
             const resultado = validarFormularioRegistro(datos);
 
@@ -287,8 +259,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
                 nombre: 'Carlos Rivas',
                 email: 'turista@mitur.gob.sv',
                 password: 'Password123!',
-                confirm: 'OtraClaveDistinta99!',
-                terms: true
+                confirm: 'OtraClaveDistinta99!'
             };
             const resultado = validarFormularioRegistro(datos);
 
@@ -298,24 +269,6 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
                 'La confirmación de contraseña debe coincidir exactamente con la contraseña.'
             );
             assert.equal(resultado.errores.confirm, resultado.errores.confirmacion);
-        });
-
-        it('debe generar error específico si no se aceptan los términos y condiciones', () => {
-            const datos = {
-                nombre: 'Carlos Rivas',
-                email: 'turista@mitur.gob.sv',
-                password: 'Password123!',
-                confirm: 'Password123!',
-                terms: false
-            };
-            const resultado = validarFormularioRegistro(datos);
-
-            assert.equal(resultado.esValido, false);
-            assert.equal(
-                resultado.errores.terminos,
-                'Debe aceptar obligatoriamente los términos y condiciones.'
-            );
-            assert.equal(resultado.errores.terms, resultado.errores.terminos);
         });
 
         it('debe manejar entradas nulas, indefinidas o tipos no objeto de forma segura bloqueando el registro (casos límite)', () => {
@@ -330,7 +283,7 @@ describe('Historia de Usuario: Registro de Turista con Correo Electrónico', () 
 
             const resString = validarFormularioRegistro('datos-corruptos');
             assert.equal(resString.esValido, false);
-            assert.ok(resString.errores.terminos);
+            assert.deepEqual(Object.keys(resString.errores), ['nombre', 'email', 'password', 'confirmacion']);
         });
     });
 

@@ -1,7 +1,7 @@
 /* ==========================================================================
    css/registro.css
    Pantalla de Registro de Turistas - ChocoMapaSV / MITUR
-   Diseño de Alta Fidelidad + Soporte para Comportamiento Gráfico (RegistroViews.js)
+   Diseño de Alta Fidelidad + Soporte para Comportamiento Gráfico (RegistroView.js)
    Hereda y complementa las variables institucionales de css/styles.css
    ========================================================================== */
 
@@ -514,72 +514,6 @@ body.registro-body {
 
 .rule-item.rule-unmet {
   color: var(--text-secondary);
-}
-
-/* Checkbox Términos */
-.terms-group {
-  margin-top: 4px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-  min-height: 44px;
-  padding: 4px 0;
-}
-
-.custom-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid var(--input-border);
-  border-radius: 6px;
-  background-color: var(--input-bg);
-  cursor: pointer;
-  flex-shrink: 0;
-  margin-top: 2px;
-  display: grid;
-  place-content: center;
-  transition: all 0.2s ease;
-}
-
-.custom-checkbox::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  transform: scale(0);
-  transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em #FFFFFF;
-  transform-origin: center;
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-}
-
-.custom-checkbox:checked {
-  background-color: var(--baltic-blue, #006494);
-  border-color: var(--baltic-blue, #006494);
-}
-
-.custom-checkbox:checked::before {
-  transform: scale(1);
-}
-
-.custom-checkbox:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(27, 152, 224, 0.25);
-}
-
-.checkbox-text {
-  font-size: 0.84rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.checkbox-text strong {
-  color: var(--deep-space-blue, #13293D);
 }
 
 /* Botón Crear Cuenta */
