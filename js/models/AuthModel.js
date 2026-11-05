@@ -1,6 +1,9 @@
 /**
  * js/models/AuthModel.js
  * Modelo de Autenticación para ChocoMapaSV (MITUR)
+ * @file AuthModel.js
+ * Rol en el MVC: Modelo (Model). Centraliza el acceso y persistencia de credenciales de usuario,
+ * gestiona tokens JWT con Supabase GoTrue y notifica a los controladores mediante un patrón observador.
  * Capa de datos desacoplada del DOM que gestiona la comunicación con Supabase Auth.
  */
 
@@ -14,7 +17,9 @@ const SUPABASE_ANON_KEY = typeof atob === 'function' && !SUPABASE_ANON_KEY_B64.s
     ? atob(SUPABASE_ANON_KEY_B64)
     : SUPABASE_ANON_KEY_B64;
 
+/** @constant {string} STORAGE_KEY - Clave de persistencia de la sesión en el almacenamiento local del navegador */
 const STORAGE_KEY = 'chocomapa_auth_session';
+/** @type {Set<Function>} Conjunto de escuchadores registrados para eventos de autenticación */
 const authListeners = new Set();
 
 /**
@@ -70,6 +75,7 @@ export async function iniciarSesion(email, password) {
     }
 
     const cleanEmail = String(email).trim();
+    // Petición REST a GoTrue endpoint de Supabase Auth con autenticación por contraseña
     const url = `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
 
     let respuesta;
@@ -174,6 +180,7 @@ export async function obtenerSesionActual() {
     // Si ya expiró o está a punto de expirar pero tiene refresh_token, intentar refrescar
     if (sesion.refresh_token) {
         try {
+            // Renovación proactiva del token expirado utilizando el refresh_token persistido
             const refreshUrl = `${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`;
             const respuesta = await fetch(refreshUrl, {
                 method: 'POST',
@@ -228,6 +235,7 @@ export async function cerrarSesion() {
 
     if (sesion?.access_token) {
         try {
+            // Notificación remota a Supabase GoTrue para invalidar el token activo en el servidor
             await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
                 method: 'POST',
                 headers: {
@@ -601,6 +609,7 @@ export function requiereIniciarSesionParaReserva(sesion) {
 }
 
 /**
+ * @namespace AuthModel
  * Objeto AuthModel agrupando la API del modelo de autenticación
  */
 export const AuthModel = {

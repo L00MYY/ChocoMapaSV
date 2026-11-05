@@ -1,3 +1,10 @@
+/**
+ * @file ToursController.js
+ * @description Controlador del catálogo de tours turísticos y promociones.
+ * Rol en el MVC: Controlador (Controller). Orquesta la recuperación de tours desde ToursModel,
+ * gestiona los filtros multicriterio (fecha, departamento, oferta, sitio) y delega el renderizado a ToursView.
+ */
+
 import { ToursModel } from '../models/ToursModel.js';
 import { ToursView } from '../views/ToursView.js';
 
@@ -48,6 +55,7 @@ export const ToursController = {
     async cargarDatos() {
         ToursView.mostrarCargando();
         try {
+            // Carga asíncrona de tours y sitios turísticos desde Supabase (con fallback en ToursModel)
             const { tours, lugares } = await ToursModel.cargarCatalogo();
             ToursView.poblarSelectores(tours, lugares);
             if (tours.length === 0) {
@@ -107,6 +115,7 @@ export const ToursController = {
     }
 };
 
+// Inicialización del controlador según el estado de carga del documento
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ToursController.init(), { once: true });
 } else {

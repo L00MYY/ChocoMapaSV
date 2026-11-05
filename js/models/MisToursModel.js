@@ -89,6 +89,7 @@ export async function verificarSesion() {
         }
 
         try {
+            // Consulta al endpoint auth/v1/user para validar el JWT y extraer los metadatos del usuario
             const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                 method: 'GET',
                 headers: {
@@ -143,6 +144,7 @@ export async function obtenerHistorial(touristId) {
         });
 
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?${params.toString()}`;
+        // Petición REST a Supabase para recuperar reservaciones con join embebido a la tabla tours
         const res = await fetch(url, {
             method: 'GET',
             headers

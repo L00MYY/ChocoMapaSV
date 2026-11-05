@@ -5,6 +5,7 @@ const IMAGEN_FALLBACK_TOUR = 'https://images.unsplash.com/photo-1518638150340-f7
 const IMAGEN_FALLBACK_LUGAR = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
 
 export const InicioView = {
+    /** @type {{ totalLugares: HTMLElement|null }} Referencias a elementos del DOM */
     elements: {
         totalLugares: document.getElementById('dato-total'),
         heroSearchForm: document.getElementById('hero-search-form'),

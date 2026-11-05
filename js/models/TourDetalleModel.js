@@ -173,6 +173,7 @@ export async function obtenerReservaUsuarioPorTour(touristId, tourId) {
             order: 'created_at.desc'
         });
 
+        // Consulta a Supabase para verificar si el usuario autenticado ya posee una reserva en este tour
         const url = `${SUPABASE_URL}/rest/v1/tour_reservations?${params.toString()}`;
         const res = await fetch(url, {
             method: 'GET',

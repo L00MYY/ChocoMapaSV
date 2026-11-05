@@ -20,9 +20,11 @@ export {
     filtrarLugaresPorRating
 };
 
+/** @type {Array<Object>} Colección en memoria de todos los destinos turísticos cargados */
 let todosLosLugares = [];
 let categoriasCargadas = [];
 let categoriaActiva = 'todos';
+/** @type {string} Término de búsqueda textual ingresado */
 let terminoBusqueda = '';
 let ratingMinimoActivo = 0;
 
