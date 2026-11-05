@@ -1,9 +1,27 @@
+/**
+ * @file TourDetalleView.js
+ * Vista (patrón MVC) de la página de detalle de un tour (tour-detalle.html).
+ *
+ * Responsabilidades:
+ *  - Mostrar la información del tour: galería, precios, itinerario de lugares y fechas de salida.
+ *  - Gestionar el formulario de reserva (lectura de datos, errores de validación y cupos).
+ *  - Mostrar la tarjeta que corresponde al estado de la reserva del usuario: pendiente de pago
+ *    (con temporizador), en validación, confirmada o recién creada.
+ *
+ * La vista no consulta ni guarda datos: los recibe del controlador (TourDetalleController).
+ */
 import { formatearFechaLarga, formatearMonedaUSD, esFechaPasada } from '../models/ToursModel.js';
 import { formatearHora } from '../utils/textUtils.js';
 
+// Imágenes de respaldo: portada del tour (1200 px) y miniatura de cada lugar del itinerario (400 px).
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1200&q=80';
 const LUGAR_FALLBACK = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80';
 
+/**
+ * Devuelve la fecha de hoy según la hora local del navegador.
+ *
+ * @returns {string} Fecha en formato AAAA-MM-DD.
+ */
 function obtenerFechaHoyLocal() {
     const hoy = new Date();
     const anio = hoy.getFullYear();
@@ -12,6 +30,11 @@ function obtenerFechaHoyLocal() {
     return `${anio}-${mes}-${dia}`;
 }
 
+/**
+ * Crea el icono SVG de calendario que se usa en los chips de fechas.
+ *
+ * @returns {SVGElement} Elemento <svg> listo para insertarse.
+ */
 function crearIconoCalendario() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
@@ -41,10 +64,19 @@ function crearIconoCalendario() {
     return svg;
 }
 
+/**
+ * Objeto de vista del detalle de un tour: acceso al DOM, renderizado y control de los estados de la reserva.
+ */
 export const TourDetalleView = {
+    /** Identificador del temporizador de cuenta regresiva activo (null si no hay ninguno). */
     timerId: null,
 
+    /** Elementos del DOM inyectados manualmente (por ejemplo, en pruebas); si existen, reemplazan a los reales. */
     _mockElements: null,
+    /**
+     * Referencias a los nodos del DOM de tour-detalle.html (galería, precios, formulario, tarjetas de reserva, etc.).
+     * Devuelve los elementos inyectados si existen; fuera del navegador devuelve un objeto vacío.
+     */
     get elements() {
         if (this._mockElements) return this._mockElements;
         if (typeof document === 'undefined') return this._mockElements || {};
@@ -103,10 +135,14 @@ export const TourDetalleView = {
             validacionCodigo: document.getElementById('validacion-codigo')
         };
     },
+    /** Permite inyectar un conjunto de elementos del DOM (útil para pruebas). */
     set elements(val) {
         this._mockElements = val;
     },
 
+    /**
+     * Detiene el temporizador de cuenta regresiva, si hay uno activo.
+     */
     limpiarTimer() {
         if (this.timerId) {
             clearInterval(this.timerId);
@@ -114,6 +150,14 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Inicia la cuenta regresiva del tiempo disponible para transferir el pago, actualizándola cada segundo.
+     * Fecha límite: expiresAt si existe; si no, createdAt + 1 hora; si tampoco, una hora desde ahora.
+     *
+     * @param {string|null} expiresAt - Fecha y hora de expiración de la reserva.
+     * @param {string|null} createdAt - Fecha y hora de creación de la reserva.
+     * @param {function(): void} [onExpirado] - Se ejecuta una vez cuando el tiempo se agota.
+     */
     iniciarTemporizador(expiresAt, createdAt, onExpirado) {
         this.limpiarTimer();
         const texto = this.elements.textoTiempoRestante;
@@ -148,6 +192,13 @@ export const TourDetalleView = {
         this.timerId = setInterval(actualizar, 1000);
     },
 
+    /**
+     * Alterna entre los estados de la página: cargando, error o contenido.
+     *
+     * @param {'loading'|'error'|'content'} estado - Estado a mostrar.
+     * @param {string} [titulo] - Título del error (solo si estado es "error").
+     * @param {string} [mensaje] - Mensaje del error (solo si estado es "error").
+     */
     mostrarEstado(estado, titulo, mensaje) {
         const e = this.elements;
         const loading = estado === 'loading';
@@ -165,6 +216,11 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Rellena la página con los datos del tour y delega precios, galería, lugares y fechas en sus métodos.
+     *
+     * @param {Object} tour - Tour con name, department, guide_name, descripciones, departure_time, precios, tour_images, tour_places y tour_dates.
+     */
     renderizarTour(tour) {
         const e = this.elements;
         const nombre = tour.name || 'Tour Oficial MITUR';
@@ -180,6 +236,12 @@ export const TourDetalleView = {
         this.renderizarFechas(tour);
     },
 
+    /**
+     * Actualiza los cupos disponibles: número, distintivo, botón de reservar y máximo del campo de cupos.
+     * Distintivo: "Agotado" (0), "¡Últimos N cupos!" (3 o menos) o "N cupos disponibles".
+     *
+     * @param {number|string} cupos - Cupos disponibles de la fecha seleccionada.
+     */
     actualizarCupos(cupos) {
         const e = this.elements;
         const cantidad = Number(cupos) || 0;
@@ -202,10 +264,16 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Dibuja el precio del tour. Si tiene oferta muestra el precio original tachado, el descuento y el precio final.
+     *
+     * @param {Object} tour - Tour con price, has_offer, discount_percentage y final_price.
+     */
     renderizarPrecios(tour) {
         const { discountBadge, pricingRow } = this.elements;
         if (!pricingRow) return;
         pricingRow.replaceChildren();
+        // Hay oferta solo si has_offer es true y el descuento es mayor a 0.
         const oferta = tour.has_offer === true && Number(tour.discount_percentage) > 0;
         discountBadge?.classList.toggle('hidden', !oferta);
         if (oferta && discountBadge) discountBadge.textContent = `-${tour.discount_percentage}% Descuento`;
@@ -239,6 +307,12 @@ export const TourDetalleView = {
         pricingRow.appendChild(grupoFinal);
     },
 
+    /**
+     * Dibuja la imagen principal y las miniaturas. Al pulsar una miniatura se cambia la imagen principal.
+     * Si hay una sola imagen, la tira de miniaturas se oculta.
+     *
+     * @param {Object} tour - Tour con image_url y tour_images.
+     */
     renderizarGaleria(tour) {
         const e = this.elements;
         const principal = tour.image_url || IMAGEN_FALLBACK;
@@ -274,6 +348,12 @@ export const TourDetalleView = {
         });
     },
 
+    /**
+     * Dibuja el itinerario: los lugares del tour ordenados por visit_order, cada uno con número, foto, nombre, departamento y descripción.
+     * Si no hay lugares muestra un aviso de itinerario en actualización.
+     *
+     * @param {Object} tour - Tour con tour_places.
+     */
     renderizarLugares(tour) {
         const list = this.elements.placesList;
         if (!list) return;
@@ -325,6 +405,12 @@ export const TourDetalleView = {
         });
     },
 
+    /**
+     * Dibuja las fechas de salida como chips y como opciones del selector del formulario, ordenadas de menor a mayor.
+     * Las fechas pasadas se muestran deshabilitadas. Si no hay fechas, muestra "Próximas fechas por confirmar" y deja en 0 los cupos.
+     *
+     * @param {Object} tour - Tour con tour_dates (id, departure_date y available_spots).
+     */
     renderizarFechas(tour) {
         const e = this.elements;
         const fechas = [...(tour.tour_dates || [])].sort((a, b) => new Date(a.departure_date) - new Date(b.departure_date));
@@ -339,6 +425,7 @@ export const TourDetalleView = {
             return;
         }
 
+        // Por cada fecha se crea una opción del selector y un chip. Al pulsar un chip se selecciona esa fecha en el selector.
         fechas.forEach((entry, index) => {
             const rawDate = typeof entry === 'string' ? entry : entry.departure_date;
             if (!rawDate) return;
@@ -390,6 +477,12 @@ export const TourDetalleView = {
         });
     },
 
+    /**
+     * Marca como seleccionada una fecha en el selector, en los chips y en los botones de radio (si existen).
+     * Si se llama sin id, quita cualquier selección.
+     *
+     * @param {string|number|null} dateId - Id de la fecha a seleccionar; vacío o null para limpiar.
+     */
     marcarFechaSeleccionada(dateId) {
         const e = this.elements;
         if (!dateId) {
@@ -421,10 +514,21 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Alias de marcarFechaSeleccionada.
+     *
+     * @param {string|number|null} dateId - Id de la fecha a seleccionar.
+     */
     seleccionarFecha(dateId) {
         this.marcarFechaSeleccionada(dateId);
     },
 
+    /**
+     * Actualiza el dato de cupos guardado en la opción y en el chip de una fecha (no cambia lo que se ve en pantalla).
+     *
+     * @param {string|number} dateId - Id de la fecha.
+     * @param {number} nuevosCupos - Nuevo número de cupos disponibles.
+     */
     actualizarCuposEnOpcion(dateId, nuevosCupos) {
         const e = this.elements;
         if (e.selectDate) {
@@ -441,6 +545,11 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Lee los datos que el usuario llenó en el formulario de reserva.
+     *
+     * @returns {{nombre: string, email: string, telefono: string, tour_date_id: string, tour_date: string, fecha: string, cupos: string}} Valores sin espacios; cadena vacía si el campo no se llenó.
+     */
     obtenerDatosReserva() {
         const e = this.elements;
         const radioChecked = document.querySelector('input[name="tour_date"]:checked, input[name="tour_date_id"]:checked');
@@ -466,6 +575,9 @@ export const TourDetalleView = {
         };
     },
 
+    /**
+     * Quita los mensajes de error y el estilo de campo inválido de todo el formulario.
+     */
     limpiarErrores() {
         const e = this.elements;
         [e.inputName, e.inputEmail, e.inputPhone, e.selectDate, e.inputSpots].forEach(input => input?.classList?.remove?.('is-invalid'));
@@ -477,6 +589,13 @@ export const TourDetalleView = {
         });
     },
 
+    /**
+     * Marca un campo como inválido y muestra su mensaje de error.
+     *
+     * @param {string} campo - Nombre del campo: inputName, inputEmail, inputPhone, selectDate o inputSpots.
+     * @param {string} mensaje - Texto del error.
+     * @returns {HTMLElement|undefined} El campo marcado (útil para enfocarlo).
+     */
     mostrarErrorCampo(campo, mensaje) {
         const input = this.elements[campo];
         const erroresPorCampo = {
@@ -495,6 +614,9 @@ export const TourDetalleView = {
         return input;
     },
 
+    /**
+     * Muestra el formulario de reserva, se desplaza hasta él y enfoca el campo de nombre.
+     */
     mostrarFormularioReserva() {
         const e = this.elements;
         e.reservationSuccessCard?.classList.add('hidden');
@@ -503,6 +625,9 @@ export const TourDetalleView = {
         setTimeout(() => e.inputName?.focus(), 300);
     },
 
+    /**
+     * Oculta el formulario de reserva y restaura el botón "Reservar cupo" según los cupos disponibles.
+     */
     ocultarFormularioReserva() {
         const e = this.elements;
         e.reservationCard?.classList.add('hidden');
@@ -515,6 +640,9 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Reinicia el formulario (cupos en 1, sin fecha) y limpia los errores.
+     */
     limpiarFormularioReserva() {
         const e = this.elements;
         e.reservationForm?.reset();
@@ -526,16 +654,28 @@ export const TourDetalleView = {
         this.limpiarErrores();
     },
 
+    /**
+     * Muestra un mensaje de error en una alerta del navegador.
+     *
+     * @param {string} [mensaje] - Texto del error; si falta se usa un mensaje genérico.
+     */
     mostrarError(mensaje) {
         if (typeof window !== 'undefined' && window.alert) {
             window.alert(mensaje || 'Ocurrió un error inesperado.');
         }
     },
 
+    /**
+     * Muestra la tarjeta de reserva creada con el resumen (tour, fecha, cupos y nombre del turista) y oculta las demás tarjetas.
+     *
+     * @param {Object} datos - Reserva creada.
+     * @param {Object|null} [tour] - Tour reservado.
+     */
     mostrarReservacionExitosa(datos, tour = null) {
         const e = this.elements;
         let res = datos || {};
         let t = tour || {};
+        // Admite los argumentos en cualquier orden: si recibe (tour, reserva), los intercambia.
         if (datos && datos.id && !datos.spots_reserved && tour && tour.spots_reserved) {
             t = datos;
             res = tour;
@@ -567,14 +707,33 @@ export const TourDetalleView = {
         e.reservationForm?.reset();
     },
 
+    /**
+     * Alias de mostrarReservacionExitosa, con los argumentos en orden (tour, reserva).
+     *
+     * @param {Object} tour - Tour reservado.
+     * @param {Object} reserva - Reserva creada.
+     */
     mostrarConfirmacion(tour, reserva) {
         return this.mostrarReservacionExitosa(reserva, tour);
     },
 
+    /**
+     * Da formato a la hora de salida; si falta usa "07:00 AM".
+     *
+     * @param {string} hora - Hora de salida.
+     * @returns {string} Hora formateada.
+     */
     formatearHora(hora) {
         return formatearHora(hora, { fallback: '07:00 AM' });
     },
 
+    /**
+     * Muestra la tarjeta de reserva pendiente de pago (código, cupos y fecha), oculta las demás e inicia el temporizador.
+     * El botón "Completar pago" lleva a pago-comprobante.html con el id y el código de la reserva.
+     *
+     * @param {Object} reserva - Reserva con id, reservation_code, spots_reserved, tour_date, expires_at y created_at.
+     * @param {function(): void} [onExpirado] - Se ejecuta cuando el tiempo para pagar se agota.
+     */
     mostrarReservaPendientePago(reserva, onExpirado) {
         this.limpiarTimer();
         const e = this.elements;
@@ -620,6 +779,11 @@ export const TourDetalleView = {
         this.iniciarTemporizador(reserva.expires_at, reserva.created_at, onExpirado);
     },
 
+    /**
+     * Muestra la tarjeta de reserva en validación (comprobante enviado, en revisión) con su código y oculta las demás.
+     *
+     * @param {Object} reserva - Reserva con id o reservation_code.
+     */
     mostrarReservaEnValidacion(reserva) {
         this.limpiarTimer();
         const e = this.elements;
@@ -653,6 +817,11 @@ export const TourDetalleView = {
         if (e.validacionCodigo) e.validacionCodigo.textContent = codigo;
     },
 
+    /**
+     * Muestra la tarjeta de reserva confirmada (estado, cupos y fecha) con un enlace de regreso a mis-tours.html.
+     *
+     * @param {Object} reserva - Reserva con spots_reserved y tour_date.
+     */
     mostrarReservaConfirmada(reserva) {
         this.limpiarTimer();
         const e = this.elements;
@@ -701,6 +870,13 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Muestra la tarjeta que corresponde al estado de una reserva existente: pendiente de pago, en validación o confirmada.
+     * Si se llegó desde el historial (?from=historial), el botón de regreso apunta a mis-tours.html.
+     *
+     * @param {Object} reserva - Reserva del usuario (usa status_original o status).
+     * @param {Object} tour - Tour de la reserva.
+     */
     renderizarModoHistorial(reserva, tour) {
         if (!reserva) return;
         const st = String(reserva.status_original || reserva.status || '').toLowerCase().trim();
@@ -725,6 +901,9 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Bloquea la reserva cuando el tour ya no tiene fechas vigentes: cupos en 0, botón deshabilitado y formulario oculto.
+     */
     deshabilitarReservaPorTourPasado() {
         const e = this.elements;
         if (e.availableSpots) {
@@ -744,6 +923,11 @@ export const TourDetalleView = {
         }
     },
 
+    /**
+     * Vuelve a la vista pública del tour: oculta las tarjetas de reserva, limpia el formulario y recalcula los cupos.
+     *
+     * @param {Object} tour - Tour mostrado, con sus fechas de salida.
+     */
     restablecerModoPublico(tour) {
         this.limpiarTimer();
         const e = this.elements;
@@ -792,6 +976,7 @@ export const TourDetalleView = {
             }
         }
 
+        // Recalcula los cupos: usa la fecha ya seleccionada o, si no hay, selecciona la próxima fecha futura.
         let cupos = 0;
         const hoyStr = obtenerFechaHoyLocal();
 
@@ -816,6 +1001,7 @@ export const TourDetalleView = {
 
         this.actualizarCupos(cupos);
 
+        // Si el tour tiene fechas pero ninguna es futura, se bloquea la reserva.
         const fechas = tour?.tour_dates || [];
         const tieneFechasFuturas = fechas.some(d => {
             const fechaStr = typeof d === 'string' ? d : d.departure_date;
@@ -827,4 +1013,5 @@ export const TourDetalleView = {
     }
 };
 
+// Se exporta también como exportación por defecto.
 export default TourDetalleView;

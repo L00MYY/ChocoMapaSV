@@ -1,3 +1,22 @@
+/**
+ * @file MisToursView.js
+ * Vista (patrón MVC) del historial de reservaciones del usuario (mis-tours.html).
+ *
+ * Responsabilidades:
+ *  - Mostrar los estados de la pantalla: cargando, error, sin reservaciones e historial.
+ *  - Clasificar las reservas en pestañas (Todos, Pendientes, Confirmados, Pasados) con contadores.
+ *  - Dibujar la tarjeta de cada reserva con su estado, fecha, cupos y código.
+ *
+ * Nota técnica: gran parte del HTML se arma con plantillas de texto asignadas a innerHTML,
+ * con datos que vienen del modelo (MisToursModel / Supabase).
+ */
+
+/**
+ * Indica si una fecha ya pasó, comparando con la fecha de hoy (hora local) como texto AAAA-MM-DD.
+ *
+ * @param {string} fechaStr - Fecha en formato AAAA-MM-DD (se ignora la parte de hora si viene con "T").
+ * @returns {boolean} true si la fecha es anterior a hoy; false si es hoy, futura o está vacía.
+ */
 function esFechaPasada(fechaStr) {
     if (!fechaStr) return false;
     const hoy = new Date();
@@ -9,12 +28,20 @@ function esFechaPasada(fechaStr) {
     return f < hoyStr;
 }
 
+/**
+ * Objeto de vista del historial de reservaciones.
+ */
 export const MisToursView = {
+    /** Reservas que se están mostrando (se guardan al renderizar el historial). */
     reservasActuales: [],
+    /** Pestaña activa: "todos", "pendientes", "confirmados" o "pasados". */
     filtroActual: 'todos',
+    /** Función que se ejecuta al abrir el detalle de un tour desde una tarjeta (la define el controlador). */
     onVerDetalleHandler: null,
 
+    /** Contenedor asignado manualmente (por ejemplo, en pruebas); tiene prioridad sobre el DOM. */
     _container: null,
+    /** Contenedor donde se dibuja la vista: #mis-tours-content o, si no existe, #mis-tours-container. */
     get container() {
         if (this._container) return this._container;
         if (typeof document === 'undefined') return null;
@@ -24,6 +51,9 @@ export const MisToursView = {
         this._container = val;
     },
 
+    /**
+     * Muestra el indicador de carga de las reservaciones.
+     */
     renderLoading() {
         if (!this.container) return;
         this.container.innerHTML = `
@@ -36,6 +66,12 @@ export const MisToursView = {
         `;
     },
 
+    /**
+     * Muestra el estado de error con un botón "Reintentar".
+     *
+     * @param {string} [mensaje] - Texto del error; si falta se usa un mensaje genérico.
+     * @param {function(): void} [onReintentar] - Se ejecuta al pulsar "Reintentar".
+     */
     renderError(mensaje, onReintentar) {
         if (!this.container) return;
         const msg = mensaje || 'No pudimos cargar tus reservaciones en este momento.';
@@ -65,6 +101,11 @@ export const MisToursView = {
         }
     },
 
+    /**
+     * Muestra el estado "No tienes reservaciones activas" con un enlace a tours.html.
+     *
+     * @param {string} [alerta] - Mensaje de advertencia opcional que se muestra arriba.
+     */
     renderEstadoVacio(alerta) {
         if (!this.container) return;
         const alertaBanner = alerta ? `
@@ -102,6 +143,14 @@ export const MisToursView = {
         `;
     },
 
+    /**
+     * Devuelve cómo se ve el estado de una reserva: clase CSS, estilo, icono y mensaje de ayuda (tooltip).
+     * Estados reconocidos: Confirmado, Pasado, Cancelado, Rechazado, En validación y Expirada; cualquier otro se trata como pendiente.
+     *
+     * @param {string} status - Estado ya traducido para mostrar al usuario.
+     * @param {string|null} [statusOriginal] - Estado tal como viene de la base de datos (por ejemplo "confirmada").
+     * @returns {{badgeClass: string, badgeStyle: string, iconSvg: string, tooltipText: (string|null)}} Datos para dibujar el distintivo de estado.
+     */
     obtenerDetallesStatus(status, statusOriginal = null) {
         const sLower = String(statusOriginal || status || '').trim().toLowerCase();
         const esConfirmado = status === 'Confirmado' || sLower === 'confirmada' || sLower === 'confirmado';
@@ -198,6 +247,14 @@ export const MisToursView = {
         };
     },
 
+    /**
+     * Clasifica una reserva en una categoría de pestaña. Se evalúa en este orden:
+     * "pasados" (estado Pasado o fecha ya vencida), "pendientes" (pago pendiente, en validación o por confirmar),
+     * "confirmados" (confirmada y con fecha futura) y "otros" para el resto (por ejemplo canceladas o rechazadas).
+     *
+     * @param {Object} r - Reserva con status, status_original y tour_date.
+     * @returns {"pasados"|"pendientes"|"confirmados"|"otros"} Categoría de la reserva.
+     */
     clasificarCategoria(r) {
         const esPasado = r.status === 'Pasado' || r.status_original === 'Pasado' || esFechaPasada(r.tour_date);
         if (esPasado) {
@@ -219,6 +276,13 @@ export const MisToursView = {
         return 'otros';
     },
 
+    /**
+     * Filtra las reservas según la pestaña seleccionada. La pestaña "todos" devuelve todas, incluidas las de categoría "otros".
+     *
+     * @param {Array<Object>} reservas - Lista completa de reservas.
+     * @param {string} filtro - "todos", "pendientes", "confirmados" o "pasados".
+     * @returns {Array<Object>} Reservas que corresponden al filtro; lista vacía si reservas no es un arreglo.
+     */
     filtrarReservas(reservas, filtro) {
         if (!Array.isArray(reservas)) return [];
         if (filtro === 'todos') return reservas;
@@ -234,6 +298,13 @@ export const MisToursView = {
         return reservas;
     },
 
+    /**
+     * Dibuja el historial: alerta opcional, pestañas con contadores y la grilla de reservas.
+     * Si no hay reservas, muestra el estado vacío.
+     *
+     * @param {Array<Object>} reservas - Reservas del usuario.
+     * @param {string} [alerta] - Mensaje de advertencia opcional que se muestra arriba.
+     */
     renderHistorial(reservas, alerta) {
         if (!this.container) return;
 
@@ -255,6 +326,7 @@ export const MisToursView = {
             </div>
         ` : '';
 
+        // Cantidad de reservas por pestaña (números de los contadores).
         const conteo = {
             todos: reservas.length,
             pendientes: reservas.filter(r => this.clasificarCategoria(r) === 'pendientes').length,
@@ -290,6 +362,12 @@ export const MisToursView = {
         this.bindTabs();
     },
 
+    /**
+     * Dibuja las tarjetas de las reservas de la pestaña indicada dentro de #mis-tours-grid.
+     * Cada tarjeta muestra imagen, estado, departamento, fecha de salida, cupos y código.
+     *
+     * @param {string} filtro - Pestaña a mostrar: "todos", "pendientes", "confirmados" o "pasados".
+     */
     renderGrid(filtro) {
         const grid = document.getElementById('mis-tours-grid');
         if (!grid) return;
@@ -312,6 +390,7 @@ export const MisToursView = {
             const departamento = tour.department || 'El Salvador';
             const codigo = reserva.reservation_code || '';
 
+            // Solo las reservas con pago pendiente muestran el botón "Subir comprobante" (lleva a pago-comprobante.html).
             const esPendientePago = reserva.status === 'Pendiente de pago' || String(reserva.status_original || '').toLowerCase() === 'pendiente_pago';
 
             const botonSubirComprobante = esPendientePago ? `
@@ -330,6 +409,7 @@ export const MisToursView = {
                 </div>
             ` : '';
 
+            // Si el estado tiene mensaje informativo, se agrega un tooltip accesible al distintivo.
             const tooltipAttrs = tooltipText
                 ? `class="status-badge ${badgeClass} status-badge--has-tooltip" style="${badgeStyle}" title="${tooltipText}" data-tooltip="${tooltipText}" tabindex="0"`
                 : `class="status-badge ${badgeClass}" style="${badgeStyle}"`;
@@ -417,6 +497,9 @@ export const MisToursView = {
         }
     },
 
+    /**
+     * Activa el cambio de pestañas: al pulsar una, actualiza el filtro, el estilo activo y vuelve a dibujar la grilla.
+     */
     bindTabs() {
         const containerTabs = document.getElementById('mis-tours-tabs');
         if (!containerTabs) return;
@@ -440,6 +523,12 @@ export const MisToursView = {
         });
     },
 
+    /**
+     * Asocia a cada tarjeta el evento para abrir el detalle del tour (clic, Enter o Espacio).
+     * Pulsar "Subir comprobante" no abre el detalle.
+     *
+     * @param {function(string, string): void} handler - Recibe el id del tour y el id de la reserva.
+     */
     bindVerDetalleTour(handler) {
         this.onVerDetalleHandler = handler;
         if (!this.container) return;
@@ -475,6 +564,9 @@ export const MisToursView = {
         });
     },
 
+    /**
+     * Vacía el contenedor de la vista.
+     */
     limpiar() {
         if (this.container) {
             this.container.innerHTML = '';
@@ -482,4 +574,5 @@ export const MisToursView = {
     }
 };
 
+// Se exporta también como exportación por defecto.
 export default MisToursView;

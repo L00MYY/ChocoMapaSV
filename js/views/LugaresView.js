@@ -1,8 +1,29 @@
+/**
+ * @file LugaresView.js
+ * Vista (patrón MVC) del catálogo de sitios turísticos (lugares-turisticos.html).
+ *
+ * Responsabilidades:
+ *  - Dibujar las tarjetas de lugares (imagen, categoría, calificación, descripción).
+ *  - Mostrar los estados de la pantalla: cargando, error, sin resultados y listado.
+ *  - Dibujar y actualizar los filtros por categoría y por calificación mínima.
+ *
+ * La vista no consulta datos: recibe la información del controlador
+ * (LugaresController) y le devuelve las acciones del usuario mediante callbacks.
+ */
 import { coincideCategoria, generarSlug } from '../utils/textUtils.js';
 import { calcularPromedioRating } from '../models/CalificacionesModel.js';
 
+/** Imagen de respaldo que se usa cuando el lugar no tiene foto o la URL falla al cargar. */
 const IMAGEN_FALLBACK = 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80';
 
+/**
+ * Crea la tarjeta (artículo HTML) de un sitio turístico.
+ * La tarjeta es accesible por teclado: se activa con clic, Enter o Espacio.
+ *
+ * @param {Object} lugar - Datos del lugar: id, name, description, image_url, category, color y ratings.
+ * @param {function(string|number): void} onSelectLugar - Se ejecuta con el id del lugar cuando el usuario lo selecciona.
+ * @returns {HTMLElement} Elemento <article> listo para insertarse en la grilla.
+ */
 function crearTarjetaLugar(lugar, onSelectLugar) {
     const card = document.createElement('article');
     card.className = 'place-card';
@@ -19,6 +40,7 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
         }
     });
 
+    // Zona de imagen: foto del lugar y etiqueta de categoría (con su color si existe).
     const mediaContainer = document.createElement('div');
     mediaContainer.className = 'place-card-media';
 
@@ -52,6 +74,7 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
         mediaContainer.appendChild(badge);
     }
 
+    // Cuerpo de la tarjeta: título, calificación y descripción.
     const bodyContainer = document.createElement('div');
     bodyContainer.className = 'place-card-body';
 
@@ -71,6 +94,8 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
     starsGraphic.className = 'place-card-stars';
     starsGraphic.setAttribute('role', 'img');
 
+    // Dibuja 5 estrellas. Una estrella se llena si i <= parte entera del promedio;
+    // la siguiente también se llena cuando la parte decimal del promedio es >= 0.4.
     for (let i = 1; i <= 5; i++) {
         const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         star.setAttribute('viewBox', '0 0 24 24');
@@ -107,6 +132,7 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
     bodyContainer.appendChild(ratingStrip);
     bodyContainer.appendChild(description);
 
+    // Pie de la tarjeta: texto "Ver detalles" y flecha (SVG).
     const footerContainer = document.createElement('div');
     footerContainer.className = 'place-card-footer';
 
@@ -145,7 +171,12 @@ function crearTarjetaLugar(lugar, onSelectLugar) {
     return card;
 }
 
+/**
+ * Objeto de vista del catálogo de lugares.
+ * Agrupa las referencias al DOM y los métodos que modifican la pantalla.
+ */
 export const LugaresView = {
+    /** Referencias a los nodos del DOM de lugares-turisticos.html (se obtienen al cargar el módulo). */
     elements: {
         stateLoading: document.getElementById('state-loading'),
         stateError: document.getElementById('state-error'),
@@ -161,6 +192,14 @@ export const LugaresView = {
         btnResetFilters: document.getElementById('btn-reset-filters')
     },
 
+    /**
+     * Dibuja la grilla de lugares y actualiza el contador de resultados.
+     * Si la lista está vacía muestra el estado "sin resultados".
+     *
+     * @param {Array<Object>} lista - Lugares a mostrar (ya filtrados).
+     * @param {number} totalLugares - Total de lugares sin filtrar; se usa en el texto del contador.
+     * @param {function(string|number): void} onSelectLugar - Callback al seleccionar una tarjeta.
+     */
     renderizarGridLugares(lista, totalLugares, onSelectLugar) {
         const { placesGrid, stateLoading, stateError, stateEmpty, resultsCounter } = this.elements;
         if (!placesGrid) return;
@@ -193,6 +232,9 @@ export const LugaresView = {
         placesGrid.appendChild(fragment);
     },
 
+    /**
+     * Muestra el indicador de carga y oculta el resto de estados.
+     */
     mostrarCargando() {
         const { stateLoading, stateError, stateEmpty, placesGrid, resultsCounter } = this.elements;
         stateLoading?.classList.remove('hidden');
@@ -202,6 +244,11 @@ export const LugaresView = {
         if (resultsCounter) resultsCounter.textContent = 'Cargando sitios turísticos oficiales...';
     },
 
+    /**
+     * Muestra el estado de error y, si se indica, su mensaje.
+     *
+     * @param {string} [mensaje] - Texto explicativo del error para el usuario.
+     */
     mostrarError(mensaje) {
         const { stateLoading, stateError, stateErrorMessage, stateEmpty, placesGrid, resultsCounter } = this.elements;
         stateLoading?.classList.add('hidden');
@@ -212,6 +259,11 @@ export const LugaresView = {
         if (resultsCounter) resultsCounter.textContent = 'Error al consultar datos';
     },
 
+    /**
+     * Muestra el estado "sin resultados" y actualiza el contador.
+     *
+     * @param {number} [totalLugares=0] - Total de lugares existentes (0 = no hay datos; mayor a 0 = los filtros no coinciden).
+     */
     mostrarVacio(totalLugares = 0) {
         const { stateLoading, stateError, stateEmpty, placesGrid, resultsCounter } = this.elements;
         stateLoading?.classList.add('hidden');
@@ -225,15 +277,25 @@ export const LugaresView = {
         }
     },
 
+    /**
+     * Construye las píldoras de filtro por categoría, conservando el botón "Todas".
+     * Cada categoría se dibuja como botón de radio con su color y su slug.
+     *
+     * @param {Array<{name: string, slug: string, color: string}>|Map<string, string>} categorias - Categorías disponibles. Si es un Map, sus claves son los nombres y sus valores los colores.
+     * @param {string} categoriaActiva - Slug de la categoría seleccionada ("todos" si no hay filtro).
+     * @param {function(string, HTMLElement, string): void} onSelectCategoria - Recibe slug, botón pulsado y nombre de la categoría.
+     */
     inicializarFiltrosCategorias(categorias, categoriaActiva, onSelectCategoria) {
         const { categoryPillsContainer } = this.elements;
         if (!categoryPillsContainer) return;
 
+        // Elimina las píldoras anteriores; solo se conserva la de "Todas".
         categoryPillsContainer.querySelectorAll('.pill-btn').forEach(button => {
             const categoria = button.dataset.category || button.dataset.categoria;
             if (categoria !== 'todos' && categoria !== 'todas') button.remove();
         });
 
+        // Configura el botón "Todas": texto, estado activo y manejador de clic.
         const btnTodos = categoryPillsContainer.querySelector('[data-category="todos"], [data-categoria="todos"]');
         const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
 
@@ -262,6 +324,7 @@ export const LugaresView = {
 
         let hayCoincidenciaActiva = false;
 
+        // Crea una píldora por cada categoría y marca como activa la que coincide con el filtro.
         listaCategorias.forEach(cat => {
             const nombre = cat.name || '';
             const slug = cat.slug || generarSlug(nombre);
@@ -306,6 +369,12 @@ export const LugaresView = {
         }
     },
 
+    /**
+     * Marca visualmente (clase "active" y aria-checked) la píldora de categoría activa.
+     *
+     * @param {string} categoriaActiva - Slug de la categoría seleccionada ("todos" para ninguna).
+     * @param {HTMLElement|null} [btnSeleccionado] - Botón pulsado; si se indica, tiene prioridad sobre la comparación por slug.
+     */
     actualizarCategoriaActiva(categoriaActiva, btnSeleccionado = null) {
         const { categoryPillsContainer } = this.elements;
         const esTodos = !categoriaActiva || categoriaActiva === 'todos' || categoriaActiva === 'todas';
@@ -329,6 +398,11 @@ export const LugaresView = {
         });
     },
 
+    /**
+     * Marca como activa la píldora del filtro de calificación mínima.
+     *
+     * @param {number|string} minRatingActivo - Calificación mínima seleccionada (0 = sin filtro).
+     */
     actualizarRatingActivo(minRatingActivo) {
         const { ratingPillsContainer } = this.elements;
         const valor = String(minRatingActivo || 0);
